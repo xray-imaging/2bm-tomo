@@ -496,19 +496,6 @@ def add_extra_hdf5(global_PVs, variableDict, theta_arr, interf_arrs):
 		traceback.print_exc(file=sys.stdout)
 
 
-def move_dataset_to_run_dir(global_PVs, variableDict):
-	print ('move_dataset_to_run_dir()')
-	try:
-		txm_ui = imp.load_source('txm_ui', '/local/usr32idc/DMagic/doc/demo/txm_ui.py')
-		run_dir = txm_ui.directory()
-		full_path = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
-		base_name = os.path.basename(full_path)
-		run_full_path = run_dir + '/' + base_name
-		shutil.move(full_path, run_full_path)
-	except:
-		print ('error moving dataset to run directory')
-
-
 def move_energy(global_PVs, variableDict): # TO BE TESTED!!!
      # Extract variables from variableDict:
 	constant_mag = int(variableDict['constant_mag'])

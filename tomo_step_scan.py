@@ -241,7 +241,6 @@ def full_tomo_scan(variableDict, detector_filename):
 	#	global_PVs['SetSoftGlueForStep'].put('0')
 	add_extra_hdf5(global_PVs, variableDict, theta, interf_arrs)	
 	reset_CCD(global_PVs, variableDict)
-	#move_dataset_to_run_dir()
 
     
 def main():

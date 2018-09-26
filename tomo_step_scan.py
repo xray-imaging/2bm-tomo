@@ -1,7 +1,9 @@
 '''
-	TomoScan for Sector 32 ID C
+	TomoScan for Sector 2-BM
 
 '''
+from __future__ import print_function
+
 import sys
 import json
 import time
@@ -17,8 +19,6 @@ from tomo_scan_lib import *
 
 
 global variableDict
-
-
 
 variableDict = {'PreDarkImages': 2,
 		'PreWhiteImages': 5,
@@ -55,12 +55,14 @@ variableDict = {'PreDarkImages': 2,
 
 global_PVs = {}
 
+
 def getVariableDict():
 	global variableDict
 	return variableDict
 
-# Generate a theta vector for interlaced scan using the code (and medm winodw) of Tim Money
+
 def gen_interlaced_theta():
+    # Generate a theta vector for interlaced scan using the code (and medm winodw) of Tim Money
 	#set num cycles to 1 so we only do 1 scan
 	global_PVs['Interlaced_Num_Cycles'].put(1, wait=True)
 	global_PVs['Interlaced_Images_Per_Cycle'].put(int(variableDict['Projections']), wait=True)
@@ -79,6 +81,7 @@ def gen_interlaced_theta():
 
 	return theta_arr
 
+
 def update_theta_for_more_proj(orig_theta):
 	new_theta = []
 	for val in orig_theta:
@@ -86,8 +89,9 @@ def update_theta_for_more_proj(orig_theta):
 			new_theta += [val]
 	return new_theta
 
+
 def tomo_scan():
-	print 'tomo_scan()'
+	print ('tomo_scan()')
 	theta = []
 	interf_arr = []
 	if variableDict.has_key('UseInterferometer') and int(variableDict['UseInterferometer']) > 0:
@@ -109,12 +113,12 @@ def tomo_scan():
 	for sample_rot in theta:
 	#for i in range(int(variableDict['Projections'])):
 	#while sample_rot <= end_pos:
-		print 'Sample Rot:', sample_rot
+		print ('Sample Rot:', sample_rot)
 		global_PVs['Motor_SampleRot'].put(sample_rot, wait=True)
 		if variableDict.has_key('UseInterferometer') and int(variableDict['UseInterferometer']) > 0:
 			global_PVs['Interferometer_Acquire'].put(1)
 			interf_arr += [global_PVs['Interferometer_Val'].get()]
-		print 'Stabilize Sleep (ms)', variableDict['StabilizeSleep_ms']
+		print ('Stabilize Sleep (ms)', variableDict['StabilizeSleep_ms'])
 		time.sleep(float(variableDict['StabilizeSleep_ms']) / 1000.0)
 		# save theta to array
 		#theta += [sample_rot]
@@ -138,7 +142,7 @@ def tomo_scan():
 			global_PVs['Cam1_SoftwareTrigger'].put(1)
 		# if external shutter
 		#if int(variableDict['ExternalShutter']) == 1:
-		#	print 'External trigger'
+		#	print ('External trigger')
 		#	#time.sleep(float(variableDict['rest_time']))
 		#	global_PVs['ExternalShutter_Trigger'].put(1, wait=True)
 		# wait for acquire to finish
@@ -155,8 +159,9 @@ def tomo_scan():
 		theta = update_theta_for_more_proj(theta)
 	return theta, interf_arr
 
+
 def mirror_fly_scan(rev=False):
-	print 'mirror_fly_scan()'
+	print ('mirror_fly_scan()')
 	interf_arr = []
 	global_PVs['Interferometer_Reset'].put(1, wait=True)
 	time.sleep(2.0)
@@ -173,10 +178,10 @@ def mirror_fly_scan(rev=False):
 	global_PVs['Fly_SlewSpeed'].put(slew_speed)
 	# num_images = ((float(variableDict['SampleEnd_Rot']) - float(variableDict['SampleStart_Rot'])) / (delta + 1.0))
 	#num_images = int(variableDict['Projections'])
-	print 'Taxi'
+	print ('Taxi')
 	global_PVs['Fly_Taxi'].put(1, wait=True)
 	wait_pv(global_PVs['Fly_Taxi'], 0)
-	print 'Fly'
+	print ('Fly')
 	global_PVs['Fly_Run'].put(1, wait=True)
 	wait_pv(global_PVs['Fly_Run'], 0)
 	global_PVs['Interferometer_Proc_Arr'].put(1)
@@ -188,7 +193,7 @@ def mirror_fly_scan(rev=False):
 
 
 def full_tomo_scan(variableDict, detector_filename):
-	print 'start_scan()'
+	print ('start_scan()')
 	init_general_PVs(global_PVs, variableDict)
 	if variableDict.has_key('StopTheScan'):
 		stop_scan(global_PVs, variableDict)
@@ -205,10 +210,10 @@ def full_tomo_scan(variableDict, detector_filename):
 	setup_writer(global_PVs, variableDict, detector_filename)
 	if int(variableDict['PreDarkImages']) > 0:
 		close_shutters(global_PVs, variableDict)
-		print 'Capturing Pre Dark Field'
+		print ('Capturing Pre Dark Field')
 		capture_multiple_projections(global_PVs, variableDict, int(variableDict['PreDarkImages']), FrameTypeDark)
 	if int(variableDict['PreWhiteImages']) > 0:
-		print 'Capturing Pre White Field'
+		print ('Capturing Pre White Field')
 		global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime_Flat']) )
 		open_shutters(global_PVs, variableDict)
 		move_sample_out(global_PVs, variableDict)
@@ -222,13 +227,13 @@ def full_tomo_scan(variableDict, detector_filename):
 	theta, interf_step = tomo_scan()
 #	interf_arrs += [interf_step]
 	if int(variableDict['PostWhiteImages']) > 0:
-		print 'Capturing Post White Field'
+		print ('Capturing Post White Field')
   		global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime_Flat']) )
 		move_sample_out(global_PVs, variableDict)
 		capture_multiple_projections(global_PVs, variableDict, int(variableDict['PostWhiteImages']), FrameTypeWhite)
 		global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
 	if int(variableDict['PostDarkImages']) > 0:
-		print 'Capturing Post Dark Field'
+		print ('Capturing Post Dark Field')
 		close_shutters(global_PVs, variableDict)
 		capture_multiple_projections(global_PVs, variableDict, int(variableDict['PostDarkImages']), FrameTypeDark)
 	close_shutters(global_PVs, variableDict)
@@ -244,6 +249,7 @@ def main():
 	init_general_PVs(global_PVs, variableDict)
 	FileName = global_PVs['HDF1_FileName'].get(as_string=True)
 	full_tomo_scan(variableDict, FileName)
+
 
 if __name__ == '__main__':
 	main()

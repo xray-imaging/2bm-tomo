@@ -1,7 +1,8 @@
 '''
-	Tomo Scan Lib for Sector 32 ID C
+	Tomo Scan Lib for Sector 2-BM
     
 '''
+from __future__ import print_function
 
 import sys
 import json
@@ -46,15 +47,15 @@ def update_variable_dict(variableDict):
 	if len(sys.argv) > 1:
 		strArgv = sys.argv[1]
 		argDic = json.loads(strArgv)
-	print 'orig variable dict', variableDict
+	print ('orig variable dict', variableDict)
 	for k,v in argDic.iteritems():
 		variableDict[k] = v
-	print 'new variable dict', variableDict
+	print ('new variable dict', variableDict)
 
 
 #wait on a pv to be a value until max_timeout (default forever)
 def wait_pv(pv, wait_val, max_timeout_sec=-1):
-	print 'wait_pv(', pv.pvname, wait_val, max_timeout_sec, ')'
+	print ('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ')')
 	#delay for pv to change
 	time.sleep(.01)
 	startTime = time.time()
@@ -68,7 +69,7 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
 				curTime = time.time()
 				diffTime = curTime - startTime
 				if diffTime >= max_timeout_sec:
-					#print 'wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False'
+					#print ('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
 					return False
 			time.sleep(.01)
 		else:
@@ -76,7 +77,7 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
 
 
 def init_general_PVs(global_PVs, variableDict):
-	print 'init_PVs()'
+	print ('init_PVs()')
 	#init detector pv's
 	global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')
 	global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
@@ -230,7 +231,7 @@ def init_general_PVs(global_PVs, variableDict):
 
 
 def stop_scan(global_PVs, variableDict):
-	print 'Stop scan called!'
+	print ('Stop scan called!')
 	global_PVs['Motor_SampleRot_Stop'].put(1)
 	global_PVs['TIFF1_AutoSave'].put('No')
 	global_PVs['TIFF1_Capture'].put(0)
@@ -277,7 +278,7 @@ def setup_detector(global_PVs, variableDict):
 	print(' ')
 	print('  *** setup_detector')
 	if variableDict.has_key('Display_live'):
-		print '** disable live display'
+		print ('** disable live display')
 		global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
 	global_PVs['Cam1_ImageMode'].put('Multiple')
 	global_PVs['Cam1_ArrayCallbacks'].put('Enable')
@@ -310,7 +311,7 @@ def setup_detector(global_PVs, variableDict):
 
 
 def setup_writer(global_PVs, variableDict, filename=None):
-	print 'setup_writer()'
+	print ('setup_writer()')
 	if variableDict.has_key('Recursive_Filter_Enabled'):
 		if variableDict['Recursive_Filter_Enabled'] == 1:
 #			global_PVs['Proc1_Callbacks'].put('Disable')
@@ -383,7 +384,7 @@ def setup_tiff_writer(global_PVs, variableDict, filename=None):
 	print('  *** setup_writer: Done!')
 
 def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):
-	print 'capture_multiple_projections(', num_proj, ')'
+	print('capture_multiple_projections(', num_proj, ')')
 	wait_time_sec = int(variableDict['ExposureTime']) + 5
 	global_PVs['Cam1_ImageMode'].put('Multiple')
 	global_PVs['Cam1_FrameType'].put(frame_type)
@@ -411,11 +412,11 @@ def move_sample_in(global_PVs, variableDict):
 #	global_PVs['Motor_SampleX'].put(float(variableDict['SampleXIn']), wait=True)
 	global_PVs['Motor_Sample_Top_X'].put(float(variableDict['SampleXIn']), wait=True)
 	if False == wait_pv(global_PVs['Motor_Sample_Top_X_RBV'], float(variableDict['SampleXIn']), 60):
-		print 'Motor_Sample_Top_X did not move in properly'
-		print global_PVs['Motor_Sample_Top_X_STATUS'].get()
-		print global_PVs['Motor_Sample_Top_X_MIP'].get()
-		print global_PVs['Motor_Sample_Top_X_RETRY'].get()
-		print '\r\n\r\n'
+		print ('Motor_Sample_Top_X did not move in properly')
+		print (global_PVs['Motor_Sample_Top_X_STATUS'].get())
+		print (global_PVs['Motor_Sample_Top_X_MIP'].get())
+		print (global_PVs['Motor_Sample_Top_X_RETRY'].get())
+		print ('\r\n\r\n')
 #	global_PVs['Motor_Sample_Top_Z'].put(float(variableDict['SampleZIn']), wait=True)
 #	global_PVs['Motor_SampleY'].put(float(variableDict['SampleYIn']), wait=True)
 #	global_PVs['Motor_SampleZ'].put(float(variableDict['SampleZIn']), wait=True)
@@ -424,17 +425,17 @@ def move_sample_in(global_PVs, variableDict):
 
 
 def move_sample_out(global_PVs, variableDict):
-	print 'move_sample_out()'
+	print ('move_sample_out()')
 #	global_PVs['Motor_SampleRot'].put(float(variableDict['SampleRotOut']), wait=True)
 #	global_PVs['Motor_X_Tile'].put(float(variableDict['SampleXOut']), wait=True)
 #	global_PVs['Motor_SampleX'].put(float(variableDict['SampleXOut']), wait=True)
     	global_PVs['Motor_Sample_Top_X'].put(float(variableDict['SampleXOut']), wait=True)
     	if False == wait_pv(global_PVs['Motor_Sample_Top_X_RBV'], float(variableDict['SampleXOut']), 60):
-		print 'Motor_Sample_Top_X did not move out properly'
-		print global_PVs['Motor_Sample_Top_X_STATUS'].get()
-		print global_PVs['Motor_Sample_Top_X_MIP'].get()
-		print global_PVs['Motor_Sample_Top_X_RETRY'].get()
-		print '\r\n\r\n'
+		print ('Motor_Sample_Top_X did not move out properly')
+		print (global_PVs['Motor_Sample_Top_X_STATUS'].get())
+		print (global_PVs['Motor_Sample_Top_X_MIP'].get())
+		print (global_PVs['Motor_Sample_Top_X_RETRY'].get())
+		print ('\r\n\r\n')
 #    	global_PVs['Motor_Sample_Top_Z'].put(float(variableDict['SampleZOut']), wait=True)
 #	global_PVs['Motor_SampleY'].put(float(variableDict['SampleYOut']), wait=True)
 #	global_PVs['Motor_SampleZ'].put(float(variableDict['SampleZOut']), wait=True)
@@ -454,7 +455,7 @@ def open_shutters(global_PVs, variableDict):
 
 
 def close_shutters(global_PVs, variableDict):
-	print 'close_shutters()'
+	print ('close_shutters()')
 	if UseShutterA > 0:
 		global_PVs['ShutterA_Close'].put(1, wait=True)
 		wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
@@ -464,7 +465,7 @@ def close_shutters(global_PVs, variableDict):
 
 
 def add_theta(global_PVs, variableDict, theta_arr):
-	print 'add_theta()'
+	print ('add_theta()')
 	fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
 	try:
 		hdf_f = h5py.File(fullname, mode='a')
@@ -477,11 +478,11 @@ def add_theta(global_PVs, variableDict, theta_arr):
 
 
 def add_extra_hdf5(global_PVs, variableDict, theta_arr, interf_arrs):
-	print 'add_extra_hdf5()'
+	print ('add_extra_hdf5()')
 	wait_pv(global_PVs['HDF1_Capture_RBV'], 0, 10.0)
 	fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
 	try:
-		print 'Opening hdf5 file ',fullname
+		print ('Opening hdf5 file ',fullname)
 		hdf_f = h5py.File(fullname, mode='a')
 		theta_ds = hdf_f.create_dataset('/exchange/theta', (len(theta_arr),))
 		theta_ds[:] = theta_arr[:]
@@ -496,7 +497,7 @@ def add_extra_hdf5(global_PVs, variableDict, theta_arr, interf_arrs):
 
 
 def move_dataset_to_run_dir(global_PVs, variableDict):
-	print 'move_dataset_to_run_dir()'
+	print ('move_dataset_to_run_dir()')
 	try:
 		txm_ui = imp.load_source('txm_ui', '/local/usr32idc/DMagic/doc/demo/txm_ui.py')
 		run_dir = txm_ui.directory()
@@ -505,7 +506,7 @@ def move_dataset_to_run_dir(global_PVs, variableDict):
 		run_full_path = run_dir + '/' + base_name
 		shutil.move(full_path, run_full_path)
 	except:
-		print 'error moving dataset to run directory'
+		print ('error moving dataset to run directory')
 
 
 def move_energy(global_PVs, variableDict): # TO BE TESTED!!!
@@ -516,13 +517,13 @@ def move_energy(global_PVs, variableDict): # TO BE TESTED!!!
 	Offset = float(variableDict['Offset'])
 	drn = float(variableDict['drn'])
     
-	print 'move to a new energy:%3.3f' % new_Energy
+	print ('move to a new energy:%3.3f' % new_Energy)
 	energy_init = float(global_PVs['DCMputEnergy'].get())
 #	energy_init = global_PVs['DCMputEnergy'].get() # energy before changin
 	landa_init = 1240.0 / (energy_init * 1000.0)
-	print 'landa_init: %3.3f' % landa_init
+	print ('landa_init: %3.3f' % landa_init)
 	ZP_focal = ZP_diameter * drn / (1000.0 * landa_init)
-        print 'ZP_focal: %3.3f' % ZP_focal
+        print ('ZP_focal: %3.3f' % ZP_focal)
 	curr_CCD_location = float(global_PVs['CCD_Motor'].get())
 	D_init = (curr_CCD_location + math.sqrt(curr_CCD_location * curr_CCD_location - 4.0 * curr_CCD_location * ZP_focal) ) / 2.0
 	new_landa = 1240.0 / (new_Energy * 1000.0)
@@ -530,15 +531,15 @@ def move_energy(global_PVs, variableDict): # TO BE TESTED!!!
 	
 	if constant_mag: # CCD will move to maintain magnification during energy change
         	Mag = (D_init - ZP_focal) / ZP_focal
-        	print 'mag', Mag
+        	print ('mag', Mag)
         	global_PVs['DCMmvt'].put(1)
         
         	dist_ZP_ccd = Mag * ZP_focal + ZP_focal
         	ZP_WD = dist_ZP_ccd * ZP_focal / (dist_ZP_ccd - ZP_focal)
         	CCD_location = ZP_WD + dist_ZP_ccd
-        	print 'move ccd ', CCD_location
+        	print ('move ccd ', CCD_location)
         	global_PVs['CCD_Motor'].put(CCD_location, wait=True)
-        	print 'move zp ', ZP_WD
+        	print ('move zp ', ZP_WD)
 #        	global_PVs['zone_plate_z'].put(ZP_WD, wait=True)
         	global_PVs['zone_plate_2_z'].put(ZP_WD, wait=True)
 
@@ -546,7 +547,7 @@ def move_energy(global_PVs, variableDict): # TO BE TESTED!!!
         	
         	D_new = (curr_CCD_location + math.sqrt(curr_CCD_location * curr_CCD_location - 4.0 * curr_CCD_location * ZP_focal) ) / 2.0
         	ZP_WD = D_new * ZP_focal / (D_new - ZP_focal)
-        	print 'move zp ', ZP_WD
+        	print ('move zp ', ZP_WD)
 #        	global_PVs['zone_plate_z'].put(ZP_WD, wait=True)
         	global_PVs['zone_plate_2_z'].put(ZP_WD, wait=True)
 

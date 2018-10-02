@@ -18,23 +18,23 @@ from tomo_scan_lib import *
 
 global variableDict
 
-variableDict = {'PreDarkImages': 2,
-		'PreWhiteImages': 5,
-		'Projections': 50,
-		'PostDarkImages': 2,
-		'PostWhiteImages': 5,
-		'SampleXOut': 0.1,
+variableDict = {'PreDarkImages': 10,
+		'PreWhiteImages': 20,
+		'Projections': 1500,
+		'PostDarkImages': 10,
+		'PostWhiteImages': 20,
+		'SampleXOut': 2,
 		'SampleYOut': 0.0,
 		'SampleZOut': 0.0,
 		'SampleXIn': 0.0,
 		'SampleYIn': 0.0,
 		'SampleZIn': 0.0,
 		'SampleStartPos': 0.0,
-		'SampleEndPos': 50.0,
+		'SampleEndPos': 180.0,
 		'StartSleep_min': 0,
 		'StabilizeSleep_ms': 0,
-		'ExposureTime': 0.5,
-		'ExposureTime_flat': 0.5,
+		'ExposureTime': 0.1,
+		'ExposureTime_flat': 0.1,
 		'ShutterOpenDelay': 0.00,
 		'IOC_Prefix': '2bmbPG3:',
 		'ExternalShutter': 0,
@@ -178,7 +178,7 @@ def main():
 	FileName = global_PVs['HDF1_FileName'].get(as_string=True)
 	global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
 	start_scan(variableDict, FileName)
-	print (time.time() - tic)/60)
+	print((time.time() - tic)/60)
 
 
 if __name__ == '__main__':

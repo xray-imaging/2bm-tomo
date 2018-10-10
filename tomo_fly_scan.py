@@ -99,7 +99,7 @@ def fly_scan(variableDict):
 #    print ('Taxi')
 #    global_PVs['Fly_Taxi'].put(1, wait=True)
 #    wait_pv(global_PVs['Fly_Taxi'], 0)
-    print ('Fly')
+    print ('Fly !!!!!!!!!')
     global_PVs['Fly_Run'].put(1, wait=True)
     wait_pv(global_PVs['Fly_Run'], 0)
     # wait for acquire to finish
@@ -107,7 +107,7 @@ def fly_scan(variableDict):
     if False == wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, FlyScanTimeout):
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     # set trigger move to internal for post dark and white
-    #global_PVs['Cam1_TriggerMode'].put('Internal')
+    global_PVs['Cam1_TriggerMode'].put('Internal')
     global_PVs['Proc_Theta'].put(1)
     #theta_cnt = global_PVs['Theta_Cnt'].get()
     theta = global_PVs['Theta_Array'].get(count=int(variableDict['Projections']))
@@ -135,6 +135,7 @@ def start_scan(variableDict, detector_filename):
     setup_writer(global_PVs, variableDict, detector_filename)
     if int(variableDict['PreDarkImages']) > 0:
         close_shutters(global_PVs, variableDict)
+        time.sleep(2)
         print ('Capturing Pre Dark Field')
         capture_multiple_projections(global_PVs, variableDict, int(variableDict['PreDarkImages']), FrameTypeDark)
     if int(variableDict['PreWhiteImages']) > 0:

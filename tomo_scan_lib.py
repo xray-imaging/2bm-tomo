@@ -16,10 +16,10 @@ import traceback
 import math
 import signal
 
-ShutterA_Open_Value = 0
-ShutterA_Close_Value = 1
-ShutterB_Open_Value = 0
-ShutterB_Close_Value = 1
+ShutterA_Open_Value = 1
+ShutterA_Close_Value = 0
+ShutterB_Open_Value = 1
+ShutterB_Close_Value = 0
 FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
@@ -29,16 +29,17 @@ UseShutterA = 0
 UseShutterB = 1
 TOMO = False # True = station A in use; False = station B in use
 EPSILON = 0.1
+'''
+TESTING_MODE = False
 
-TESTING_MODE = 1
-if TESTING_MODE:
+if TESTING_MODE == True:
     UseShutterA = 0
     UseShutterB = 0
-
+'''
 PG_Trigger_External_Trigger = 1 # Important for the Point Grey (continuous mode as clock issues)
 Recursive_Filter_Type = 'RecursiveAve'
 
-if UseShutterA == 0 & UseShutterB == 0:
+if UseShutterA == 0 and UseShutterB == 0:
     print('### WARNING: shutters are deactivted during the scans !!!!')
 
 
@@ -163,10 +164,10 @@ def init_general_PVs(global_PVs, variableDict):
     #shutter pv's
     global_PVs['ShutterA_Open'] = PV('2bma:A_shutter:open.VAL')
     global_PVs['ShutterA_Close'] = PV('2bma:A_shutter:close.VAL')
-#    global_PVs['ShutterA_Move_Status'] = PV('PB:32ID:STA_A_FES_CLSD_PL')
+    global_PVs['ShutterA_Move_Status'] = PV('PA:02BM:STA_A_FES_OPEN_PL')
     global_PVs['ShutterB_Open'] = PV('2bma:B_shutter:open.VAL')
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
-#    global_PVs['ShutterB_Move_Status'] = PV('PB:32ID:STA_B_SBS_CLSD_PL')
+    global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
     #fly macro
     global_PVs['FlyTriggerSelect'] = PV('2bmb:flyTriggerSelect')
@@ -384,24 +385,28 @@ def setup_tiff_writer(global_PVs, variableDict, filename=None):
     print('  *** setup_writer: Done!')
 
 def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):
-    print('capture_multiple_projections(', num_proj, ')')
+    print('capture_multiple_projections(', num_proj, frame_type, ')')
     wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(frame_type)
     if PG_Trigger_External_Trigger == 1:
+        print ('Using external trigger')
         #set external trigger mode
-        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
+        global_PVs['Cam1_TriggerMode'].put('Overlapped')
         global_PVs['Cam1_NumImages'].put(1)
         for i in range(int(num_proj)):
             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+            time.sleep(0.1)
             wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            global_PVs['Cam1_SoftwareTrigger'].put(1)
+            time.sleep(0.1)
+            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+            time.sleep(0.1)
             wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-
+            time.sleep(0.1)
     else:
-        global_PVs['Cam1_TriggerMode'].put('Internal')
-        global_PVs['Cam1_NumImages'].put(int(num_proj))
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True)
+        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)
+        global_PVs['Cam1_NumImages'].put(int(num_proj), wait=True)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
 
 

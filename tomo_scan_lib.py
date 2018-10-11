@@ -82,66 +82,75 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
 
 
 def init_general_PVs(global_PVs, variableDict):
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'): 
     #init detector pv's
-    global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')
-    global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
-    global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
-    global_PVs['Cam1_FrameRate_on_off'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
-    global_PVs['Cam1_FrameRate_val'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateValAbs')
-    global_PVs['Cam1_TriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerMode')
-    global_PVs['Cam1_SoftwareTrigger'] = PV(variableDict['IOC_Prefix'] + 'cam1:SoftwareTrigger')
-    global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
-    global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
-    global_PVs['Cam1_FrameType'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType')
-    global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')
-    global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')
-    global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
+        global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')
+        global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
+        global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
+        global_PVs['Cam1_FrameRate_on_off'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
+        global_PVs['Cam1_FrameRate_val'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateValAbs')
+        global_PVs['Cam1_TriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerMode')
+        global_PVs['Cam1_SoftwareTrigger'] = PV(variableDict['IOC_Prefix'] + 'cam1:SoftwareTrigger')
+        global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
+        global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
+        global_PVs['Cam1_FrameType'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType')
+        global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')
+        global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')
+        global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
-    #hdf5 writer pv's
-    global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
-    global_PVs['HDF1_DeleteDriverFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:DeleteDriverFile')
-    global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')
-    global_PVs['HDF1_BlockingCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:BlockingCallbacks')
-    global_PVs['HDF1_FileWriteMode'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileWriteMode')
-    global_PVs['HDF1_NumCapture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture')
-    global_PVs['HDF1_Capture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture')
-    global_PVs['HDF1_Capture_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture_RBV')
-    global_PVs['HDF1_FileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileName')
-    global_PVs['HDF1_FullFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FullFileName_RBV')
-    global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')
-    global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
-    global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
+        #hdf5 writer pv's
+        global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
+        global_PVs['HDF1_DeleteDriverFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:DeleteDriverFile')
+        global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')
+        global_PVs['HDF1_BlockingCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:BlockingCallbacks')
+        global_PVs['HDF1_FileWriteMode'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileWriteMode')
+        global_PVs['HDF1_NumCapture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture')
+        global_PVs['HDF1_Capture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture')
+        global_PVs['HDF1_Capture_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture_RBV')
+        global_PVs['HDF1_FileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileName')
+        global_PVs['HDF1_FullFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FullFileName_RBV')
+        global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')
+        global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
+        global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
 
+        #init proc1 pv's
+        global_PVs['Image1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
+        global_PVs['Proc1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableCallbacks')
+        global_PVs['Proc1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'Proc1:NDArrayPort')
+        global_PVs['Proc1_Filter_Enable'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableFilter')
+        global_PVs['Proc1_Filter_Type'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterType')
+        global_PVs['Proc1_Num_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:NumFilter')
+        global_PVs['Proc1_Reset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:ResetFilter')
+        global_PVs['Proc1_AutoReset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:AutoResetFilter')
+        global_PVs['Proc1_Filter_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterCallbacks')
+
+    else:
+        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        return
+        
     if STATION == '2-BM-A': 
             print('*** Running in station A:')
             # Sample stack motor pv's:
             global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
             global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
-            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # 
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') #
+            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL')  
+            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') # Aerotech
             global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
-            global_PVs['Motor_Sample_Top_X_RBV'] = PV('2bma:m50.RBV')
-            global_PVs['Motor_Sample_Top_X_STATUS'] = PV('2bma:m50.MSTA') 
-            global_PVs['Motor_Sample_Top_X_MIP'] = PV('2bma:m50.MIP') 
-            global_PVs['Motor_Sample_Top_X_RETRY'] = PV('2bma:m50.RCNT')
-            global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') # Smaract XZ TXM set
+            global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
 
     else: # B-station
             print('*** Running in station B:')
             # Sample stack motor pv's:
             global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
-            global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') # for the micro-CT system
+            global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
             global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') # PI Micos air bearing rotary stage
-            global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') # Smaract XZ micro-CT set
-            global_PVs['Motor_Sample_Top_X_RBV'] = PV('2bmb:m76.RBV') # 
-            global_PVs['Motor_Sample_Top_X_STATUS'] = PV('2bmb:m76.MSTA')
-            global_PVs['Motor_Sample_Top_X_MIP'] = PV('2bmb:m76.MIP')
-            global_PVs['Motor_Sample_Top_X_RETRY'] = PV('2bmb:m76.RCNT')
-            global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL') # Smaract XZ micro-CT set
+            global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') 
+            global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
+            global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
 
             # CCD motors:
-            global_PVs['CCD_Motor'] = PV('.VAL')
+            global_PVs['Motor_CCD_Z'] = PV('2bmb:m31.VAL')
      
 
     #shutter pv's
@@ -182,36 +191,10 @@ def init_general_PVs(global_PVs, variableDict):
             global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
             global_PVs['Fly_Set_Encoder_Pos'] = PV('2bmb:eFly:EncoderPos')
 
-    # theta controls
+    # theta controls what are these for?
     global_PVs['Reset_Theta'] = PV('2bmb:SG_RdCntr:reset.PROC')
     global_PVs['Proc_Theta'] = PV('2bmb:SG_RdCntr:cVals.PROC')
     global_PVs['Theta_Cnt'] = PV('2bmb:SG_RdCntr:aSub.VALB')
-
-    #init misc pv's
-    global_PVs['Image1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
-    global_PVs['ExternShutterExposure'] = PV('2bmb:shutCam:tExpose')
-    #global_PVs['ClearTheta'] = PV('2bmb:recPV:PV1_clear')
-    global_PVs['ExternShutterDelay'] = PV('2bmb:shutCam:tDly')
-
-    #init proc1 pv's
-    global_PVs['Proc1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableCallbacks')
-    global_PVs['Proc1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'Proc1:NDArrayPort')
-    global_PVs['Proc1_Filter_Enable'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableFilter')
-    global_PVs['Proc1_Filter_Type'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterType')
-    global_PVs['Proc1_Num_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:NumFilter')
-    global_PVs['Proc1_Reset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:ResetFilter')
-    global_PVs['Proc1_AutoReset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:AutoResetFilter')
-    global_PVs['Proc1_Filter_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterCallbacks')
-
-    #interlaced
-    global_PVs['Interlaced_PROC'] = PV('32idcTXM:iFly:interlaceFlySub.PROC')
-    global_PVs['Interlaced_Theta_Arr'] = PV('32idcTXM:iFly:interlaceFlySub.VALC')
-    global_PVs['Interlaced_Num_Cycles'] = PV('32idcTXM:iFly:interlaceFlySub.C')
-    global_PVs['Interlaced_Num_Cycles_RBV'] = PV('32idcTXM:iFly:interlaceFlySub.VALH')
-    global_PVs['Interlaced_Images_Per_Cycle'] = PV('32idcTXM:iFly:interlaceFlySub.A')
-    global_PVs['Interlaced_Images_Per_Cycle_RBV'] = PV('32idcTXM:iFly:interlaceFlySub.VALF')
-    global_PVs['Interlaced_Num_Sub_Cycles'] = PV('32idcTXM:iFly:interlaceFlySub.B')
-    global_PVs['Interlaced_Num_Sub_Cycles_RBV'] = PV('32idcTXM:iFly:interlaceFlySub.VALG')
 
 
 def stop_scan(global_PVs, variableDict):
@@ -268,7 +251,7 @@ def setup_detector(global_PVs, variableDict):
     print('  *** setup_detector: Done!')
 
 
-def setup_hdf_writer(global_PVs, variableDict, filename=None):
+def setup_hdf_writer(global_PVs, variableDict, fname=None):
     print('  ')
     print('  *** setup_hdf_writer')
     if variableDict.has_key('Recursive_Filter_Enabled'):
@@ -291,16 +274,23 @@ def setup_hdf_writer(global_PVs, variableDict, filename=None):
     global_PVs['HDF1_DeleteDriverFile'].put('No')
     global_PVs['HDF1_EnableCallbacks'].put('Enable')
     global_PVs['HDF1_BlockingCallbacks'].put('No')
+
     if variableDict.has_key('ProjectionsPerRot'):
-        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + ( int(variableDict['Projections']) * int(variableDict['ProjectionsPerRot'])) + int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
+        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
+                   (int(variableDict['Projections']) * int(variableDict['ProjectionsPerRot'])) + \
+                    int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
     else:
-        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
+        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
+                    int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
+                    int(variableDict['PostWhiteImages'])
+
     global_PVs['HDF1_NumCapture'].put(totalProj)
     global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
-    if not filename == None:
-        global_PVs['HDF1_FileName'].put(filename)
+    if fname is not None:
+        global_PVs['HDF1_FileName'].put(fname)
     global_PVs['HDF1_Capture'].put(1)
     wait_pv(global_PVs['HDF1_Capture'], 1)
+    print('  *** setup_hdf_writer: Done!')
 
 
 def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):
@@ -328,24 +318,24 @@ def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type)
 
 def move_sample_in(global_PVs, variableDict):
     print(' ')
-    print('  *** move_sample_in')
+    print('  *** horizontal move_sample_in')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXIn']), wait=True)
     if wait_pv(global_PVs['Motor_SampleX'], float(variableDict['SampleXIn']), 60) == False:
         print('Motor_SampleX did not move in properly')
         print (global_PVs['Motor_SampleX'].get())
         print('\r\n\r\n')
-    print('  *** move_sample_in: Done!')
+    print('  *** horizontal move_sample_in: Done!')
 
 
 def move_sample_out(global_PVs, variableDict):
     print(' ')
-    print('  *** move_sample_out')
+    print('  *** horizontal move_sample_out')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXOut']), wait=True)
     if False == wait_pv(global_PVs['Motor_SampleX'], float(variableDict['SampleXOut']), 60):
         print('Motor_SampleX did not move out properly')
         print (global_PVs['Motor_SampleX'].get())
         print('\r\n\r\n')
-    print('  *** move_sample_out: Done!')
+    print('  *** horizontal move_sample_out: Done!')
 
 
 def open_shutters(global_PVs, variableDict):

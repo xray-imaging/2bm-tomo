@@ -24,7 +24,7 @@ variableDict = {'PreDarkImages': 20,
         'PostDarkImages': 0,
         'PostWhiteImages': 0,
         'SampleXIn': 0.0,
-        'SampleXOut': 3,
+        'SampleXOut': 4,
         'SampleStartPos': 0.0,
         'SampleEndPos': 180.0,
         'StartSleep_min': 0,
@@ -177,14 +177,21 @@ def main():
     tic =  time.time()
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
-    fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    print('  *** Moving rotary stage to start position')
-    global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-    print('  *** Moving rotary stage to start position: Done!')
-    start_scan(variableDict, fname)
-    print(' ')
-    print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-    print('  *** Done!')
+    if global_PVs['Cam1_SerialNumber'].get() is not None:
+        print(' ')
+        print ('  *** The Detector with EPICS IOC prefix %s and serial number %s is on' \
+                    % (variableDict['IOC_Prefix'], global_PVs['Cam1_SerialNumber'].get()))
+        # get sample file name
+        fname = global_PVs['HDF1_FileName'].get(as_string=True)
+        print('  *** Moving rotary stage to start position')
+        global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+        print('  *** Moving rotary stage to start position: Done!')
+        start_scan(variableDict, fname)
+        print(' ')
+        print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+        print('  *** Done!')
+    else:
+        print ('  *** The Detector with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
 
 if __name__ == '__main__':
     main()

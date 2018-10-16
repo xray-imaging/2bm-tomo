@@ -50,10 +50,10 @@ def update_variable_dict(variableDict):
     if len(sys.argv) > 1:
         strArgv = sys.argv[1]
         argDic = json.loads(strArgv)
-    print('orig variable dict', variableDict)
+    ##print('orig variable dict', variableDict)
     for k,v in argDic.iteritems():
         variableDict[k] = v
-    print('new variable dict', variableDict)
+    ##print('new variable dict', variableDict)
 
 
 def wait_pv(pv, wait_val, max_timeout_sec=-1):
@@ -84,7 +84,10 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
 def init_general_PVs(global_PVs, variableDict):
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'): 
-    #init detector pv's
+    
+        # init Point Grey PV's
+        # general PV's
+        global_PVs['Cam1_SerialNumber'] = PV(variableDict['IOC_Prefix'] + 'cam1:SerialNumber_RBV')
         global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')
         global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
         global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
@@ -99,7 +102,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')
         global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
-        #hdf5 writer pv's
+        # hdf5 writer PV's
         global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
         global_PVs['HDF1_DeleteDriverFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:DeleteDriverFile')
         global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')
@@ -114,7 +117,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
         global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
 
-        #init proc1 pv's
+        # proc1 PV's
         global_PVs['Image1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
         global_PVs['Proc1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableCallbacks')
         global_PVs['Proc1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'Proc1:NDArrayPort')
@@ -217,80 +220,94 @@ def reset_CCD(global_PVs, variableDict):
 
 
 def setup_detector(global_PVs, variableDict):
-    print(' ')
-    print('  *** setup_detector')
-    if variableDict.has_key('Display_live'):
-        print('** disable live display')
-        global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
-    global_PVs['Cam1_ImageMode'].put('Multiple')
-    global_PVs['Cam1_ArrayCallbacks'].put('Enable')
-    #global_PVs['Image1_Callbacks'].put('Enable')
-    global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
-    global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
-    # if we are using external shutter then set the exposure time
-    global_PVs['Cam1_FrameRateOnOff'].put(0)
-    if variableDict.has_key('ExternalShutter'):
-        if int(variableDict['ExternalShutter']) == 1:
-            global_PVs['ExternShutterExposure'].put(float(variableDict['ExposureTime']))
-            global_PVs['ExternShutterDelay'].put(float(variableDict['Ext_ShutterOpenDelay']))
-    # if software trigger capture two frames (issue with Point grey grasshopper)
-    if PG_Trigger_External_Trigger == 1:
-        wait_time_sec = int(variableDict['ExposureTime']) + 5
-        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
-        global_PVs['Cam1_NumImages'].put(1, wait=True)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        # setup Point Grey PV's
+        print(' ')
+        print('  *** setup Point Grey')
+        if variableDict.has_key('Display_live'):
+            print('** disable live display')
+            global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
+        global_PVs['Cam1_ImageMode'].put('Multiple')
+        global_PVs['Cam1_ArrayCallbacks'].put('Enable')
+        #global_PVs['Image1_Callbacks'].put('Enable')
+        global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
+        global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
+        # if we are using external shutter then set the exposure time
+        global_PVs['Cam1_FrameRateOnOff'].put(0)
+        if variableDict.has_key('ExternalShutter'):
+            if int(variableDict['ExternalShutter']) == 1:
+                global_PVs['ExternShutterExposure'].put(float(variableDict['ExposureTime']))
+                global_PVs['ExternShutterDelay'].put(float(variableDict['Ext_ShutterOpenDelay']))
+        # if software trigger capture two frames (issue with Point grey grasshopper)
+        if PG_Trigger_External_Trigger == 1:
+            wait_time_sec = int(variableDict['ExposureTime']) + 5
+            global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
+            global_PVs['Cam1_NumImages'].put(1, wait=True)
+            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            global_PVs['Cam1_SoftwareTrigger'].put(1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            global_PVs['Cam1_SoftwareTrigger'].put(1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        else:
+            global_PVs['Cam1_TriggerMode'].put('Internal')
+        print('  *** setup Point Grey: Done!')
+
     else:
-        global_PVs['Cam1_TriggerMode'].put('Internal')
-    print('  *** setup_detector: Done!')
+        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        return
 
 
 def setup_hdf_writer(global_PVs, variableDict, fname=None):
-    print('  ')
-    print('  *** setup_hdf_writer')
-    if variableDict.has_key('Recursive_Filter_Enabled'):
-        if variableDict['Recursive_Filter_Enabled'] == 1:
-            global_PVs['Proc1_Callbacks'].put('Enable')
-            global_PVs['Proc1_Filter_Enable'].put('Disable')
-            global_PVs['HDF1_ArrayPort'].put('PROC1')
-            global_PVs['Proc1_Filter_Type'].put( Recursive_Filter_Type )
-            global_PVs['Proc1_Num_Filter'].put( int( variableDict['Recursive_Filter_N_Images'] ) )
-            global_PVs['Proc1_Reset_Filter'].put( 1 )
-            global_PVs['Proc1_AutoReset_Filter'].put( 'Yes' )
-            global_PVs['Proc1_Filter_Callbacks'].put( 'Array N only' )
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        # setup Point Grey hdf writer PV's
+        print('  ')
+        print('  *** setup Point Grey hdf_writer')
+        if variableDict.has_key('Recursive_Filter_Enabled'):
+            if variableDict['Recursive_Filter_Enabled'] == 1:
+                global_PVs['Proc1_Callbacks'].put('Enable')
+                global_PVs['Proc1_Filter_Enable'].put('Disable')
+                global_PVs['HDF1_ArrayPort'].put('PROC1')
+                global_PVs['Proc1_Filter_Type'].put( Recursive_Filter_Type )
+                global_PVs['Proc1_Num_Filter'].put( int( variableDict['Recursive_Filter_N_Images'] ) )
+                global_PVs['Proc1_Reset_Filter'].put( 1 )
+                global_PVs['Proc1_AutoReset_Filter'].put( 'Yes' )
+                global_PVs['Proc1_Filter_Callbacks'].put( 'Array N only' )
+            else:
+                global_PVs['Proc1_Filter_Enable'].put('Disable')
+                global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
         else:
             global_PVs['Proc1_Filter_Enable'].put('Disable')
             global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
-    else:
-        global_PVs['Proc1_Filter_Enable'].put('Disable')
-        global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
-    global_PVs['HDF1_AutoSave'].put('Yes')
-    global_PVs['HDF1_DeleteDriverFile'].put('No')
-    global_PVs['HDF1_EnableCallbacks'].put('Enable')
-    global_PVs['HDF1_BlockingCallbacks'].put('No')
+        global_PVs['HDF1_AutoSave'].put('Yes')
+        global_PVs['HDF1_DeleteDriverFile'].put('No')
+        global_PVs['HDF1_EnableCallbacks'].put('Enable')
+        global_PVs['HDF1_BlockingCallbacks'].put('No')
 
-    if variableDict.has_key('ProjectionsPerRot'):
-        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
-                   (int(variableDict['Projections']) * int(variableDict['ProjectionsPerRot'])) + \
-                    int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
-    else:
-        totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
-                    int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
-                    int(variableDict['PostWhiteImages'])
+        if variableDict.has_key('ProjectionsPerRot'):
+            totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
+                       (int(variableDict['Projections']) * int(variableDict['ProjectionsPerRot'])) + \
+                        int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
+        else:
+            totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
+                        int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
+                        int(variableDict['PostWhiteImages'])
 
-    global_PVs['HDF1_NumCapture'].put(totalProj)
-    global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
-    if fname is not None:
-        global_PVs['HDF1_FileName'].put(fname)
-    global_PVs['HDF1_Capture'].put(1)
-    wait_pv(global_PVs['HDF1_Capture'], 1)
-    print('  *** setup_hdf_writer: Done!')
+        global_PVs['HDF1_NumCapture'].put(totalProj)
+        global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
+        if fname is not None:
+            global_PVs['HDF1_FileName'].put(fname)
+        global_PVs['HDF1_Capture'].put(1)
+        wait_pv(global_PVs['HDF1_Capture'], 1)
+        print('  *** setup Point Grey hdf_writer: Done!')
+
+    else:
+        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        return
 
 
 def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):

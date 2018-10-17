@@ -82,6 +82,7 @@ def fly_scan(variableDict):
 
     num_images = int(variableDict['Projections'])
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
+    
     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
     global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
     # start acquiring

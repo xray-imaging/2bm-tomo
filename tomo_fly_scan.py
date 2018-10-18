@@ -77,7 +77,6 @@ def fly_scan(variableDict):
                       float(variableDict['CCD_Readout'])) ) + 30
     print(' ')
     print('  *** Fly Scan Time Estimate: %f minutes' % (FlyScanTimeout/60.))
-    global_PVs['Reset_Theta'].put(1)
     global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
 
     num_images = int(variableDict['Projections'])
@@ -102,7 +101,6 @@ def fly_scan(variableDict):
     print('  *** Fly Scan: Done!')
     # set trigger mode to internal for post dark and white
     global_PVs['Cam1_TriggerMode'].put('Internal')
-    global_PVs['Proc_Theta'].put(1)
     theta = global_PVs['Theta_Array'].get(count=int(variableDict['Projections']))
     return theta
 
@@ -178,6 +176,7 @@ def main():
     tic =  time.time()
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
+    
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if detector_sn == None:
@@ -200,7 +199,8 @@ def main():
     except  KeyError:
         print('  *** Some PV assignment failed!')
         pass
-
+        
+        
 
 if __name__ == '__main__':
     main()

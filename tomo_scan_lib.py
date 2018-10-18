@@ -100,6 +100,10 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_FrameType'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType')
         global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')
         global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')
+        global_PVs['Cam1_AttributeFile'] = PV(variableDict['IOC_Prefix'] + 'cam1:NDAttributesFile')
+        global_PVs['Cam1_FrameTypeZRST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.ZRST')
+        global_PVs['Cam1_FrameTypeONST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.ONST')
+        global_PVs['Cam1_FrameTypeTWST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.TWST')
         global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
         # hdf5 writer PV's
@@ -116,7 +120,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')
         global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
         global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
-
+        global_PVs['HDF1_XMLFileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:XMLFileName')
+                                                                      
         # proc1 PV's
         global_PVs['Image1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
         global_PVs['Proc1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableCallbacks')
@@ -201,22 +206,24 @@ def init_general_PVs(global_PVs, variableDict):
 
 
 def stop_scan(global_PVs, variableDict):
-    print('Stop scan called!')
-    global_PVs['Motor_SampleRot_Stop'].put(1)
-    global_PVs['HDF1_Capture'].put(0)
-    wait_pv(global_PVs['HDF1_Capture'], 0)
-    reset_CCD(global_PVs, variableDict)
-    reset_CCD(global_PVs, variableDict)
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        print('Stop scan called!')
+        global_PVs['Motor_SampleRot_Stop'].put(1)
+        global_PVs['HDF1_Capture'].put(0)
+        wait_pv(global_PVs['HDF1_Capture'], 0)
+        reset_CCD(global_PVs, variableDict)
+        reset_CCD(global_PVs, variableDict)
 
 
 def reset_CCD(global_PVs, variableDict):
-    global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
-    global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
-    global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
-    global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
-    global_PVs['Cam1_ImageMode'].put('Single', wait=True)
-    global_PVs['Cam1_Display'].put(1)
-    global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
+        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
+        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
+        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
+        global_PVs['Cam1_ImageMode'].put('Single', wait=True)
+        global_PVs['Cam1_Display'].put(1)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
 
 
 def setup_detector(global_PVs, variableDict):
@@ -225,6 +232,15 @@ def setup_detector(global_PVs, variableDict):
         # setup Point Grey PV's
         print(' ')
         print('  *** setup Point Grey')
+
+        if STATION == '2-BM-A': 
+            global_PVs['Cam1_AttributeFile'].put('DynaMCTDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('DynaMCTHDFLayout.xml')
+
+        else: # Mona (B-station)
+            global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+
         if variableDict.has_key('Display_live'):
             print('** disable live display')
             global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
@@ -261,12 +277,19 @@ def setup_detector(global_PVs, variableDict):
         return
 
 
+def setup_frame_type(global_PVs, variableDict):
+    global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
+    global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
+    global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
+
+
 def setup_hdf_writer(global_PVs, variableDict, fname=None):
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
         # setup Point Grey hdf writer PV's
         print('  ')
         print('  *** setup Point Grey hdf_writer')
+        setup_frame_type(global_PVs, variableDict)
         if variableDict.has_key('Recursive_Filter_Enabled'):
             if variableDict['Recursive_Filter_Enabled'] == 1:
                 global_PVs['Proc1_Callbacks'].put('Enable')

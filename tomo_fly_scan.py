@@ -31,7 +31,7 @@ variableDict = {'PreDarkImages': 20,
         'ExposureTime': 0.1,
         'ExposureTime_flat': 0.1,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': '2bmbPG3:',
+        'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:'
         'ExternalShutter': 0,
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05
@@ -184,7 +184,8 @@ def main():
             print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
             print('  *** Failed!')
         else:
-            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' % (variableDict['IOC_Prefix'], detector_sn))
+            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                        % (variableDict['IOC_Prefix'], detector_sn))
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
             print('  *** Moving rotary stage to start position')
@@ -193,11 +194,13 @@ def main():
             start_scan(variableDict, fname)
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
     except  KeyError:
-        print('  *** Failed!')
+        print('  *** Some PV assignment failed!')
         pass
+
 
 if __name__ == '__main__':
     main()

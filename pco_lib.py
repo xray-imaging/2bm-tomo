@@ -5,7 +5,6 @@
 from __future__ import print_function
 
 import time
-import epics
 import sys
 from epics import PV
 
@@ -100,6 +99,7 @@ def init_general_PVs(global_PVs, variableDict):
         #    global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
         #    global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
 
+    global_PVs['Cam1_Model'] = PV(variableDict['IOC_Prefix'] + 'cam1:Model_RBV')
     global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')   
     global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
     global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
@@ -133,7 +133,7 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['HDF1_FilePath'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FilePath')
     global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')       
     global_PVs['HDF1_FileWriteMode'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileWriteMode')
-
+    global_PVs['HDF1_FullFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FullFileName_RBV')
     global_PVs['Image1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
 
@@ -154,16 +154,9 @@ def setPSO(global_PVs, variableDict):
     print('  *** Set PSO: Done!')
 
 
-def initEdge(global_PVs, variableDict):
+def edgeInit(global_PVs, variableDict):
     print(' ')
     print('  *** Init PCO')                        
-    # shutter = "2bma:A_shutter"
-    # if samStage is None:
-    #     samStage = "2bma:m49"  
-    # if rotStage is None:              ss
-    #     rotStage = "2bma:m82"   
-#    epics.caput("2bma:m23.VAL","0", wait=True, timeout=1000.0)                
-#    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
     global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)   
     global_PVs['HDF1_Capture'].put('Done', wait=True, timeout=1000.0) 
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)    
@@ -184,11 +177,10 @@ def initEdge(global_PVs, variableDict):
     global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
     if variableDict['SampleXIn'] is not None:
         global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)  
-#    epics.caput("2bma:m23.VAL","1", wait=True, timeout=1000.0)               
     print('  *** Init PCO: Done!')
 
 
-def edgeSet(global_PVs, variableDict):    
+def edgeSet(global_PVs, variableDict, fname):    
     print(' ')
     print('  *** Set PCO')
 
@@ -210,8 +202,8 @@ def edgeSet(global_PVs, variableDict):
     global_PVs['HDF1_NumCapture_RBV'].put(str(numImage), wait=True, timeout=1000.0)  
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                
 
-##    epics.caput(camPrefix+":HDF1:FilePath.VAL",filepath, wait=True, timeout=1000.0)
-##    epics.caput(camPrefix+":HDF1:FileName.VAL",filename, wait=True, timeout=1000.0)    
+    if fname is not None:
+        global_PVs['HDF1_FileName'].put(fname)
 
     global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.hdf', wait=True, timeout=1000.0)                
     global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)

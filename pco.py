@@ -28,8 +28,6 @@ variableDict = {'PreDarkImages': 0,
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'AcclRot': 1.0
-#        'roiSizeX': 2560, 
-#        'roiSizeY': 1240,
 #        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
 #        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
         }
@@ -42,16 +40,41 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
 
-             
-    initEdge(global_PVs, variableDict)     
-    edgeTest(global_PVs, variableDict)
-    setPSO(global_PVs, variableDict)
-    edgeSet(global_PVs, variableDict)
-    open_shutters(global_PVs, variableDict)
-    edgeAcquisition(global_PVs, variableDict)
-    edgeAcquireFlat(global_PVs, variableDict) 
-    close_shutters(global_PVs, variableDict)
-    edgeAcquireDark(global_PVs, variableDict) 
+    tic =  time.time()
+    update_variable_dict(variableDict)
+    init_general_PVs(global_PVs, variableDict)
+    
+    try: 
+        model = global_PVs['Cam1_Model'].get()
+        if model == None:
+            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            print('  *** Failed!')
+        else:
+            print ('*** The %s is on' % (model))            # get sample file name
+            edgeInit(global_PVs, variableDict)     
+            edgeTest(global_PVs, variableDict)
+            setPSO(global_PVs, variableDict)
+
+            fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            edgeSet(global_PVs, variableDict, fname)
+
+            open_shutters(global_PVs, variableDict)
+            edgeAcquisition(global_PVs, variableDict)
+            edgeAcquireFlat(global_PVs, variableDict) 
+            close_shutters(global_PVs, variableDict)
+            edgeAcquireDark(global_PVs, variableDict) 
+
+            print(' ')
+            print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            print('  *** Done!')
+
+    except  KeyError:
+        print('  *** Some PV assignment failed!')
+        pass
+
+   
+    
     
 if __name__ == '__main__':
     main()
@@ -96,10 +119,10 @@ if __name__ == '__main__':
 #     PSO = "2bma:PSOFly2"
                 
 #     if samStage == '2bma:m49':                
-#         initEdge(SampleXIn = SampleXIn,samStage=samStage,rotStage=rotStage)      
+#         edgeInit(SampleXIn = SampleXIn,samStage=samStage,rotStage=rotStage)      
 #     elif samStage == '2bma:m20':
 #         SampleXIn = epics.caget(samStage+".VAL")
-#         initEdge(SampleXIn = SampleXIn,samStage=samStage,rotStage=rotStage)  
+#         edgeInit(SampleXIn = SampleXIn,samStage=samStage,rotStage=rotStage)  
 #     else:
 #         print "Please edit the script to define SampleXIn. Quit"
 #         exit()

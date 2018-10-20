@@ -1,187 +1,24 @@
+'''
+    Tomo Scan Lib for Sector 2-BM
+    
+'''
+from __future__ import print_function
+
 import time
 import epics
+import sys
+from epics import PV
 
-def setPSO(slewSpeed, scanDelta, acclTime,angStart=0, angEnd=180, PSO="2bmb:PSOFly1",rotStage="2bma:m82"):
-    print(' ')
-    print('  *** Set PSO')
-    epics.caput(PSO+":startPos.VAL",str(angStart), wait=True, timeout=1000.0)                
-    epics.caput(PSO+":endPos.VAL",str(angEnd), wait=True, timeout=1000.0)
-    epics.caput(rotStage+".VELO",str(slewSpeed), wait=True, timeout=1000.0)
-    epics.caput(PSO+":slewSpeed.VAL",str(slewSpeed), wait=True, timeout=1000.0)
-    epics.caput(rotStage+".ACCL",str(acclTime), wait=True, timeout=1000.0)
-    epics.caput(PSO+":scanDelta.VAL",str(scanDelta), wait=True, timeout=1000.0)    
-    print('  *** Set PSO: Done!')
+ShutterA_Open_Value = 1
+ShutterA_Close_Value = 0
+ShutterB_Open_Value = 1
+ShutterB_Close_Value = 0
 
+FrameTypeData = 0
+FrameTypeDark = 1
+FrameTypeWhite = 2
 
-def initEdge(samInPos=0, samStage=None, rotStage=None):
-    print(' ')
-    print('  *** Init PCO')
-    camPrefix = "PCOIOC3"                            
-    shutter = "2bma:A_shutter"
-    if samStage is None:
-        samStage = "2bma:m49"  
-    if rotStage is None:              
-        rotStage = "2bma:m82"   
-    epics.caput("2bma:m23.VAL","0", wait=True, timeout=1000.0)                
-    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":HDF1:EnableCallbacks.VAL",1, wait=True, timeout=1000.0)   
-    epics.caput(camPrefix+":HDF1:Capture.VAL","Done", wait=True, timeout=1000.0) 
-    epics.caput(camPrefix+":HDF1:NumCaptured_RBV.VAL","0", wait=True, timeout=1000.0)    
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)    
-    epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:ImageMode.VAL","Continuous", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_edge_fastscan.VAL","Normal", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_is_frame_rate_mode.VAL",0, wait=True, timeout=1000.0)    
-    epics.caput(camPrefix+":cam1:AcquireTime.VAL",0.2, wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":image1:EnableCallbacks.VAL","Enable", wait=True, timeout=1000.0)
-    epics.caput(rotStage+".STOP",1, wait=True, timeout=1000.0)
-    epics.caput(rotStage+".SET","Set", wait=True, timeout=1000.0) 
-    epics.caput(rotStage+".VAL",epics.caget(rotStage+".VAL")%360.0, wait=True, timeout=1000.0) 
-    epics.caput(rotStage+".SET","Use", wait=True, timeout=1000.0) 
-    epics.caput(rotStage+".VELO","30", wait=True, timeout=1000.0)    
-    epics.caput(rotStage+".ACCL","3", wait=True, timeout=1000.0)                
-    epics.caput(rotStage+".VAL","0", wait=True, timeout=1000.0)
-    if samInPos is not None:
-        epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)  
-    epics.caput("2bma:m23.VAL","1", wait=True, timeout=1000.0)               
-    print('  *** Init PCO: Done!')
-
-
-def edgeSet(numImage, exposureTime, frate,PSO = "2bmb:PSOFly1"):    
-    print(' ')
-    print('  *** Set PCO')
-    camPrefix = "PCOIOC3"
-    epics.caput(camPrefix+":cam1:pco_is_frame_rate_mode.VAL","DelayExp", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:AcquirePeriod.VAL","0", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_set_frame_rate.VAL",str(frate+1), wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_set_frame_rate.VAL",str(frate), wait=True, timeout=1000.0)                    
-    epics.caput(camPrefix+":HDF1:AutoIncrement.VAL","Yes", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":HDF1:NumCapture.VAL",str(numImage), wait=True, timeout=1000.0)                
-    epics.caput(camPrefix+":HDF1:NumCapture_RBV.VAL",str(numImage), wait=True, timeout=1000.0)  
-    epics.caput(camPrefix+":HDF1:NumCaptured_RBV.VAL","0", wait=True, timeout=1000.0)                
-
-##    epics.caput(camPrefix+":HDF1:FilePath.VAL",filepath, wait=True, timeout=1000.0)
-##    epics.caput(camPrefix+":HDF1:FileName.VAL",filename, wait=True, timeout=1000.0)    
-
-    epics.caput(camPrefix+":HDF1:FileTemplate.VAL","%s%s_%4.4d.hdf", wait=True, timeout=1000.0)                
-    epics.caput(camPrefix+":HDF1:AutoSave.VAL","Yes", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":HDF1:FileWriteMode.VAL","Stream", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":HDF1:Capture.VAL","Capture", wait=False, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:NumImages.VAL",str(numImage), wait=True, timeout=1000.0)                                
-    epics.caput(camPrefix+":cam1:ImageMode.VAL","Multiple", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:AcquireTime.VAL",str(exposureTime), wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Soft/Ext", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_ready2acquire.VAL","0", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=False, timeout=1000.0)            
-    print('  *** Set PCO: Done!')
-
-
-def edgeTest(camScanSpeed,camShutterMode,roiSizeX=2560,roiSizeY=2160):
-    camPrefix = "PCOIOC3"
-    print(' ')
-    print('  *** Testing PCO camera')
-    epics.caput(camPrefix+":cam1:ArrayCallbacks.VAL","Enable", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:NumImages.VAL","10", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:ImageMode.VAL","Multiple", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_global_shutter.VAL",camShutterMode, wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_edge_fastscan.VAL",camScanSpeed, wait=True, timeout=1000.0)                
-    epics.caput(camPrefix+":cam1:AcquireTime.VAL","0.001000", wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:SizeX.VAL",str(roiSizeX), wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:SizeY.VAL",str(roiSizeY), wait=True, timeout=1000.0)
-    epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)    
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)     
-    print('  *** Testing PCO camera: Done!')
-
-def edgeAcquisition(samInPos, samStage, numProjPerSweep, shutter, clShutter=1, PSO="2bma:PSOFly2", rotStage="2bma:m82"):
-    print(' ')
-    print('  *** Acquisition')
-    print('      *** Projections')
-    camPrefix = "PCOIOC3"    
-
-##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)                
-    epics.caput(camPrefix+":cam1:FrameType.VAL",'0', wait=True, timeout=1000.0)     
-    print("Type Projections: ", epics.caget(camPrefix+":cam1:FrameType.VAL"))
-    epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)
-    
-    rotCurrPos = epics.caget(rotStage + ".VAL")
-    epics.caput(rotStage + ".SET",str(1), wait=True, timeout=1000.0)       
-    epics.caput(rotStage + ".VAL",str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    epics.caput(rotStage + ".SET",str(0), wait=True, timeout=1000.0)  
-    
-    epics.caput(rotStage + ".VELO","50.00000", wait=True, timeout=1000.0)
-    epics.caput(rotStage + ".VAL","0.00000", wait=False, timeout=1000.0)   
-                 
-    epics.caput(PSO+":taxi.VAL","Taxi", wait=True, timeout=1000.0)
-    epics.caput(PSO+":fly.VAL","Fly", wait=True, timeout=1000.0) 
-
-##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
-##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)  
-        
-    rotCurrPos = epics.caget(rotStage + ".VAL")
-    epics.caput(rotStage + ".SET",str(1), wait=True, timeout=1000.0)       
-    epics.caput(rotStage + ".VAL",str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    epics.caput(rotStage + ".SET",str(0), wait=True, timeout=1000.0) 
-             
-    epics.caput(rotStage + ".VELO","50.00000", wait=True, timeout=1000.0)
-    time.sleep(1)
-    epics.caput(rotStage + ".VAL","0.00000", wait=False, timeout=1000.0)   
-    while (epics.caget(camPrefix+":HDF1:NumCaptured_RBV.VAL") != epics.caget(camPrefix+":cam1:NumImagesCounter_RBV.VAL")):      
-        time.sleep(1)                    
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
-    print('      *** Projections: Done!')
-
-
-def edgeAcquireFlat(samInPos,samOutPos,samStage,rotStage, shutter, PSO = "2bma:PSOFly2"):    
-    print('      *** White Fields')
-    camPrefix = "PCOIOC3"
-    epics.caput(samStage+".VAL",str(samOutPos), wait=True, timeout=1000.0)                
-    epics.caput(PSO + ":scanControl.VAL","Standard", wait=True, timeout=1000.0)                
-
-##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
-
-    time.sleep(5)
-    epics.caput(camPrefix+":cam1:FrameType.VAL",'2', wait=True, timeout=1000.0)     
-    print("Type White: ", epics.caget(camPrefix+":cam1:FrameType.VAL"))
-    epics.caput(camPrefix+":cam1:NumImages.VAL","10", wait=True, timeout=1000.0)   
-    
-    epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)   
-##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
-    time.sleep(5)            
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)  
-    
-##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
-
-    time.sleep(5)            
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)
-    epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)                    
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
-
-
-def edgeAcquireDark(samInPos,samStage,rotStage, shutter, PSO = "2bma:PSOFly2"):    
-    print("      *** Dark Fields")
-    camPrefix = "PCOIOC3"    
-    epics.caput(PSO + ":scanControl.VAL","Standard", wait=True, timeout=1000.0)
-
-##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
-
-    time.sleep(5)
-            
-    epics.caput(camPrefix+":cam1:FrameType.VAL",'1', wait=True, timeout=1000.0)             
-    print("Type Dark: ", epics.caget(camPrefix+":cam1:FrameType.VAL"))
-    
-    epics.caput(camPrefix+":cam1:NumImages.VAL","10", wait=True, timeout=1000.0)
-
-    epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)            
-
-##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
-
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)
-        
-    epics.caput(camPrefix+":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)    
-    epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)    
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)
-    print('      *** Dark Fileds: Done!')
-    print('  *** Acquisition: Done!')
+STATION = '2-BM-A' # or '2-BM-A'
 
 def init_general_PVs(global_PVs, variableDict):
 
@@ -198,8 +35,12 @@ def init_general_PVs(global_PVs, variableDict):
             # Set sample stack motor pv's:
             global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
             global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
-            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL')  
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') # Aerotech ABR-250
+            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
+            global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
+            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
+            print("XXXXXXXXXXXXX", variableDict['IOC_Prefix'], global_PVs['Motor_SampleRot_Stop'])
+            global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
+            global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
             global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
             global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
             # Set FlyScan
@@ -210,8 +51,244 @@ def init_general_PVs(global_PVs, variableDict):
             global_PVs['Fly_Taxi'] = PV('2bma:PSOFly2:taxi')
             global_PVs['Fly_Run'] = PV('2bma:PSOFly2:fly')
             global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
-            global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
-            global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
+        #    global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
+        #    global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
 
+    global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')   
+    global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
+    global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
+    global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')
+    global_PVs['Cam1_NumImagesCounter_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImagesCounter_RBV')   
+    global_PVs['Cam1_PCOEdgeFastscan'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_edge_fastscan')
+    global_PVs['Cam1_PCOTriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_trigger_mode')
+    global_PVs['Cam1_PCOIsFrameRateMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_is_frame_rate_mode')   
+    global_PVs['Cam1_PCOSetFrameRate'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_set_frame_rate')
+    global_PVs['Cam1_PCOReady2Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_ready2acquire')
+    global_PVs['Cam1_PCOGlobalShutter'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_global_shutter')
+    global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
+    global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
+    global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')     
+    global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
+    global_PVs['Cam1_TriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerMode')           
+
+    global_PVs['Cam1_FrameType'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType')    
+    global_PVs['Cam1_FrameTypeZRST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.ZRST')
+    global_PVs['Cam1_FrameTypeONST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.ONST')
+    global_PVs['Cam1_FrameTypeTWST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.TWST')
+
+    global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
+    global_PVs['HDF1_AutoIncrement'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoIncrement')
+    global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')  
+    global_PVs['HDF1_Capture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture')
+    global_PVs['HDF1_NumCapture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture')       
+    global_PVs['HDF1_NumCapture_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture_RBV') 
+    global_PVs['HDF1_NumCaptured_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCaptured_RBV')
+    global_PVs['HDF1_FileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileName')   
+    global_PVs['HDF1_FilePath'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FilePath')
+    global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')       
+    global_PVs['HDF1_FileWriteMode'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileWriteMode')
+
+    global_PVs['Image1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
+
+
+
+def setPSO(global_PVs, variableDict):
+    print(' ')
+    print('  *** Set PSO')
+
+    acclTime = 1.0 * variableDict['SlewSpeed']/variableDict['AcclRot']
+    scanDelta = 1.0*(variableDict['SampleEndPos'] - variableDict['SampleStartPos'])/variableDict['Projections']
+
+    global_PVs['Fly_StartPos'].put(str(variableDict['SampleStartPos']), wait=True, timeout=1000.0)                
+    global_PVs['Fly_EndPos'].put(str(variableDict['SampleEndPos']), wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Velo'].put(str(variableDict['SlewSpeed']), wait=True, timeout=1000.0)
+    global_PVs['Fly_SlewSpeed'].put(str(variableDict['SlewSpeed']), wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Accl'].put(str(acclTime), wait=True, timeout=1000.0)
+    global_PVs['Fly_ScanDelta'].put(str(scanDelta), wait=True, timeout=1000.0)    
+    print('  *** Set PSO: Done!')
+
+
+def initEdge(global_PVs, variableDict):
+    print(' ')
+    print('  *** Init PCO')                        
+    # shutter = "2bma:A_shutter"
+    # if samStage is None:
+    #     samStage = "2bma:m49"  
+    # if rotStage is None:              ss
+    #     rotStage = "2bma:m82"   
+#    epics.caput("2bma:m23.VAL","0", wait=True, timeout=1000.0)                
+#    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
+    global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)   
+    global_PVs['HDF1_Capture'].put('Done', wait=True, timeout=1000.0) 
+    global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)
+    global_PVs['Cam1_ImageMode'].put('Continuous', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOIsFrameRateMode'].put(0, wait=True, timeout=1000.0)    
+    global_PVs['Cam1_AcquireTime'].put(0.2, wait=True, timeout=1000.0)
+    global_PVs['Image1_EnableCallbacks'].put('Enable', wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
+    global_PVs['Motor_SampleRot'].put(global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
+
+    global_PVs['Motor_SampleRot_Set'].put('Use', wait=True, timeout=1000.0) 
+    global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
+    global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
+    global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
+    if variableDict['SampleXIn'] is not None:
+        global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)  
+#    epics.caput("2bma:m23.VAL","1", wait=True, timeout=1000.0)               
+    print('  *** Init PCO: Done!')
+
+
+def edgeSet(global_PVs, variableDict):    
+    print(' ')
+    print('  *** Set PCO')
+
+    setup_frame_type(global_PVs, variableDict)
+
+    numImage = variableDict['PreDarkImages'] + \
+        variableDict['PreWhiteImages'] + variableDict['Projections'] + \
+        variableDict['PostDarkImages'] + variableDict['PostWhiteImages']   
+
+    frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleEndPos'] - \
+             variableDict['SampleStartPos'])/variableDict['SlewSpeed']) + 5)
+             
+    global_PVs['Cam1_PCOIsFrameRateMode'].put('DelayExp', wait=True, timeout=1000.0)
+    global_PVs['Cam1_AcquirePeriod'].put('0', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate+1), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate), wait=True, timeout=1000.0)                    
+    global_PVs['HDF1_AutoIncrement'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_NumCapture'].put(str(numImage), wait=True, timeout=1000.0)                
+    global_PVs['HDF1_NumCapture_RBV'].put(str(numImage), wait=True, timeout=1000.0)  
+    global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                
+
+##    epics.caput(camPrefix+":HDF1:FilePath.VAL",filepath, wait=True, timeout=1000.0)
+##    epics.caput(camPrefix+":HDF1:FileName.VAL",filename, wait=True, timeout=1000.0)    
+
+    global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.hdf', wait=True, timeout=1000.0)                
+    global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
+    global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
+    global_PVs['Cam1_NumImages'].put(str(numImage), wait=True, timeout=1000.0)                                
+    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+    global_PVs['Cam1_AcquireTime'].put(str(variableDict['ExposureTime']), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Soft/Ext', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)            
+    print('  *** Set PCO: Done!')
+
+
+def edgeTest(global_PVs, variableDict):
+    print(' ')
+    print('  *** Testing PCO camera')
+    global_PVs['Cam1_ArrayCallbacks'].put('Enable', wait=True, timeout=1000.0)
+    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
+    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOGlobalShutter'].put('Rolling', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)                
+    global_PVs['Cam1_AcquireTime'].put("0.001000", wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(1240), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
+    print('  *** Testing PCO camera: Done!')
+
+def edgeAcquisition(global_PVs, variableDict):
+    print(' ')
+    print('  *** Acquisition')
+    print('      *** Projections')
+
+##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)                
+    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0)     
+    print("Type Projections: ", global_PVs['Cam1_FrameType'].get())
+    global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+    
+    rotCurrPos = global_PVs['Motor_SampleRot'].get()
+    global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
+    global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
+    global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
+    
+    global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+                 
+    global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
+    global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
+
+##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
+##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)  
         
+    rotCurrPos = global_PVs['Motor_SampleRot'].get()
+    global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
+    global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
+    global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0) 
+             
+    global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
+    time.sleep(1)
+    global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+    while (global_PVs['HDF1_NumCaptured_RBV'].get() != global_PVs['Cam1_NumImagesCounter_RBV'].get()):      
+        time.sleep(1)                    
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
+    print('      *** Projections: Done!')
+
+
+def edgeAcquireFlat(global_PVs, variableDict):    
+    print('      *** White Fields')
+    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+    global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
+
+##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
+    time.sleep(5)
+
+    global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
+    print("Type White: ", global_PVs['Cam1_FrameType'].get())
+    global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
+    
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
+##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
+    time.sleep(5)            
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
+    time.sleep(5)            
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                    
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
+
+
+def edgeAcquireDark(global_PVs, variableDict):    
+    print("      *** Dark Fields")
+  
+    global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)
+
+##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+    time.sleep(5)
+            
+    global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
+    print("Type Dark: ", global_PVs['Cam1_FrameType'].get())   
+    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)   
+
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)            
+##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)
+        
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
+    time.sleep(5)            
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
+    print('      *** Dark Fileds: Done!')
+    print('  *** Acquisition: Done!')        
  
+def setup_frame_type(global_PVs, variableDict):
+    global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
+    global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
+    global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
+
+def update_variable_dict(variableDict):
+    argDic = {}
+    if len(sys.argv) > 1:
+        strArgv = sys.argv[1]
+        argDic = json.loads(strArgv)
+    ##print('orig variable dict', variableDict)
+    for k,v in argDic.iteritems():
+        variableDict[k] = v
+    ##print('new variable dict', variableDict)
+

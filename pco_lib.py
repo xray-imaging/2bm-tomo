@@ -145,7 +145,7 @@ def edgeAcquireFlat(samInPos,samOutPos,samStage,rotStage, shutter, PSO = "2bma:P
     epics.caput(camPrefix+":cam1:NumImages.VAL","10", wait=True, timeout=1000.0)   
     
     epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)   
-    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
+##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
     time.sleep(5)            
     epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)  
     

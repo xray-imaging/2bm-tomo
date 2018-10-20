@@ -5,7 +5,7 @@ import os
 import Tkinter
 import tkMessageBox as mbox
 
-from pco_lib_new import *
+from pco_lib import *
 
 
 global variableDict
@@ -47,8 +47,10 @@ def main():
     edgeTest(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
     edgeSet(global_PVs, variableDict)
+    open_shutters(global_PVs, variableDict)
     edgeAcquisition(global_PVs, variableDict)
     edgeAcquireFlat(global_PVs, variableDict) 
+    close_shutters(global_PVs, variableDict)
     edgeAcquireDark(global_PVs, variableDict) 
     
 if __name__ == '__main__':

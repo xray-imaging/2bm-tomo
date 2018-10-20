@@ -18,7 +18,54 @@ FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
 
-STATION = '2-BM-A' # or '2-BM-A'
+UseShutterA = True
+UseShutterB = False
+
+STATION = '2-BM-A' # or '2-BM-B'
+
+TESTING_MODE = False
+
+if TESTING_MODE == True:
+    UseShutterA = False
+    UseShutterB = False
+
+if UseShutterA is False and UseShutterB is False:
+    print('### WARNING: shutters are deactivted during the scans !!!!')
+
+def update_variable_dict(variableDict):
+    argDic = {}
+    if len(sys.argv) > 1:
+        strArgv = sys.argv[1]
+        argDic = json.loads(strArgv)
+    ##print('orig variable dict', variableDict)
+    for k,v in argDic.iteritems():
+        variableDict[k] = v
+    ##print('new variable dict', variableDict)
+
+
+def wait_pv(pv, wait_val, max_timeout_sec=-1):
+#wait on a pv to be a value until max_timeout (default forever)
+
+    #print('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ')')
+    
+    # delay for pv to change
+    time.sleep(.01)
+    startTime = time.time()
+    while(True):
+        pv_val = pv.get()
+        if type(pv_val) == float:
+            if abs(pv_val - wait_val) < EPSILON:
+                return True
+        if (pv_val != wait_val):
+            if max_timeout_sec > -1:
+                curTime = time.time()
+                diffTime = curTime - startTime
+                if diffTime >= max_timeout_sec:
+                    #print('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
+                    return False
+            time.sleep(.01)
+        else:
+            return True
 
 def init_general_PVs(global_PVs, variableDict):
 
@@ -38,7 +85,6 @@ def init_general_PVs(global_PVs, variableDict):
             global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
             global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
             global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
-            print("XXXXXXXXXXXXX", variableDict['IOC_Prefix'], global_PVs['Motor_SampleRot_Stop'])
             global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
             global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
             global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
@@ -200,24 +246,19 @@ def edgeAcquisition(global_PVs, variableDict):
     print('  *** Acquisition')
     print('      *** Projections')
 
-##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)                
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0)     
-    print("Type Projections: ", global_PVs['Cam1_FrameType'].get())
     global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
     
     rotCurrPos = global_PVs['Motor_SampleRot'].get()
+
     global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
     global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
     global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
-    
     global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
                  
     global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
     global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
-
-##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
-##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)  
         
     rotCurrPos = global_PVs['Motor_SampleRot'].get()
     global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
@@ -238,57 +279,60 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
-##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
-    time.sleep(5)
-
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
-    print("Type White: ", global_PVs['Cam1_FrameType'].get())
     global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
     
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
-##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
-    time.sleep(5)            
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
-    time.sleep(5)            
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                    
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
+    print('      *** White Fileds: Done!')
 
 
 def edgeAcquireDark(global_PVs, variableDict):    
-    print("      *** Dark Fields")
-  
+    print("      *** Dark Fields") 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)
-
-##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
-    time.sleep(5)
-            
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
-    print("Type Dark: ", global_PVs['Cam1_FrameType'].get())   
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)   
 
+    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)            
-##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
-    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)
-        
+
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)       
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
-    time.sleep(5)            
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
     print('      *** Dark Fileds: Done!')
     print('  *** Acquisition: Done!')        
  
+
 def setup_frame_type(global_PVs, variableDict):
     global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
     global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
     global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
 
-def update_variable_dict(variableDict):
-    argDic = {}
-    if len(sys.argv) > 1:
-        strArgv = sys.argv[1]
-        argDic = json.loads(strArgv)
-    ##print('orig variable dict', variableDict)
-    for k,v in argDic.iteritems():
-        variableDict[k] = v
-    ##print('new variable dict', variableDict)
+    
+def open_shutters(global_PVs, variableDict):
+    print(' ')
+    print('  *** open_shutters')
+    if UseShutterA is True:
+        global_PVs['ShutterA_Open'].put(1, wait=True)
+        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+        time.sleep(3)
+    if UseShutterB is True:
+        global_PVs['ShutterB_Open'].put(1, wait=True)
+        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
+    print('  *** open_shutters: Done!')
+
+
+def close_shutters(global_PVs, variableDict):
+    print(' ')
+    print('  *** close_shutters')
+    if UseShutterA is True:
+        global_PVs['ShutterA_Close'].put(1, wait=True)
+        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+    if UseShutterB is True:
+        global_PVs['ShutterB_Close'].put(1, wait=True)
+        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
+    print('  *** close_shutters: Done!')
+    
 

@@ -59,8 +59,10 @@ def edgeSet(numImage, exposureTime, frate,PSO = "2bmb:PSOFly1"):
     epics.caput(camPrefix+":HDF1:NumCapture.VAL",str(numImage), wait=True, timeout=1000.0)                
     epics.caput(camPrefix+":HDF1:NumCapture_RBV.VAL",str(numImage), wait=True, timeout=1000.0)  
     epics.caput(camPrefix+":HDF1:NumCaptured_RBV.VAL","0", wait=True, timeout=1000.0)                
-#    epics.caput(camPrefix+":HDF1:FilePath.VAL",filepath, wait=True, timeout=1000.0)
-#    epics.caput(camPrefix+":HDF1:FileName.VAL",filename, wait=True, timeout=1000.0)    
+
+##    epics.caput(camPrefix+":HDF1:FilePath.VAL",filepath, wait=True, timeout=1000.0)
+##    epics.caput(camPrefix+":HDF1:FileName.VAL",filename, wait=True, timeout=1000.0)    
+
     epics.caput(camPrefix+":HDF1:FileTemplate.VAL","%s%s_%4.4d.hdf", wait=True, timeout=1000.0)                
     epics.caput(camPrefix+":HDF1:AutoSave.VAL","Yes", wait=True, timeout=1000.0)
     epics.caput(camPrefix+":HDF1:FileWriteMode.VAL","Stream", wait=True, timeout=1000.0)
@@ -111,6 +113,7 @@ def edgeAcquisition(samInPos, samStage, numProjPerSweep, shutter, clShutter=1, P
                  
     epics.caput(PSO+":taxi.VAL","Taxi", wait=True, timeout=1000.0)
     epics.caput(PSO+":fly.VAL","Fly", wait=True, timeout=1000.0) 
+
 ##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
 ##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)  
         
@@ -124,6 +127,7 @@ def edgeAcquisition(samInPos, samStage, numProjPerSweep, shutter, clShutter=1, P
     epics.caput(rotStage + ".VAL","0.00000", wait=False, timeout=1000.0)   
     while (epics.caget(camPrefix+":HDF1:NumCaptured_RBV.VAL") != epics.caget(camPrefix+":cam1:NumImagesCounter_RBV.VAL")):      
         time.sleep(1)                    
+    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
     print('      *** Projections: Done!')
 
 
@@ -132,7 +136,9 @@ def edgeAcquireFlat(samInPos,samOutPos,samStage,rotStage, shutter, PSO = "2bma:P
     camPrefix = "PCOIOC3"
     epics.caput(samStage+".VAL",str(samOutPos), wait=True, timeout=1000.0)                
     epics.caput(PSO + ":scanControl.VAL","Standard", wait=True, timeout=1000.0)                
+
 ##    epics.caput(shutter+":open.VAL",1, wait=True, timeout=1000.0)
+
     time.sleep(5)
     epics.caput(camPrefix+":cam1:FrameType.VAL",'2', wait=True, timeout=1000.0)     
     print("Type White: ", epics.caget(camPrefix+":cam1:FrameType.VAL"))
@@ -144,17 +150,20 @@ def edgeAcquireFlat(samInPos,samOutPos,samStage,rotStage, shutter, PSO = "2bma:P
     epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)  
     
 ##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+
     time.sleep(5)            
     epics.caput(camPrefix+":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)
     epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)                    
-
+    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
 
 
 def edgeAcquireDark(samInPos,samStage,rotStage, shutter, PSO = "2bma:PSOFly2"):    
     print("      *** Dark Fields")
     camPrefix = "PCOIOC3"    
     epics.caput(PSO + ":scanControl.VAL","Standard", wait=True, timeout=1000.0)
+
 ##    epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+
     time.sleep(5)
             
     epics.caput(camPrefix+":cam1:FrameType.VAL",'1', wait=True, timeout=1000.0)             
@@ -163,11 +172,14 @@ def edgeAcquireDark(samInPos,samStage,rotStage, shutter, PSO = "2bma:PSOFly2"):
     epics.caput(camPrefix+":cam1:NumImages.VAL","10", wait=True, timeout=1000.0)
 
     epics.caput(camPrefix+":cam1:pco_trigger_mode.VAL","Auto", wait=True, timeout=1000.0)            
+
 ##    epics.caput(camPrefix+":cam1:TriggerMode","Internal", wait=True, timeout=1000.0)            
+
     epics.caput(camPrefix+":cam1:Acquire.VAL","Acquire", wait=True, timeout=1000.0)
         
     epics.caput(camPrefix+":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)    
     epics.caput(samStage+".VAL",str(samInPos), wait=True, timeout=1000.0)    
+    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)
     print('      *** Dark Fileds: Done!')
     print('  *** Acquisition: Done!')
 

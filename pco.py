@@ -5,7 +5,7 @@ import os
 import Tkinter
 import tkMessageBox as mbox
 
-from edge_lib import *
+from pco_lib import *
 
 
 global variableDict
@@ -238,12 +238,8 @@ def main():
     setPSO(slewSpeed, scanDelta, acclTime, angStart, angEnd, PSO, rotStage)
     edgeSet(numImage, exposureTime, frate, PSO = PSO)
     edgeAcquisition(samInPos, samStage, numProjPerSweep, shutter, PSO=PSO,rotStage=rotStage)
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
     edgeAcquireFlat(samInPos, samOutPos, samStage, rotStage, shutter, PSO) 
-#    edgeAcquireFlat(samInPos, samStage, rotStage, shutter, PSO) 
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
     edgeAcquireDark(samInPos, samStage, rotStage, shutter, PSO) 
-    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)             
     
 if __name__ == '__main__':
     main()

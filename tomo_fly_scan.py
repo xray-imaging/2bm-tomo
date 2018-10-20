@@ -24,15 +24,14 @@ variableDict = {'PreDarkImages': 20,
         'PostDarkImages': 0,
         'PostWhiteImages': 0,
         'SampleXIn': 0.0,
-        'SampleXOut': 4,
+        'SampleXOut': 5,
         'SampleStartPos': 0.0,
         'SampleEndPos': 180.0,
         'StartSleep_min': 0,
         'ExposureTime': 0.1,
         'ExposureTime_flat': 0.1,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:', '2bmbSP1:'
-        'ExternalShutter': 0,
+        'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:', 'PCOIOC3:', '2bmbSP1:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05
         }
@@ -73,10 +72,10 @@ def get_calculated_num_projections(variableDict):
 def fly_scan(variableDict):
     theta = []
     # Estimate the time needed for the flyscan
-    FlyScanTimeout = (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
+    flyscan_time_estimate = (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
                       float(variableDict['CCD_Readout'])) ) + 30
     print(' ')
-    print('  *** Fly Scan Time Estimate: %f minutes' % (FlyScanTimeout/60.))
+    print('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
     global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
 
     num_images = int(variableDict['Projections'])
@@ -95,7 +94,7 @@ def fly_scan(variableDict):
     wait_pv(global_PVs['Fly_Run'], 0)
 
     # if the fly scan wait times out we should call done on the detector
-    if False == wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, FlyScanTimeout):
+    if False == wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate):
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
     print('  *** Fly Scan: Done!')
@@ -125,8 +124,10 @@ def start_scan(variableDict, fname):
     global_PVs['Fly_Taxi'].put(1, wait=True)
     wait_pv(global_PVs['Fly_Taxi'], 0)
     print('  *** Taxi before starting capture: Done!')
-    setup_detector(global_PVs, variableDict)
+
+    setup_detector(global_PVs, variableDict) #####
     setup_hdf_writer(global_PVs, variableDict, fname)
+
     if int(variableDict['PreDarkImages']) > 0:
         close_shutters(global_PVs, variableDict)
         time.sleep(2)

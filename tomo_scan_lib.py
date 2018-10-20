@@ -41,7 +41,6 @@ if TESTING_MODE == True:
     UseShutterA = False
     UseShutterB = False
 
-PG_Trigger_External_Trigger = 1 # Important for the Point Grey (continuous mode as clock issues)
 Recursive_Filter_Type = 'RecursiveAve'
 
 if UseShutterA is False and UseShutterB is False:
@@ -139,7 +138,7 @@ def init_general_PVs(global_PVs, variableDict):
             global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
 
     # detector pv's
-    if ((variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbPG3:')): 
+    if ((variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbSP1:')): 
     
         # init Point Grey PV's
         # general PV's
@@ -187,6 +186,17 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Proc1_AutoReset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:AutoResetFilter')
         global_PVs['Proc1_Filter_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterCallbacks')
 
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')   
+        global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
+        global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
+        global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')                              
+        global_PVs['Cam1_ImageMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ImageMode')   
+        global_PVs['Cam1_PCOTriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_trigger_mode')
+        global_PVs['Cam1_PCOReady2Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_ready2acquire')
+        global_PVs['Cam1_PCOSetFrameRate'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_set_frame_rate')
+        global_PVs['Cam1_PCOIsFrameRateMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_is_frame_rate_mode')
+        
     
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
@@ -194,6 +204,10 @@ def init_general_PVs(global_PVs, variableDict):
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateEnable')
         global_PVs['Cam1_TriggerSource'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerSource')
+        global_PVs['Cam1_TriggerOverlap'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerOverlap')
+
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        print('do nothing ...')
     
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
@@ -201,8 +215,8 @@ def init_general_PVs(global_PVs, variableDict):
 
 
 def stop_scan(global_PVs, variableDict):
-    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
-        print('Stop scan called!')
+        print(' ')
+        print('  *** Stop scan called!')
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
         wait_pv(global_PVs['HDF1_Capture'], 0)
@@ -219,6 +233,14 @@ def reset_CCD(global_PVs, variableDict):
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
+        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
+        global_PVs['Cam1_ImageMode'].put('Single', wait=True)
+        global_PVs['Cam1_Display'].put(1)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        print("not done yet #####")   
 
 
 def setup_detector(global_PVs, variableDict):
@@ -229,10 +251,9 @@ def setup_detector(global_PVs, variableDict):
         print(' ')
         print('  *** setup Point Grey')
 
-        if STATION == '2-BM-A': 
-            global_PVs['Cam1_AttributeFile'].put('DynaMCTDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('DynaMCTHDFLayout.xml')
-
+        if STATION == '2-BM-A':
+            global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
         else: # Mona (B-station)
             global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
             global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
@@ -247,27 +268,83 @@ def setup_detector(global_PVs, variableDict):
         global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
         # if we are using external shutter then set the exposure time
         global_PVs['Cam1_FrameRateOnOff'].put(0)
-        if variableDict.has_key('ExternalShutter'):
-            if int(variableDict['ExternalShutter']) == 1:
-                global_PVs['ExternShutterExposure'].put(float(variableDict['ExposureTime']))
-                global_PVs['ExternShutterDelay'].put(float(variableDict['Ext_ShutterOpenDelay']))
-        # if software trigger capture two frames (issue with Point grey grasshopper)
-        if PG_Trigger_External_Trigger == 1:
-            wait_time_sec = int(variableDict['ExposureTime']) + 5
-            global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
-            global_PVs['Cam1_NumImages'].put(1, wait=True)
-            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            global_PVs['Cam1_SoftwareTrigger'].put(1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            global_PVs['Cam1_SoftwareTrigger'].put(1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        else:
-            global_PVs['Cam1_TriggerMode'].put('Internal')
+
+        wait_time_sec = int(variableDict['ExposureTime']) + 5
+        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
+        global_PVs['Cam1_NumImages'].put(1, wait=True)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_SoftwareTrigger'].put(1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_SoftwareTrigger'].put(1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
         print('  *** setup Point Grey: Done!')
 
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        # setup Point Grey PV's
+        print(' ')
+        print('  *** setup FLIR camera')
+
+        if STATION == '2-BM-A':
+            global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
+        else: # Mona (B-station)
+            global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+
+        if variableDict.has_key('Display_live'):
+            print('** disable live display')
+            global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
+        global_PVs['Cam1_ImageMode'].put('Multiple')
+        global_PVs['Cam1_ArrayCallbacks'].put('Enable')
+        #global_PVs['Image1_Callbacks'].put('Enable')
+        global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
+        global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
+        # if we are using external shutter then set the exposure time
+        global_PVs['Cam1_FrameRateOnOff'].put(0)
+
+        wait_time_sec = int(variableDict['ExposureTime']) + 5
+        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+        global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
+        global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True) 
+        global_PVs['Cam1_NumImages'].put(1, wait=True)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_SoftwareTrigger'].put(1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_SoftwareTrigger'].put(1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        print('  *** setup FLIR camera: Done!')
+    
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        # setup Point PCO Edge PV's
+        print(' ')
+        print('  *** setup POC Edge camera')
+        if STATION == '2-BM-A':
+            global_PVs['Cam1_AttributeFile'].put('DynaMCTDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('DynaMCTHDFLayout.xml')           
+        else: # Space holder for now, next time PCO runs in 2-BM-B create a set of new xml files
+            global_PVs['Cam1_AttributeFile'].put('DynaMCTDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('DynaMCTHDFLayout.xml')           
+
+        wait_time_sec = int(variableDict['ExposureTime']) + 5
+        global_PVs['Cam1_ImageMode'].put("Multiple", wait=True)  
+        #global_PVs['Cam1_ArrayCallbacks'].put('Enable')
+        global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
+        global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
+        global_PVs['Cam1_NumImages'].put(1, wait=True)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_PCOTriggerMode'].put("Soft/Ext", wait=True)
+        global_PVs['Cam1_PCOReady2Acquire'].put(0, wait=True)
+        global_PVs['Cam1_PCOIsFrameRateMode'].put("DelayExp", wait=True)
+        print('  *** setup PCO Edge: Done!')
+
+    
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
@@ -281,10 +358,10 @@ def setup_frame_type(global_PVs, variableDict):
 
 def setup_hdf_writer(global_PVs, variableDict, fname=None):
 
-    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
         # setup Point Grey hdf writer PV's
         print('  ')
-        print('  *** setup Point Grey hdf_writer')
+        print('  *** setup hdf_writer')
         setup_frame_type(global_PVs, variableDict)
         if variableDict.has_key('Recursive_Filter_Enabled'):
             if variableDict['Recursive_Filter_Enabled'] == 1:
@@ -323,33 +400,33 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         global_PVs['HDF1_Capture'].put(1)
         wait_pv(global_PVs['HDF1_Capture'], 1)
         print('  *** setup Point Grey hdf_writer: Done!')
-
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        print('######')
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
 
-
+####
 def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):
     wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(frame_type)
-    if PG_Trigger_External_Trigger == 1:
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
-        global_PVs['Cam1_NumImages'].put(1)
-        for i in range(int(num_proj)):
-            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            time.sleep(0.1)
-            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-            time.sleep(0.1)
-    else:
-        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)
-        global_PVs['Cam1_NumImages'].put(int(num_proj), wait=True)
+    elif (variableDict['IOC_Prefix'] == 'PCOIOC3:'):
+        global_PVs['Cam1_TriggerMode'].put('Soft/Ext')
+        
+    global_PVs['Cam1_NumImages'].put(1)
+    for i in range(int(num_proj)):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        time.sleep(0.1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        time.sleep(0.1)
+        global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+        time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        time.sleep(0.1)
 
 
 def move_sample_in(global_PVs, variableDict):

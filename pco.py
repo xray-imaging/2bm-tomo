@@ -12,13 +12,13 @@ global variableDict
 
 variableDict = {'PreDarkImages': 0,
         'PreWhiteImages': 0,
-        'Projections': 150,
+        'Projections': 1500,
         'PostDarkImages': 20,
         'PostWhiteImages': 20,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
         'SampleStartPos': 0.0,
-        'SampleEndPos': 18.0,
+        'SampleEndPos': 180.0,
         'StartSleep_min': 0,
         'SlewSpeed': 1.0,
         'ExposureTime': 0.1,
@@ -56,6 +56,8 @@ def main():
             setPSO(global_PVs, variableDict)
 
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            print('  *** File name: %s' % fname)
+
             edgeSet(global_PVs, variableDict, fname)
 
             open_shutters(global_PVs, variableDict)

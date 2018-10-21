@@ -184,7 +184,7 @@ def edgeSet(global_PVs, variableDict, fname):
     print(' ')
     print('  *** Set PCO')
 
-    setup_frame_type(global_PVs, variableDict)
+    set_frame_type(global_PVs, variableDict)
 
     numImage = variableDict['PreDarkImages'] + \
         variableDict['PreWhiteImages'] + variableDict['Projections'] + \
@@ -238,7 +238,8 @@ def edgeAcquisition(global_PVs, variableDict):
     print('  *** Acquisition')
     print('      *** Projections')
 
-    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0)     
+    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0) 
+    time.sleep(1)    
     global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
     
     rotCurrPos = global_PVs['Motor_SampleRot'].get()
@@ -272,6 +273,7 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
+    time.sleep(1)    
     global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
     
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
@@ -286,6 +288,7 @@ def edgeAcquireDark(global_PVs, variableDict):
     print("      *** Dark Fields") 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
+    time.sleep(1)    
 
     global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)            
@@ -297,7 +300,7 @@ def edgeAcquireDark(global_PVs, variableDict):
     print('  *** Acquisition: Done!')        
  
 
-def setup_frame_type(global_PVs, variableDict):
+def set_frame_type(global_PVs, variableDict):
     global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
     global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
     global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')

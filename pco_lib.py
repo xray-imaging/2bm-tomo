@@ -6,6 +6,8 @@ from __future__ import print_function
 
 import time
 import sys
+import numpy as np
+
 from epics import PV
 
 ShutterA_Open_Value = 1
@@ -407,7 +409,8 @@ def change2Pink(ang=2.657):
     Mirr_Ang_list = np.array([1.500,1.800,2.000,2.100,2.657])
 
     angle_calibrated = find_nearest(Mirr_Ang_list, ang)
-    print("Angle entered is %s rad, the closest calibrate angle is %s" % (ang, angle_calibrated))
+    print(' ')
+    print('   *** Angle entered is %s rad, the closest calibrate angle is %s' % (ang, angle_calibrated))
 
     Mirr_YAvg_list = np.array([-0.1,0.0,0.0,0.0,0.0])
 
@@ -426,7 +429,7 @@ def change2Pink(ang=2.657):
 
     idx = np.where(Mirr_Ang_list==angle_calibrated)                
     if idx[0].size == 0:
-        print 'there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.'
+        print ('     *** ERROR: there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.')
         return    0                            
 
     Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
@@ -444,23 +447,22 @@ def change2Pink(ang=2.657):
 
     Filter = Filter_list[idx[0][0]]
 
-    print ('Angle is set at %s rad' % angle_calibrated)                
-    print ('Moving Stages ...')                
+    print('   *** Angle is set at %s rad' % angle_calibrated)                
+    print ('     *** Moving Stages ...')                
 
-
-    print('   *** Filter %s ' % Filter)
-    print('   *** Mirr_YAvg %s mm' % Mirr_YAvg)
-    print('   *** Mirr_Ang %s rad' % Mirr_Ang)
+    print ('     *** Filter %s ' % Filter)
+    print ('     *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    print ('     *** Mirr_Ang %s rad' % Mirr_Ang)
     
-    print('   *** DMM_USX %s mm' % DMM_USX)
-    print('   *** DMM_DSX %s mm' % DMM_DSX)
+    print ('     *** DMM_USX %s mm' % DMM_USX)
+    print ('     *** DMM_DSX %s mm' % DMM_DSX)
 
-    print('   *** DMM_USY_OB %s mm' % DMM_USY_OB) 
-    print('   *** DMM_USY_IB %s mm' % DMM_USY_IB)
-    print('   *** DMM_DSY %s mm' % DMM_DSY)
+    print ('     *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    print ('     *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    print ('     *** DMM_DSY %s mm' % DMM_DSY)
 
-    print('   *** Slit1Hcenter %s mm' % Slit1Hcenter)          
-    print('   *** XIASlit %s mm' % XIASlit)          
+    print ('     *** Slit1Hcenter %s mm' % Slit1Hcenter)          
+    print ('     *** XIASlit %s mm' % XIASlit)          
 
 
 #         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
@@ -596,7 +598,8 @@ def setEnergy(energy = 24.9):
     caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
 
     energy_calibrated = find_nearest(caliEng_list, energy)
-    print("Energy entered is %s keV, the closest calibrate energy is %s" % (energy, energy_calibrated))
+    print(' ')
+    print('   *** Energy entered is %s keV, the closest calibrate energy is %s' % (energy, energy_calibrated))
 
     Mirr_Ang_list = np.array([1.200,1.500,1.500,1.500,2.000,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657])
     Mirr_YAvg_list = np.array([-0.2,-0.2,-0.2,-0.2,-0.2,0.0,0.0,-0.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
@@ -615,7 +618,7 @@ def setEnergy(energy = 24.9):
     
     idx = np.where(caliEng_list==energy_calibrated)                
     if idx[0].size == 0:
-        print 'there is no specified energy_calibrated in the energy_calibrated lookup table. please choose a calibrated energy_calibrated.'
+        print ('     *** ERROR: there is no specified energy_calibrated in the energy_calibrated lookup table. please choose a calibrated energy_calibrated.')
         return    0                            
 
     Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
@@ -633,24 +636,24 @@ def setEnergy(energy = 24.9):
     DMM_DSX = DMM_DSX_list[idx[0][0]]
     XIASlit = XIASlit_list[idx[0][0]]          
 
-    print ('Energy is set at %s keV' % energy_calibrated)                
-    print ('Moving Stages ...')                
+    print('   *** Energy is set at %s keV' % energy_calibrated)                
+    print('      *** Moving Stages ...')                
 
 
-    print('   *** Mirr_Ang %s rad' % Mirr_Ang)
-    print('   *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    print('      *** Mirr_Ang %s rad' % Mirr_Ang)
+    print('      *** Mirr_YAvg %s mm' % Mirr_YAvg)
     
-    print('   *** DMM_USY_OB %s mm' % DMM_USY_OB) 
-    print('   *** DMM_USY_IB %s mm' % DMM_USY_IB)
-    print('   *** DMM_DSY %s mm' % DMM_DSY)
+    print('      *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    print('      *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    print('      *** DMM_DSY %s mm' % DMM_DSY)
 
-    print('   *** USArm %s deg' % USArm)              
-    print('   *** DSArm %s deg' % DSArm)
+    print('      *** USArm %s deg' % USArm)              
+    print('      *** DSArm %s deg' % DSArm)
 
-    print('   *** M2Y %s mm' % M2Y)
-    print('   *** DMM_USX %s mm' % DMM_USX)
-    print('   *** DMM_DSX %s mm' % DMM_DSX)
-    print('   *** XIASlit %s mm' % XIASlit)          
+    print('      *** M2Y %s mm' % M2Y)
+    print('      *** DMM_USX %s mm' % DMM_USX)
+    print('      *** DMM_DSX %s mm' % DMM_DSX)
+    print('      *** XIASlit %s mm' % XIASlit)          
 
     # epics.caput(BL+":M1angl.VAL",Mirr_Ang, wait=False, timeout=1000.0) 
     # epics.caput(BL+":M1avg.VAL",Mirr_YAvg, wait=False, timeout=1000.0) 

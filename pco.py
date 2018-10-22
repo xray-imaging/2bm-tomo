@@ -27,7 +27,9 @@ variableDict = {'PreDarkImages': 0,
         'IOC_Prefix': 'PCOIOC3:', # options: 'PCOIOC2:', 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
-        'AcclRot': 1.0
+        'AcclRot': 1.0,
+        'EnergyPink': 2.657, # for now giver in mirror angle in rads
+        'EnergyMono': 24.9
 #        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
 #        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
         }

@@ -68,7 +68,7 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
 
 def init_general_PVs(global_PVs, variableDict):
 
-    # shutter pv's
+    # shutter PVs
     global_PVs['ShutterA_Open'] = PV('2bma:A_shutter:open.VAL')
     global_PVs['ShutterA_Close'] = PV('2bma:A_shutter:close.VAL')
     global_PVs['ShutterA_Move_Status'] = PV('PA:02BM:STA_A_FES_OPEN_PL')
@@ -76,9 +76,32 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
     global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
+
+    # Filters
+    global_PVs['Filters'] = PV('2bma:fltr1:select.VAL')
+
+    # Mirror PVs
+    global_PVs['Mirr_Ang'] = PV('2bma:M1angl.VAL')
+    global_PVs['Mirr_YAvg'] = PV('2bma:M1avg.VAL')
+
+    # DMM PV    
+    global_PVs['DMM_USY_OB'] = PV('2bma:m26.VAL') 
+    global_PVs['DMM_USY_IB'] = PV('2bma:m27.VAL')
+    global_PVs['DMM_DSY'] = PV('2bma:m29.VAL')
+    global_PVs['USArm'] = PV('2bma:m30.VAL')
+    global_PVs['DSArm'] = PV('2bma:m31.VAL')
+    global_PVs['M2Y'] = PV('2bma:m32.VAL')
+    global_PVs['DMM_USX'] = PV('2bma:m25.VAL')
+    global_PVs['DMM_DSX'] = PV('2bma:m28.VAL')
+    
+    # XIA Slits
+    global_PVs['XIASlit'] = PV('2bma:m7.VAL')
+    global_PVs['Slit1Hcenter'] = PV('2bma:Slit1Hcenter.VAL')
+
+
     if STATION == '2-BM-A':
             print('*** Running in station A:')
-            # Set sample stack motor pv's:
+            # Set sample stack motor PVs:
             global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
             global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
             global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
@@ -330,4 +353,317 @@ def close_shutters(global_PVs, variableDict):
         wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
     print('  *** close_shutters: Done!')
     
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+# def change2White():
+#     shutter = "2bma:A_shutter"    
+#     BL = '2bma'
+#     epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+# #    epics.caput(BL+":m33.VAL",107.8, wait=False, timeout=1000.0)                
+#     epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)                
+#     epics.caput(BL+":M1angl.VAL",0, wait=True, timeout=1000.0)
+#     time.sleep(1)                
+#     epics.caput(BL+":M1avg.VAL",-4, wait=True, timeout=1000.0)
+#     time.sleep(1)                
+#     epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#     time.sleep(3)                
+#     epics.caput(BL+":m26.VAL",-16, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m27.VAL",-16, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m29.VAL",-16, wait=True, timeout=1000.0)                
+#     time.sleep(3)                
+#     epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)
+#     epics.caput(BL+":m7.VAL",-1.65, wait=True, timeout=1000.0)                
+                
+
+# def change2Mono():
+#     shutter = "2bma:A_shutter"    
+#     BL = '2bma'
+#     epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+# #    epics.caput(BL+":m33.VAL",121, wait=False, timeout=1000.0)                    
+#     epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#     epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#     time.sleep(1)                    
+#     epics.caput(BL+":M1angl.VAL",2.657, wait=True, timeout=1000.0)
+#     time.sleep(1)                                            
+#     epics.caput(BL+":m26.VAL",-0.1, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m27.VAL",-0.1, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m29.VAL",-0.1, wait=True, timeout=1000.0)                
+#     time.sleep(3)
+#     epics.caput(BL+":m25.VAL",81.5, wait=False, timeout=1000.0)    
+#     epics.caput(BL+":m28.VAL",81.5, wait=True, timeout=1000.0)
+#     time.sleep(3)                
+#     epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+#     epics.caput(BL+":m7.VAL",30.35, wait=True, timeout=1000.0)                
+                
+                
+def change2Pink(ang=2.657):
+
+
+    Mirr_Ang_list = np.array([1.500,1.800,2.000,2.100,2.657])
+
+    angle_calibrated = find_nearest(Mirr_Ang_list, ang)
+    print("Angle entered is %s rad, the closest calibrate angle is %s" % (ang, angle_calibrated))
+
+    Mirr_YAvg_list = np.array([-0.1,0.0,0.0,0.0,0.0])
+
+    DMM_USY_OB_list = np.array([-10,-10,-10,-10,-10])
+    DMM_USY_IB_list = np.array([-10,-10,-10,-10,-10])
+    DMM_DSY_list = np.array([-10,-10,-10,-10,-10])
+
+    DMM_USX_list = np.array([50,50,50,50,50])
+    DMM_DSX_list = np.array([50,50,50,50,50])
+
+    XIASlit_list = np.array([8.75,11.75,13.75,14.75,18.75])    
+
+    Slit1Hcenter_list = np.array([4.85,4.85,7.5,7.5,7.2])
+
+    Filter_list = np.array([0,0,0,0,0])
+
+    idx = np.where(Mirr_Ang_list==angle_calibrated)                
+    if idx[0].size == 0:
+        print 'there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.'
+        return    0                            
+
+    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+
+    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+    DMM_DSY = DMM_DSY_list[idx[0][0]]
+
+    DMM_USX = DMM_USX_list[idx[0][0]]
+    DMM_DSX = DMM_DSX_list[idx[0][0]]
+
+    XIASlit = XIASlit_list[idx[0][0]]          
+    Slit1Hcenter = Slit1Hcenter_list[idx[0][0]] 
+
+    Filter = Filter_list[idx[0][0]]
+
+    print ('Angle is set at %s rad' % angle_calibrated)                
+    print ('Moving Stages ...')                
+
+
+    print('   *** Filter %s ' % Filter)
+    print('   *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    print('   *** Mirr_Ang %s rad' % Mirr_Ang)
+    
+    print('   *** DMM_USX %s mm' % DMM_USX)
+    print('   *** DMM_DSX %s mm' % DMM_DSX)
+
+    print('   *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    print('   *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    print('   *** DMM_DSY %s mm' % DMM_DSY)
+
+    print('   *** Slit1Hcenter %s mm' % Slit1Hcenter)          
+    print('   *** XIASlit %s mm' % XIASlit)          
+
+
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",2.657, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",18.75, wait=True, timeout=1000.0)
+
+
+#     if ang == 2.657:
+#         shutter = "2bma:A_shutter"    
+#         BL = '2bma'
+#         epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+#     #    epics.caput(BL+":m33.VAL",-70.1, wait=False, timeout=1000.0)     
+#     #    epics.caput(BL+":m21.VAL",1306.0, wait=False, timeout=1000.0)                
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",2.657, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",18.75, wait=True, timeout=1000.0)
+#     elif ang == 2.1:
+#         shutter = "2bma:A_shutter"    
+#         BL = '2bma'
+#         epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+#     #    epics.caput(BL+":m33.VAL",-75.6, wait=False, timeout=1000.0) 
+#     #    epics.caput(BL+":m21.VAL",1306.0, wait=False, timeout=1000.0)                    
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",2.1, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",7.5, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",14.75, wait=True, timeout=1000.0)         
+#     elif ang == 2.0:
+#         shutter = "2bma:A_shutter"    
+#         BL = '2bma'
+#         epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+#     #    epics.caput(BL+":m33.VAL",-75.6, wait=False, timeout=1000.0) 
+#     #    epics.caput(BL+":m21.VAL",1306.0, wait=False, timeout=1000.0)                    
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",2.0, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",7.5, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",13.75, wait=True, timeout=1000.0) 
+#     elif ang == 1.8:
+#         shutter = "2bma:A_shutter"    
+#         BL = '2bma'
+#         epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+#     #    epics.caput(BL+":m33.VAL",-77.1, wait=False, timeout=1000.0)    
+#     #    epics.caput(BL+":m21.VAL",1306.0, wait=False, timeout=1000.0)                 
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",0, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",1.8, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",4.85, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",11.75, wait=True, timeout=1000.0)   
+#     elif ang == 1.5:
+#         shutter = "2bma:A_shutter"    
+#         BL = '2bma'
+#         epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+#     #    epics.caput(BL+":m33.VAL",-79.8, wait=False, timeout=1000.0)    
+#     #    epics.caput(BL+":m21.VAL",1306.0, wait=False, timeout=1000.0)                 
+#         epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+#         epics.caput(BL+":M1avg.VAL",-0.1, wait=True, timeout=1000.0)
+#         time.sleep(1)                    
+#         epics.caput(BL+":M1angl.VAL",1.5, wait=True, timeout=1000.0)
+#         time.sleep(1)
+#         epics.caput(BL+":m25.VAL",50, wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m28.VAL",50, wait=True, timeout=1000.0)
+#         time.sleep(3)                                            
+#         epics.caput(BL+":m26.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
+#         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
+#         time.sleep(3)                
+#         epics.caput(BL+":Slit1Hcenter.VAL",4.85, wait=True, timeout=1000.0)    
+#         epics.caput(BL+":m7.VAL",8.75, wait=True, timeout=1000.0)               
+
+
+def setEnergy(energy = 24.9):
+
+    shutter = "2bma:A_shutter"    
+    BL = '2bma'
+
+    # epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0)
+    # change2Mono()                
+    # if energy < 20.0:
+    #     epics.caput(BL+":fltr1:select.VAL",4, wait=True, timeout=1000.0)
+    # else:                                
+    #     epics.caput(BL+":fltr1:select.VAL",0, wait=True, timeout=1000.0)
+
+    caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
+
+    energy_calibrated = find_nearest(caliEng_list, energy)
+    print("Energy entered is %s keV, the closest calibrate energy is %s" % (energy, energy_calibrated))
+
+    Mirr_Ang_list = np.array([1.200,1.500,1.500,1.500,2.000,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657])
+    Mirr_YAvg_list = np.array([-0.2,-0.2,-0.2,-0.2,-0.2,0.0,0.0,-0.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+
+    DMM_USY_OB_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.8,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1])
+    DMM_USY_IB_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.8,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1])  
+    DMM_DSY_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.7,-0.1,-0.1,-0.2,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1]) 
+
+    USArm_list =   np.array([0.95,  1.00,  1.05,  1.10,  1.25,  1.10,  1.15,  1.20,  1.25,  1.30,  1.35,  1.40,  1.45,  1.50,  1.55,  1.60,  1.65])    
+    DSArm_list =  np.array([ 0.973, 1.022, 1.072, 1.124, 1.2745,1.121, 1.169, 1.2235,1.271, 1.3225,1.373, 1.4165,1.472, 1.5165,1.568, 1.6195,1.67])
+
+    M2Y_list =     np.array([11.63, 12.58, 13.38, 13.93, 15.57, 12.07, 13.71, 14.37, 15.57, 15.67, 17.04, 17.67, 18.89, 19.47, 20.57, 21.27, 22.27]) 
+    DMM_USX_list = np.array([27.5,27.5,27.5,27.5,27.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5])
+    DMM_DSX_list = np.array([27.5,27.5,27.5,27.5,27.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5])
+    XIASlit_list = np.array([21.45, 24.05, 25.05, 23.35, 26.35, 28.35, 29.35, 30.35, 31.35, 32.35, 33.35, 34.35, 34.35, 52.35, 53.35, 54.35, 51.35])    
+    
+    idx = np.where(caliEng_list==energy_calibrated)                
+    if idx[0].size == 0:
+        print 'there is no specified energy_calibrated in the energy_calibrated lookup table. please choose a calibrated energy_calibrated.'
+        return    0                            
+
+    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+
+    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+    DMM_DSY = DMM_DSY_list[idx[0][0]]
+
+    USArm = USArm_list[idx[0][0]]                
+    DSArm = DSArm_list[idx[0][0]]
+
+    M2Y = M2Y_list[idx[0][0]]
+    DMM_USX = DMM_USX_list[idx[0][0]]
+    DMM_DSX = DMM_DSX_list[idx[0][0]]
+    XIASlit = XIASlit_list[idx[0][0]]          
+
+    print ('Energy is set at %s keV' % energy_calibrated)                
+    print ('Moving Stages ...')                
+
+
+    print('   *** Mirr_Ang %s rad' % Mirr_Ang)
+    print('   *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    
+    print('   *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    print('   *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    print('   *** DMM_DSY %s mm' % DMM_DSY)
+
+    print('   *** USArm %s deg' % USArm)              
+    print('   *** DSArm %s deg' % DSArm)
+
+    print('   *** M2Y %s mm' % M2Y)
+    print('   *** DMM_USX %s mm' % DMM_USX)
+    print('   *** DMM_DSX %s mm' % DMM_DSX)
+    print('   *** XIASlit %s mm' % XIASlit)          
+
+    # epics.caput(BL+":M1angl.VAL",Mirr_Ang, wait=False, timeout=1000.0) 
+    # epics.caput(BL+":M1avg.VAL",Mirr_YAvg, wait=False, timeout=1000.0) 
+    
+    # epics.caput(BL+":m26.VAL",DMM_USY_OB, wait=False, timeout=1000.0) 
+    # epics.caput(BL+":m27.VAL",DMM_USY_IB, wait=False, timeout=1000.0) 
+    # epics.caput(BL+":m29.VAL",DMM_DSY, wait=False, timeout=1000.0) 
+    # epics.caput(BL+":m30.VAL",USArm, wait=False, timeout=1000.0)    
+    # epics.caput(BL+":m31.VAL",DSArm, wait=True, timeout=1000.0)
+    # time.sleep(3)                                            
+    # epics.caput(BL+":m32.VAL",M2Y, wait=True, timeout=1000.0)
+    # epics.caput(BL+":m25.VAL",DMM_USX, wait=False, timeout=1000.0)
+    # epics.caput(BL+":m28.VAL",DMM_DSX, wait=True, timeout=1000.0)
+    # epics.caput(BL+":m7.VAL",XIASlit, wait=True, timeout=1000.0)                
+    return energy_calibrated
 

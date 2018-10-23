@@ -24,7 +24,7 @@ UseShutterB = False
 
 STATION = '2-BM-A' # or '2-BM-B'
 
-TESTING_MODE = False
+TESTING_MODE = True
 
 if TESTING_MODE == True:
     UseShutterA = False
@@ -147,6 +147,8 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Cam1_FrameTypeONST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.ONST')
     global_PVs['Cam1_FrameTypeTWST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.TWST')
 
+    global_PVs['Cam1_NDAttributesFile'] = PV(variableDict['IOC_Prefix'] + 'cam1:NDAttributesFile')
+
     global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
     global_PVs['HDF1_AutoIncrement'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoIncrement')
     global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')  
@@ -159,8 +161,9 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')       
     global_PVs['HDF1_FileWriteMode'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileWriteMode')
     global_PVs['HDF1_FullFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FullFileName_RBV')
+    global_PVs['HDF1_XMLFileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:XMLFileName')               
+    global_PVs['HDF1_XMLFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:XMLFileName_RBV')        
     global_PVs['Image1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
-
 
 
 def setPSO(global_PVs, variableDict):
@@ -185,6 +188,14 @@ def edgeInit(global_PVs, variableDict):
     global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)   
     global_PVs['HDF1_Capture'].put('Done', wait=True, timeout=1000.0) 
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)    
+
+# not working yet ...
+#    if global_PVs['HDF1_XMLFileName_RBV'].get(as_string=True) is not 'PCOLayout.xml':        
+#        global_PVs['HDF1_XMLFileName'].put('PCOLayout.xml', wait=True, timeout=1000.0)                 
+#    if global_PVs['Cam1_NDAttributesFile'].get(as_string=True) is not 'PCODetectorAttributes.xml':        
+#        global_PVs['Cam1_NDAttributesFile'].put('PCODetectorAttributes.xml', wait=True, timeout=1000.0)                 
+
+
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)
     global_PVs['Cam1_ImageMode'].put('Continuous', wait=True, timeout=1000.0)
@@ -230,7 +241,7 @@ def edgeSet(global_PVs, variableDict, fname):
     if fname is not None:
         global_PVs['HDF1_FileName'].put(fname)
 
-    global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.hdf', wait=True, timeout=1000.0)                
+    global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.h5', wait=True, timeout=1000.0)                
     global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
     global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
     global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)

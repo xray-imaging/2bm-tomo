@@ -53,13 +53,14 @@ def main():
             print ('*** The %s is on' % (model))            # get sample file name
             start = 12
             end = 16
-            n_steps = 100
+            step = 0.01
             
-            print(np.linspace(start, end, n_steps))
-            for i in np.arange(start, end, 0.1):
+            print(np.arange(start, end, step))
+            for i in np.arange(start, end, step):
+                
                 print ('*** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)
-                time.sleep(5)
+                time.sleep(.5)
                 edgeInit(global_PVs, variableDict)     
                 edgeTest(global_PVs, variableDict)
                 setPSO(global_PVs, variableDict)

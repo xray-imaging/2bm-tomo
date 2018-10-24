@@ -25,8 +25,8 @@ variableDict = {'PreDarkImages': 20,
         'PostWhiteImages': 0,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
-        'SampleStartPos': 0.0,
-        'SampleEndPos': 180.0,
+        'SampleRotStart': 0.0,
+        'SampleRotEnd': 180.0,
         'StartSleep_min': 0,
         'ExposureTime': 0.1,
         'ExposureTime_flat': 0.1,
@@ -45,16 +45,16 @@ def getVariableDict():
 
 
 def get_calculated_num_projections(variableDict):
-    delta = ((float(variableDict['SampleEndPos']) - float(variableDict['SampleStartPos'])) / \
+    delta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
             (float(variableDict['Projections'])))
-    slew_speed = (float(variableDict['SampleEndPos']) - float(variableDict['SampleStartPos'])) / \
+    slew_speed = (float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
                  (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
                   float(variableDict['CCD_Readout'])))
-    print('  *** *** start_pos',float(variableDict['SampleStartPos']))
-    print('  *** *** end pos', float(variableDict['SampleEndPos']))
+    print('  *** *** start_pos',float(variableDict['SampleRotStart']))
+    print('  *** *** end pos', float(variableDict['SampleRotEnd']))
 
-    global_PVs['Fly_StartPos'].put(float(variableDict['SampleStartPos']), wait=True)
-    global_PVs['Fly_EndPos'].put(float(variableDict['SampleEndPos']), wait=True)
+    global_PVs['Fly_StartPos'].put(float(variableDict['SampleRotStart']), wait=True)
+    global_PVs['Fly_EndPos'].put(float(variableDict['SampleRotEnd']), wait=True)
     global_PVs['Fly_SlewSpeed'].put(slew_speed, wait=True)
     global_PVs['Fly_ScanDelta'].put(delta, wait=True)
     time.sleep(3.0)

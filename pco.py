@@ -17,19 +17,20 @@ variableDict = {'PreDarkImages': 0,
         'PostWhiteImages': 2,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
-        'SampleStartPos': 0.0,
-        'SampleEndPos': 18.0,
+        'SampleRotStart': 0.0,
+        'SampleRotEnd': 18.0,
         'StartSleep_min': 0,
         'SlewSpeed': 1.0,
         'ExposureTime': 0.1,
         'ExposureTime_flat': 0.1,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': 'PCOIOC3:', # options: 'PCOIOC2:', 'PCOIOC3:'
+        'IOC_Prefix': 'PCOIOC3:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'AcclRot': 1.0,
         'EnergyPink': 2.657, # for now giver in mirror angle in rads
-        'EnergyMono': 24.9
+        'EnergyMono': 24.9,
+        'Station': '2-BM-A'
 #        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
 #        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
         }
@@ -49,7 +50,7 @@ def main():
     try: 
         model = global_PVs['Cam1_Model'].get()
         if model == None:
-            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            print('*** The PCO Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
@@ -82,7 +83,7 @@ def main():
 if __name__ == '__main__':
     main()
 
-# def EdgeMultiPosScan(exposureTime=0.1, SlewSpeed=1, SampleStartPos=0, SampleEndPos = 180,
+# def EdgeMultiPosScan(exposureTime=0.1, SlewSpeed=1, SampleRotStart=0, SampleRotEnd = 180,
 #                 Projections=1500,
 #                 SampleXIn=0, SampleXOut=4,
 #                 roiSizeX = 2560, roiSizeY = 1240,
@@ -142,9 +143,9 @@ if __name__ == '__main__':
 
 #     posInit = epics.caget(posStage+".VAL")
 #     epics.caput(PSO + ":scanControl.VAL","Standard", wait=True, timeout=1000.0)                
-#     scanDelta = 1.0*(SampleEndPos-SampleStartPos)/Projections
+#     scanDelta = 1.0*(SampleRotEnd-SampleRotStart)/Projections
 #     acclTime = 1.0*SlewSpeed/accl
-#     frate = int(1.0*Projections/(1.0*(SampleEndPos-SampleStartPos)/SlewSpeed) + 5)                
+#     frate = int(1.0*Projections/(1.0*(SampleRotEnd-SampleRotStart)/SlewSpeed) + 5)                
 
 #     print("Freme Rate:", frate)
 #     numImage = Projections
@@ -166,7 +167,7 @@ if __name__ == '__main__':
 #     print "start sample scan ... "
 #     for ii in range(posNum):    
 #     # set scan parameters -- start 
-#         setPSO(SlewSpeed, scanDelta, acclTime, SampleStartPos=SampleStartPos, SampleEndPos=SampleEndPos, PSO=PSO,rotStage=rotStage)            
+#         setPSO(SlewSpeed, scanDelta, acclTime, SampleRotStart=SampleRotStart, SampleRotEnd=SampleRotEnd, PSO=PSO,rotStage=rotStage)            
 #         timestamp = [x for x in time.asctime().rsplit(' ') if x!='']                                 
 
 #         edgeSet(numImage, exposureTime, frate, PSO = PSO)

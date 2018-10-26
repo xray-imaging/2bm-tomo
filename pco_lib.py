@@ -22,8 +22,6 @@ FrameTypeWhite = 2
 UseShutterA = True
 UseShutterB = False
 
-STATION = '2-BM-A' # or '2-BM-B'
-
 TESTING_MODE = True
 
 if TESTING_MODE == True:
@@ -101,29 +99,56 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Slit1Hcenter'] = PV('2bma:Slit1Hcenter.VAL')
 
 
-    if STATION == '2-BM-A':
-            print('*** Running in station A:')
-            # Set sample stack motor PVs:
-            global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
-            global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
-            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
-            global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
-            global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
-            global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
-            global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
-            global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
-            # Set FlyScan
-            global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
-            global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
-            global_PVs['Fly_EndPos'] = PV('2bma:PSOFly2:endPos')
-            global_PVs['Fly_SlewSpeed'] = PV('2bma:PSOFly2:slewSpeed')
-            global_PVs['Fly_Taxi'] = PV('2bma:PSOFly2:taxi')
-            global_PVs['Fly_Run'] = PV('2bma:PSOFly2:fly')
-            global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
+    if variableDict['Station'] == '2-BM-A':
+        print('*** Running in station A:')
+        # Set sample stack motor PVs:
+        global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
+        global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
+        global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
+        global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
+        global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
+        global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
+        global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
+        global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
+        # Set FlyScan
+        global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
+        global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
+        global_PVs['Fly_EndPos'] = PV('2bma:PSOFly2:endPos')
+        global_PVs['Fly_SlewSpeed'] = PV('2bma:PSOFly2:slewSpeed')
+        global_PVs['Fly_Taxi'] = PV('2bma:PSOFly2:taxi')
+        global_PVs['Fly_Run'] = PV('2bma:PSOFly2:fly')
+        global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
         #    global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
         #    global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
 
+    elif variableDict['Station'] == '2-BM-B':       
+        print('*** Running in station B:')
+        # Sample stack motor pv's:
+        global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
+        global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
+        global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech ABR-150
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') 
+        global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
+        global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
+
+        # Set CCD stack motor PVs:
+        global_PVs['Motor_CCD_Z'] = PV('2bmb:m31.VAL')
+
+        # Set FlyScan
+        global_PVs['Fly_ScanDelta'] = PV('2bmb:PSOFly:scanDelta')
+        global_PVs['Fly_StartPos'] = PV('2bmb:PSOFly:startPos')
+        global_PVs['Fly_EndPos'] = PV('2bmb:PSOFly:endPos')
+        global_PVs['Fly_SlewSpeed'] = PV('2bmb:PSOFly:slewSpeed')
+        global_PVs['Fly_Taxi'] = PV('2bmb:PSOFly:taxi')
+        global_PVs['Fly_Run'] = PV('2bmb:PSOFly:fly')
+        global_PVs['Fly_ScanControl'] = PV('2bmb:PSOFly:scanControl')
+        global_PVs['Fly_Calc_Projections'] = PV('2bmb:PSOFly:numTriggers')
+        global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
+
+    else:
+        print('*** %s is not a valid station' % variableDict['Station'])
+        
     global_PVs['Cam1_Model'] = PV(variableDict['IOC_Prefix'] + 'cam1:Model_RBV')
     global_PVs['Cam1_Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:Acquire')   
     global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
@@ -136,6 +161,11 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Cam1_PCOSetFrameRate'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_set_frame_rate')
     global_PVs['Cam1_PCOReady2Acquire'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_ready2acquire')
     global_PVs['Cam1_PCOGlobalShutter'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_global_shutter')
+
+    global_PVs['Cam1_PCOLiveView'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_live_view')
+    global_PVs['Cam1_PCOCancelDump'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_cancel_dump')
+    global_PVs['Cam1_PCONumImgsSeg0'] = PV(variableDict['IOC_Prefix'] + 'pco_num_imgs_seg0_RBV')
+
     global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
     global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
     global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')     
@@ -152,7 +182,7 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
     global_PVs['HDF1_AutoIncrement'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoIncrement')
     global_PVs['HDF1_EnableCallbacks'] = PV(variableDict['IOC_Prefix'] + 'HDF1:EnableCallbacks')  
-    global_PVs['HDF1_Capture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture')
+    global_PVs['HDF1_Capture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:Capture')       
     global_PVs['HDF1_NumCapture'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture')       
     global_PVs['HDF1_NumCapture_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCapture_RBV') 
     global_PVs['HDF1_NumCaptured_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NumCaptured_RBV')
@@ -171,15 +201,85 @@ def setPSO(global_PVs, variableDict):
     print('  *** Set PSO')
 
     acclTime = 1.0 * variableDict['SlewSpeed']/variableDict['AcclRot']
-    scanDelta = 1.0*(variableDict['SampleEndPos'] - variableDict['SampleStartPos'])/variableDict['Projections']
+    scanDelta = 1.0*(variableDict['SampleRotEnd'] - variableDict['SampleRotStart'])/variableDict['Projections']
 
-    global_PVs['Fly_StartPos'].put(str(variableDict['SampleStartPos']), wait=True, timeout=1000.0)                
-    global_PVs['Fly_EndPos'].put(str(variableDict['SampleEndPos']), wait=True, timeout=1000.0)
+    global_PVs['Fly_StartPos'].put(str(variableDict['SampleRotStart']), wait=True, timeout=1000.0)                
+    global_PVs['Fly_EndPos'].put(str(variableDict['SampleRotEnd']), wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot_Velo'].put(str(variableDict['SlewSpeed']), wait=True, timeout=1000.0)
     global_PVs['Fly_SlewSpeed'].put(str(variableDict['SlewSpeed']), wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot_Accl'].put(str(acclTime), wait=True, timeout=1000.0)
     global_PVs['Fly_ScanDelta'].put(str(scanDelta), wait=True, timeout=1000.0)    
     print('  *** Set PSO: Done!')
+
+def dimaxInit(global_PVs, variableDict):
+    print(' ')
+    print('  *** Init PCO Dimax')                        
+
+    global_PVs['HDF1_EnableCallbacks'].put('Enable', wait=True, timeout=1000.0)  
+    global_PVs['Cam1_ArrayCallbacks'].put('Enable', wait=True, timeout=1000.0)  
+    
+    global_PVs['Cam1_PCOCancelDump'].put('1', wait=True, timeout=1000.0)                    
+    global_PVs['HDF1_Capture'].put('Done', wait=True, timeout=1000.0) 
+    global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)    
+
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)    
+
+    print('  *** Init PCO Dimax: Done!')                        
+
+
+def dimaxTest(global_PVs, variableDict):
+    print(' ')
+    print('  *** Testing PCO Dimax camera')
+
+    global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)  
+    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
+    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+#    global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)
+#    epics.caput(camPrefix + ":cam1:pco_global_shutter.VAL","Global", wait=True, timeout=1000.0)
+
+    global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)
+
+    global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(2160), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
+    time.sleep(3)
+    global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
+#    print 'to stop'
+#    epics.caput(camPrefix + ":cam1:Acquire.VAL","Done", wait=True, timeout=1000.0)
+    print('  *** Testing PCO Dimax camera: done!')
+    
+                
+def dimaxSet(global_PVs, variableDict):
+    print(' ')
+    print('  *** Set PCO')
+
+    set_frame_type(global_PVs, variableDict)
+
+    numImage = variableDict['PreDarkImages'] + \
+        variableDict['PreWhiteImages'] + variableDict['Projections'] + \
+        variableDict['PostDarkImages'] + variableDict['PostWhiteImages']   
+
+    frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleRotEnd'] - \
+             variableDict['SampleRotStart'])/variableDict['SlewSpeed']) + 5)
+                 
+    global_PVs['Cam1_PCOLiveView'].put('No', wait=True, timeout=1000.0)             
+    global_PVs['Cam1_NumImages'].put(str(numImage-0), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCONumImgsSeg0'].put('0', wait=True, timeout=1000.0)                    
+    global_PVs['Cam1_PCOIsFrameRateMode'].put('DelayExp', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate+.1), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_AcquireTime'].put(str(variableDict['ExposureTime']), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Soft/Ext', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)
+    global_PVs['HDF1_AutoIncrement'].put('Yes', wait=True, timeout=1000.0) 
+    global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                  
+#    time.sleep(2)    
+    #    epics.caput(camPrefix + ":HDF1:NumCapture.VAL",str(numImage), wait=True, timeout=1000.0)    
+#    epics.caput(camPrefix + ":HDF1:NumCapture_RBV.VAL",str(numImage), wait=True, timeout=1000.0)    
 
 
 def edgeInit(global_PVs, variableDict):
@@ -203,6 +303,7 @@ def edgeInit(global_PVs, variableDict):
     global_PVs['Cam1_PCOIsFrameRateMode'].put(0, wait=True, timeout=1000.0)    
     global_PVs['Cam1_AcquireTime'].put(0.2, wait=True, timeout=1000.0)
     global_PVs['Image1_EnableCallbacks'].put('Enable', wait=True, timeout=1000.0)
+
     global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
     global_PVs['Motor_SampleRot'].put(global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
@@ -226,8 +327,8 @@ def edgeSet(global_PVs, variableDict, fname):
         variableDict['PreWhiteImages'] + variableDict['Projections'] + \
         variableDict['PostDarkImages'] + variableDict['PostWhiteImages']   
 
-    frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleEndPos'] - \
-             variableDict['SampleStartPos'])/variableDict['SlewSpeed']) + 5)
+    frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleRotEnd'] - \
+             variableDict['SampleRotStart'])/variableDict['SlewSpeed']) + 5)
              
     global_PVs['Cam1_PCOIsFrameRateMode'].put('DelayExp', wait=True, timeout=1000.0)
     global_PVs['Cam1_AcquirePeriod'].put('0', wait=True, timeout=1000.0)

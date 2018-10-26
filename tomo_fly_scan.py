@@ -34,6 +34,7 @@ variableDict = {'PreDarkImages': 20,
         'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:', 'PCOIOC3:', '2bmbSP1:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05
+        'Station': '2-BM-B'
         }
 
 global_PVs = {}
@@ -61,7 +62,7 @@ def get_calculated_num_projections(variableDict):
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
 
     if calc_num_proj == None:
-        print('  *** ***   *** *** Error getting fly calculated number of projections!')
+        print('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
     if calc_num_proj != int(variableDict['Projections']):
         print('  *** ***   *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', calc_num_proj)

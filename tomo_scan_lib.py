@@ -93,49 +93,51 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
     global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
-    if STATION == '2-BM-A':
-            print('*** Running in station A:')
-            # Set sample stack motor pv's:
-            global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
-            global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
-            global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL')  
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') # Aerotech ABR-250
-            global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
-            global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
-            # Set FlyScan
-            global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
-            global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
-            global_PVs['Fly_EndPos'] = PV('2bma:PSOFly2:endPos')
-            global_PVs['Fly_SlewSpeed'] = PV('2bma:PSOFly2:slewSpeed')
-            global_PVs['Fly_Taxi'] = PV('2bma:PSOFly2:taxi')
-            global_PVs['Fly_Run'] = PV('2bma:PSOFly2:fly')
-            global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
-            global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
-            global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
-            
-    else: # 2-BM-B
-            print('*** Running in station B:')
-            # Sample stack motor pv's:
-            global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
-            global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
-            global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech ABR-150
-            global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') 
-            global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
-            global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
+    if variableDict['Station'] == '2-BM-A':
+        print('*** Running in station A:')
+        # Set sample stack motor pv's:
+        global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
+        global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
+        global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL')  
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') # Aerotech ABR-250
+        global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
+        global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
+        # Set FlyScan
+        global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
+        global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
+        global_PVs['Fly_EndPos'] = PV('2bma:PSOFly2:endPos')
+        global_PVs['Fly_SlewSpeed'] = PV('2bma:PSOFly2:slewSpeed')
+        global_PVs['Fly_Taxi'] = PV('2bma:PSOFly2:taxi')
+        global_PVs['Fly_Run'] = PV('2bma:PSOFly2:fly')
+        global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
+        global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
+        global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
+        
+    elif variableDict['Station'] == '2-BM-B':   
+        print('*** Running in station B:')
+        # Sample stack motor pv's:
+        global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
+        global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
+        global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech ABR-150
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') 
+        global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
+        global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
 
-            # Set CCD stack motor PVs:
-            global_PVs['Motor_CCD_Z'] = PV('2bmb:m31.VAL')
+        # Set CCD stack motor PVs:
+        global_PVs['Motor_CCD_Z'] = PV('2bmb:m31.VAL')
 
-            # Set FlyScan
-            global_PVs['Fly_ScanDelta'] = PV('2bmb:PSOFly:scanDelta')
-            global_PVs['Fly_StartPos'] = PV('2bmb:PSOFly:startPos')
-            global_PVs['Fly_EndPos'] = PV('2bmb:PSOFly:endPos')
-            global_PVs['Fly_SlewSpeed'] = PV('2bmb:PSOFly:slewSpeed')
-            global_PVs['Fly_Taxi'] = PV('2bmb:PSOFly:taxi')
-            global_PVs['Fly_Run'] = PV('2bmb:PSOFly:fly')
-            global_PVs['Fly_ScanControl'] = PV('2bmb:PSOFly:scanControl')
-            global_PVs['Fly_Calc_Projections'] = PV('2bmb:PSOFly:numTriggers')
-            global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
+        # Set FlyScan
+        global_PVs['Fly_ScanDelta'] = PV('2bmb:PSOFly:scanDelta')
+        global_PVs['Fly_StartPos'] = PV('2bmb:PSOFly:startPos')
+        global_PVs['Fly_EndPos'] = PV('2bmb:PSOFly:endPos')
+        global_PVs['Fly_SlewSpeed'] = PV('2bmb:PSOFly:slewSpeed')
+        global_PVs['Fly_Taxi'] = PV('2bmb:PSOFly:taxi')
+        global_PVs['Fly_Run'] = PV('2bmb:PSOFly:fly')
+        global_PVs['Fly_ScanControl'] = PV('2bmb:PSOFly:scanControl')
+        global_PVs['Fly_Calc_Projections'] = PV('2bmb:PSOFly:numTriggers')
+        global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
+    else:
+        print('*** %s is not a valid station' % variableDict['Station'])
 
     # detector pv's
     if ((variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbSP1:')): 
@@ -251,7 +253,7 @@ def setup_detector(global_PVs, variableDict):
         print(' ')
         print('  *** setup Point Grey')
 
-        if STATION == '2-BM-A':
+        if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
             global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
         else: # Mona (B-station)
@@ -287,7 +289,7 @@ def setup_detector(global_PVs, variableDict):
         print(' ')
         print('  *** setup FLIR camera')
 
-        if STATION == '2-BM-A':
+        if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
             global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
         else: # Mona (B-station)
@@ -324,7 +326,7 @@ def setup_detector(global_PVs, variableDict):
         # setup Point PCO Edge PV's
         print(' ')
         print('  *** setup POC Edge camera')
-        if STATION == '2-BM-A':
+        if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('DynaMCTDetectorAttributes.xml')
             global_PVs['HDF1_XMLFileName'].put('DynaMCTHDFLayout.xml')           
         else: # Space holder for now, next time PCO runs in 2-BM-B create a set of new xml files

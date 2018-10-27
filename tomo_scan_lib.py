@@ -30,12 +30,9 @@ DetectorAcquire = 1
 
 EPSILON = 0.1
 
-TESTING = False
+TESTING = True
 
 Recursive_Filter_Type = 'RecursiveAve'
-
-if UseShutterA is False and UseShutterB is False:
-    print('### WARNING: shutters are deactivted during the scans !!!!')
 
 
 def update_variable_dict(variableDict):

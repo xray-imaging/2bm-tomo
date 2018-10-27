@@ -45,8 +45,8 @@ def main():
     init_general_PVs(global_PVs, variableDict)
 
     dimaxInit(global_PVs, variableDict)
-    dimaxTest(global_PVs, variableDict)
-    dimaxSet(global_PVs, variableDict)
+    ##dimaxTest(global_PVs, variableDict)
+    ##dimaxSet(global_PVs, variableDict)
     
 if __name__ == '__main__':
     main()

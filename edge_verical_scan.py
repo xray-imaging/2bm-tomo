@@ -28,6 +28,7 @@ variableDict = {'PreDarkImages': 0,
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'AcclRot': 1.0
+        'Station': '2-BM-A'
 #        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
 #        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
         }

@@ -12,13 +12,13 @@ global variableDict
 
 variableDict = {'PreDarkImages': 0,
         'PreWhiteImages': 0,
-        'Projections': 15,
-        'PostDarkImages': 2,
-        'PostWhiteImages': 2,
+        'Projections': 1500,
+        'PostDarkImages': 20,
+        'PostWhiteImages': 20,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
         'SampleRotStart': 0.0,
-        'SampleRotEnd': 18.0,
+        'SampleRotEnd': 180.0,
         'StartSleep_min': 0,
         'SlewSpeed': 1.0,
         'ExposureTime': 0.1,
@@ -39,9 +39,6 @@ global_PVs = {}
 
     
 def main():
-
-    update_variable_dict(variableDict)
-    init_general_PVs(global_PVs, variableDict)
 
     tic =  time.time()
     update_variable_dict(variableDict)

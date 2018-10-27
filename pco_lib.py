@@ -211,6 +211,7 @@ def setPSO(global_PVs, variableDict):
     global_PVs['Fly_ScanDelta'].put(str(scanDelta), wait=True, timeout=1000.0)    
     print('  *** Set PSO: Done!')
 
+
 def dimaxInit(global_PVs, variableDict):
     print(' ')
     print('  *** Init PCO Dimax')                        
@@ -318,6 +319,22 @@ def edgeInit(global_PVs, variableDict):
     print('  *** Init PCO: Done!')
 
 
+def edgeTest(global_PVs, variableDict):
+    print(' ')
+    print('  *** Testing PCO camera')
+    global_PVs['Cam1_ArrayCallbacks'].put('Enable', wait=True, timeout=1000.0)
+    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
+    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOGlobalShutter'].put('Rolling', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)                
+    global_PVs['Cam1_AcquireTime'].put("0.001000", wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(1240), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
+    print('  *** Testing PCO camera: Done!')
+
+
 def edgeSet(global_PVs, variableDict, fname):    
     print(' ')
     print('  *** Set PCO')
@@ -355,21 +372,6 @@ def edgeSet(global_PVs, variableDict, fname):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)            
     print('  *** Set PCO: Done!')
 
-
-def edgeTest(global_PVs, variableDict):
-    print(' ')
-    print('  *** Testing PCO camera')
-    global_PVs['Cam1_ArrayCallbacks'].put('Enable', wait=True, timeout=1000.0)
-    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
-    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
-    global_PVs['Cam1_PCOGlobalShutter'].put('Rolling', wait=True, timeout=1000.0)
-    global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)                
-    global_PVs['Cam1_AcquireTime'].put("0.001000", wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(str(1240), wait=True, timeout=1000.0)
-    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
-    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
-    print('  *** Testing PCO camera: Done!')
 
 def edgeAcquisition(global_PVs, variableDict):
     print(' ')

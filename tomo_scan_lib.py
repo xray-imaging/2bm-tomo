@@ -28,18 +28,9 @@ FrameTypeWhite = 2
 DetectorIdle = 0
 DetectorAcquire = 1
 
-UseShutterA = False
-UseShutterB = True
-
-STATION = '2-BM-B' # or '2-BM-A'
-
 EPSILON = 0.1
 
-TESTING_MODE = False
-
-if TESTING_MODE == True:
-    UseShutterA = False
-    UseShutterB = False
+TESTING = False
 
 Recursive_Filter_Type = 'RecursiveAve'
 
@@ -456,26 +447,35 @@ def move_sample_out(global_PVs, variableDict):
 def open_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** open_shutters')
-    if UseShutterA is True:
-        global_PVs['ShutterA_Open'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
-        time.sleep(3)
-    if UseShutterB is True:
-        global_PVs['ShutterB_Open'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
-    print('  *** open_shutters: Done!')
-
+    if TESTING:
+        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+    else:
+        if variableDict['Station'] == '2-BM-A':
+        # Use Shutter A
+            global_PVs['ShutterA_Open'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+            time.sleep(3)
+            print('  *** open_shutter A: Done!')
+        elif variableDict['Station'] == '2-BM-B':
+            global_PVs['ShutterB_Open'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
+            print('  *** open_shutter B: Done!')
+ 
 
 def close_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** close_shutters')
-    if UseShutterA is True:
-        global_PVs['ShutterA_Close'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
-    if UseShutterB is True:
-        global_PVs['ShutterB_Close'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
-    print('  *** close_shutters: Done!')
+    if TESTING:
+        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+    else:
+        if variableDict['Station'] == '2-BM-A':
+            global_PVs['ShutterA_Close'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+            print('  *** close_shutter A: Done!')
+        elif variableDict['Station'] == '2-BM-B':
+            global_PVs['ShutterB_Close'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
+            print('  *** close_shutter B: Done!')
 
 
 def add_theta(global_PVs, variableDict, theta_arr):

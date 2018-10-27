@@ -33,7 +33,7 @@ variableDict = {'PreDarkImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:', 'PCOIOC3:', '2bmbSP1:'
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.05
+        'CCD_Readout': 0.05,
         'Station': '2-BM-B'
         }
 

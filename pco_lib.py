@@ -236,7 +236,8 @@ def dimaxTest(global_PVs, variableDict):
     global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)  
     global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
     global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
-#    global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)
+
 #    epics.caput(camPrefix + ":cam1:pco_global_shutter.VAL","Global", wait=True, timeout=1000.0)
 
     global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)

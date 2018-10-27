@@ -19,17 +19,18 @@ FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
 
-UseShutterA = True
-UseShutterB = False
 
-TESTING_MODE = True
+#UseShutterA = True
+#UseShutterB = False
 
-if TESTING_MODE == True:
-    UseShutterA = False
-    UseShutterB = False
+TESTING = True
 
-if UseShutterA is False and UseShutterB is False:
-    print('### WARNING: shutters are deactivted during the scans !!!!')
+#if TESTING_MODE == True:
+#    UseShutterA = False
+#    UseShutterB = False
+
+#if UseShutterA is False and UseShutterB is False:
+#    print('### WARNING: shutters are deactivted during the scans !!!!')
 
 def update_variable_dict(variableDict):
     argDic = {}
@@ -286,7 +287,7 @@ def dimaxSet(global_PVs, variableDict):
 
 def edgeInit(global_PVs, variableDict):
     print(' ')
-    print('  *** Init PCO')                        
+    print('  *** Init PCO Edge')                        
     global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)   
     global_PVs['HDF1_Capture'].put('Done', wait=True, timeout=1000.0) 
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)    
@@ -316,12 +317,12 @@ def edgeInit(global_PVs, variableDict):
     global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
     if variableDict['SampleXIn'] is not None:
         global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)  
-    print('  *** Init PCO: Done!')
+    print('  *** Init PCO Edge: Done!')
 
 
 def edgeTest(global_PVs, variableDict):
     print(' ')
-    print('  *** Testing PCO camera')
+    print('  *** Testing PCO Edge camera')
     global_PVs['Cam1_ArrayCallbacks'].put('Enable', wait=True, timeout=1000.0)
     global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
     global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
@@ -332,12 +333,12 @@ def edgeTest(global_PVs, variableDict):
     global_PVs['Cam1_SizeY'].put(str(1240), wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
-    print('  *** Testing PCO camera: Done!')
+    print('  *** Testing PCO Edge camera: Done!')
 
 
 def edgeSet(global_PVs, variableDict, fname):    
     print(' ')
-    print('  *** Set PCO')
+    print('  *** Set PCO Edge')
 
     set_frame_type(global_PVs, variableDict)
 
@@ -370,7 +371,7 @@ def edgeSet(global_PVs, variableDict, fname):
     global_PVs['Cam1_PCOTriggerMode'].put('Soft/Ext', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)            
-    print('  *** Set PCO: Done!')
+    print('  *** Set PCO Edge: Done!')
 
 
 def edgeAcquisition(global_PVs, variableDict):
@@ -449,26 +450,35 @@ def set_frame_type(global_PVs, variableDict):
 def open_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** open_shutters')
-    if UseShutterA is True:
-        global_PVs['ShutterA_Open'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
-        time.sleep(3)
-    if UseShutterB is True:
-        global_PVs['ShutterB_Open'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
-    print('  *** open_shutters: Done!')
-
+    if TESTING:
+        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+    else:
+        if variableDict['Station'] == '2-BM-A':
+        # Use Shutter A
+            global_PVs['ShutterA_Open'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+            time.sleep(3)
+            print('  *** open_shutter A: Done!')
+        elif variableDict['Station'] == '2-BM-B':
+            global_PVs['ShutterB_Open'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
+            print('  *** open_shutter B: Done!')
+ 
 
 def close_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** close_shutters')
-    if UseShutterA is True:
-        global_PVs['ShutterA_Close'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
-    if UseShutterB is True:
-        global_PVs['ShutterB_Close'].put(1, wait=True)
-        wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
-    print('  *** close_shutters: Done!')
+    if TESTING:
+        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+    else:
+        if variableDict['Station'] == '2-BM-A':
+            global_PVs['ShutterA_Close'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+            print('  *** close_shutter A: Done!')
+        elif variableDict['Station'] == '2-BM-B':
+            global_PVs['ShutterB_Close'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
+            print('  *** close_shutter B: Done!')
     
 
 def find_nearest(array, value):

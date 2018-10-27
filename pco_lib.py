@@ -164,9 +164,13 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Cam1_PCOGlobalShutter'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_global_shutter')
 
     global_PVs['Cam1_PCOLiveView'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_live_view')
+    global_PVs['Cam1_PCOImgs2Dump'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_imgs2dump') 
+    global_PVs['Cam1_PCOImgs2Dump_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_imgs2dump_RBV')           
     global_PVs['Cam1_PCOCancelDump'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_cancel_dump')
-    global_PVs['Cam1_PCONumImgsSeg0'] = PV(variableDict['IOC_Prefix'] + 'pco_num_imgs_seg0_RBV')
-
+    global_PVs['Cam1_PCONumImgsSeg0_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_num_imgs_seg0_RBV')
+    global_PVs['Cam1_PCOMaxImgsSeg0_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_max_imgs_seg0_RBV')
+    global_PVs['Cam1_PCODumpCameraMemory'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_dump_camera_memory')
+    
     global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
     global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
     global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')     
@@ -236,16 +240,16 @@ def dimaxTest(global_PVs, variableDict):
     print('  *** Testing PCO Dimax camera')
 
     global_PVs['HDF1_EnableCallbacks'].put(1, wait=True, timeout=1000.0)  
-    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)
-    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+    global_PVs['Cam1_NumImages'].put('20', wait=True, timeout=1000.0)
+##    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)
 
-#    epics.caput(camPrefix + ":cam1:pco_global_shutter.VAL","Global", wait=True, timeout=1000.0)
+##    global_PVs['Cam1_PCOGlobalShutter'].put('Global',  wait=True, timeout=1000.0)
 
-    global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)
+    global_PVs['Cam1_AcquireTime'].put('0.003000', wait=True, timeout=1000.0)
 
-    global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(str(2160), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeX'].put(str(2016), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(1400), wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
     time.sleep(3)
@@ -255,11 +259,12 @@ def dimaxTest(global_PVs, variableDict):
     print('  *** Testing PCO Dimax camera: done!')
     
                 
-def dimaxSet(global_PVs, variableDict):
+def dimaxSet(global_PVs, variableDict, fname):
     print(' ')
-    print('  *** Set PCO')
+    print('  *** Set PCO Dimax')
 
     set_frame_type(global_PVs, variableDict)
+
 
     numImage = variableDict['PreDarkImages'] + \
         variableDict['PreWhiteImages'] + variableDict['Projections'] + \
@@ -267,10 +272,10 @@ def dimaxSet(global_PVs, variableDict):
 
     frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleRotEnd'] - \
              variableDict['SampleRotStart'])/variableDict['SlewSpeed']) + 5)
-                 
+
     global_PVs['Cam1_PCOLiveView'].put('No', wait=True, timeout=1000.0)             
     global_PVs['Cam1_NumImages'].put(str(numImage-0), wait=True, timeout=1000.0)                
-    global_PVs['Cam1_PCONumImgsSeg0'].put('0', wait=True, timeout=1000.0)                    
+    global_PVs['Cam1_PCONumImgsSeg0_RBV'].put('0', wait=True, timeout=1000.0)                    
     global_PVs['Cam1_PCOIsFrameRateMode'].put('DelayExp', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOSetFrameRate'].put(str(frate+.1), wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOSetFrameRate'].put(str(frate), wait=True, timeout=1000.0)                
@@ -280,11 +285,71 @@ def dimaxSet(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)
     global_PVs['HDF1_AutoIncrement'].put('Yes', wait=True, timeout=1000.0) 
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                  
+
+    if fname is not None:
+        global_PVs['HDF1_FileName'].put(fname)
+
+    print('  *** Set PCO Dimax: Done!')
 #    time.sleep(2)    
     #    epics.caput(camPrefix + ":HDF1:NumCapture.VAL",str(numImage), wait=True, timeout=1000.0)    
 #    epics.caput(camPrefix + ":HDF1:NumCapture_RBV.VAL",str(numImage), wait=True, timeout=1000.0)    
 
 
+def dimaxDump(global_PVs, variableDict):    
+    print(' ')
+    print('  *** PCO Dimax dump')                        
+    global_PVs['HDF1_NumCapture'].put(str(global_PVs[Cam1_PCOMaxImgsSeg0_RBV].get()), wait=True, timeout=1000.0)    
+    global_PVs['HDF1_NumCapture_RBV'].put(str(global_PVs[Cam1_PCOMaxImgsSeg0_RBV].get()), wait=True, timeout=1000.0)
+#    epics.caput(camPrefix + ":HDF1:NumCaptured_RBV.VAL","0", wait=True, timeout=1000.0)                
+##    global_PVs['HDF1_FilePath.VAL",filepath, wait=True, timeout=1000.0)
+##    global_PVs['HDF1_FileName.VAL",filename, wait=True, timeout=1000.0)    
+##    global_PVs['HDF1_FileTemplate.VAL","%s%s_%4.4d.hdf", wait=True, timeout=1000.0)                
+    global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
+
+    time.sleep(5)
+    global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0) 
+    global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)  
+    time.sleep(5)     
+    global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)                                
+#    while epics.caget(camPrefix + ":HDF1:Capture_RBV.VAL") != 'Capturing':
+#         epics.caput(camPrefix + ":HDF1:Capture.VAL","Capture", wait=False, timeout=1000.0)   
+#         time.sleep(1)
+
+    print('  *** PCO Dimax dump: Done!')                        
+    
+def dimaxAcquireFlat(global_PVs, variableDict):  
+    print(' ')
+    print('  *** PCO Dimax acquire flats')                        
+    global_PVs['HDF1_NumCapture'].put('10', wait=True, timeout=1000.0)
+    global_PVs['HDF1_NumCapture_RBV'].put('10', wait=True, timeout=1000.0)                
+    global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
+    global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
+    global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
+    time.sleep(1)    
+    global_PVs['Cam1_NumImages'].put('10', wait=True, timeout=1000.0)            
+    global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
+#    epics.caput(camPrefix + ":cam1:Acquire.VAL","Acquire", wait=False, timeout=1000.0)
+#    epics.caput(PSO + ":startPos.VAL","0.00000", wait=True, timeout=1000.0)
+#    epics.caput(PSO + ":endPos.VAL","6", wait=True, timeout=1000.0)
+#    epics.caput(PSO + ":slewSpeed.VAL","3.0", wait=True, timeout=1000.0)
+#    epics.caput(PSO+":scanDelta.VAL","0.3", wait=True, timeout=1000.0)
+#    epics.caput(rotStage + ".VELO","3.0", wait=True, timeout=1000.0)
+#    epics.caput(rotStage + ".ACCL","1.", wait=True, timeout=1000.0)        
+#    epics.caput(PSO + ":taxi.VAL","Taxi", wait=True, timeout=1000.0)
+#    epics.caput(PSO + ":fly.VAL","Fly", wait=True, timeout=1000.0)
+#    epics.caput(rotStage + ".VELO","50.00000", wait=True, timeout=1000.0)
+#    epics.caput(rotStage + ".VAL","0.00000", wait=True, timeout=1000.0)   
+    
+    global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
+    
+    global_PVs['Cam1_PCOImgs2Dump'].put('10', wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOImgs2Dump_RBV'].put('10', wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
+    print('  *** PCO Dimax acquire flats: Done!')                        
+   
 def edgeInit(global_PVs, variableDict):
     print(' ')
     print('  *** Init PCO Edge')                        

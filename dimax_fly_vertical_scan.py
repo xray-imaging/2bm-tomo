@@ -52,6 +52,10 @@ def main():
             
             print(np.arange(start, end, step))
             for i in np.arange(start, end, step):
+                print ('*** The sample vertical position is at %s mm' % (i))
+                global_PVs['Motor_SampleY'].put(i, wait=True)
+                time.sleep(1)
+
                 dimaxInit(global_PVs, variableDict)     
 
                 dimaxTest(global_PVs, variableDict)

@@ -23,7 +23,7 @@ FrameTypeWhite = 2
 #UseShutterA = True
 #UseShutterB = False
 
-TESTING = True
+TESTING = False
 
 #if TESTING_MODE == True:
 #    UseShutterA = False
@@ -473,7 +473,7 @@ def edgeTest(global_PVs, variableDict):
     global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)                
     global_PVs['Cam1_AcquireTime'].put("0.001000", wait=True, timeout=1000.0)
     global_PVs['Cam1_SizeX'].put(str(2560), wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(str(1240), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(1500), wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
     print('  *** Testing PCO Edge camera: Done!')

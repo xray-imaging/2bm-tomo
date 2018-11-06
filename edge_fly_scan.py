@@ -22,7 +22,6 @@ variableDict = {'PreDarkImages': 0,
         'StartSleep_min': 0,
         'SlewSpeed': 1.0,
         'ExposureTime': 0.1,
-        'ExposureTime_flat': 0.1,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
@@ -37,6 +36,10 @@ variableDict = {'PreDarkImages': 0,
 
 global_PVs = {}
 
+
+def getVariableDict():
+    global variableDict
+    return variableDict
     
 def main():
 

@@ -35,7 +35,11 @@ variableDict = {'PreDarkImages': 0,
 
 global_PVs = {}
 
-    
+def getVariableDict():
+    global variableDict
+    return variableDict
+
+
 def main():
 
     update_variable_dict(variableDict)

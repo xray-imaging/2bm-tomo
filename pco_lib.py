@@ -20,17 +20,8 @@ FrameTypeDark = 1
 FrameTypeWhite = 2
 
 
-#UseShutterA = True
-#UseShutterB = False
-
 TESTING = False
 
-#if TESTING_MODE == True:
-#    UseShutterA = False
-#    UseShutterB = False
-
-#if UseShutterA is False and UseShutterB is False:
-#    print('### WARNING: shutters are deactivted during the scans !!!!')
 
 def update_variable_dict(variableDict):
     argDic = {}

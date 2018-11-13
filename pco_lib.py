@@ -20,7 +20,7 @@ FrameTypeDark = 1
 FrameTypeWhite = 2
 
 
-TESTING = False
+TESTING = True
 
 
 def update_variable_dict(variableDict):
@@ -70,7 +70,7 @@ def dimaxTest(global_PVs, variableDict):
     global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)
 
     global_PVs['Cam1_SizeX'].put(str(2016), wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(str(1300), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(str(600), wait=True, timeout=1000.0)
 
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)     # note on Acquire wait must be False
@@ -126,6 +126,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
         global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
         global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
+        global_PVs['Motor_Stress'] = PV('2bma:m58.VAL') 
         # Set FlyScan
         global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
         global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
@@ -297,6 +298,7 @@ def dimaxAcquisition(global_PVs, variableDict):
 ##    global_PVs['Fast_Shutter'].put('0', wait=True, timeout=1000.0)   
     dimaxDump(global_PVs, variableDict)                                
     while (global_PVs['HDF1_NumCaptured_RBV'].get() != global_PVs['Cam1_PCOImgs2Dump_RBV'].get()):   
+        #print(global_PVs['HDF1_NumCaptured_RBV'].get(), global_PVs['Cam1_PCOImgs2Dump_RBV'].get())
         time.sleep(1)                    
 
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
@@ -323,7 +325,7 @@ def dimaxAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)    
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
-    time.sleep(15)
+    time.sleep(10)
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** Dark Fileds: Done!')
     print('  *** Acquisition: Done!')        
@@ -335,7 +337,7 @@ def dimaxAcquireFlat(global_PVs, variableDict):
 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
-    time.sleep(5)
+    time.sleep(1)
     global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
     global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)

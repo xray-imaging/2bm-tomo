@@ -8,25 +8,27 @@ from pco_lib import *
 
 global variableDict
 
-variableDict = {'Projections': 1500,
-        'PostDarkImages': 20,
-        'PostWhiteImages': 20,
-        'SampleXIn': 0.0,
-        'SampleXOut': 5,
+variableDict = {
+        'ExposureTime': 0.0002,
+        'SlewSpeed': 180.0,
+        'AcclRot': 80.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'StartSleep_min': 0,
-        'SlewSpeed': 1.0,
-        'ExposureTime': 0.02,
+        'Projections': 1500,
+        'SampleXIn': 0.0,
+        'SampleXOut': 5,
+        'roiSizeX': 2016, 
+        'roiSizeY': 600,        
+        'PostWhiteImages': 20,
+        'PostDarkImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC2:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
-        'AcclRot': 1.0,
         'EnergyPink': 2.657, # for now giver in mirror angle in rads
         'EnergyMono': 24.9,
-        'Station': '2-BM-A'
-#        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
+        'Station': '2-BM-A',
+        'StartSleep_min': 0,#        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
 #        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
         }
 
@@ -46,9 +48,13 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
-            start = 12
-            end = 16
-            step = 0.01
+            start = 0
+            end = 1
+            step = 0.1
+            
+            dimaxInit(global_PVs, variableDict)     
+
+            dimaxTest(global_PVs, variableDict)
             
             print(np.arange(start, end, step))
             for i in np.arange(start, end, step):
@@ -56,32 +62,37 @@ def main():
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 time.sleep(1)
 
-                dimaxInit(global_PVs, variableDict)     
-
-                dimaxTest(global_PVs, variableDict)
-
                 fname = global_PVs['HDF1_FileName'].get(as_string=True)
                 print(' ')
                 print('  *** File name prefix: %s' % fname)
-                
+                print('start: %s' % str((time.time() - tic)))
+
 
                 dimaxSet(global_PVs, variableDict, fname)
+                print('set camera: %s' % str((time.time() - tic)))
 
                 setPSO(global_PVs, variableDict)
+                print('set fly scan: %s' % str((time.time() - tic)))
 
                 open_shutters(global_PVs, variableDict)
+                print('open shutter: %s' % str((time.time() - tic)))
                 
                 dimaxAcquisition(global_PVs, variableDict)
+                print('acquisition: %s' % str((time.time() - tic)))
                             
-                time.sleep(2)                
+                time.sleep(1)                
 
-                dimaxAcquireFlat(global_PVs, variableDict)  
-
+                dimaxAcquireFlat(global_PVs, variableDict)
+                print('flat: %s' % str((time.time() - tic)))
+                
                 close_shutters(global_PVs, variableDict)
+                print('close: %s' % str((time.time() - tic)))
+                
                 dimaxAcquireDark(global_PVs, variableDict)
+                print('dark: %s' % str((time.time() - tic)))
                 
                 print(' ')
-                print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                print('  *** Total scan time: %s minutes' % str((time.time() - tic)))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
                 print('  *** Done!')
 

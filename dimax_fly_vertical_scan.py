@@ -40,7 +40,7 @@ def main():
     tic =  time.time()
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
-    
+
     try: 
         model = global_PVs['Cam1_Model'].get()
         if model == None:
@@ -48,48 +48,47 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
-            start = 0
-            end = 1
-            step = 0.1
+            start = 0 
+            end = 3
+            step = 0.01
             
             dimaxInit(global_PVs, variableDict)     
 
             dimaxTest(global_PVs, variableDict)
+
+            fname_prefix = global_PVs['HDF1_FileName'].get(as_string=True)
             
             print(np.arange(start, end, step))
+            
+            findex = 0
             for i in np.arange(start, end, step):
+                global_PVs['HDF1_FileNumber'].put(0, wait=True)
+
                 print ('*** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 time.sleep(1)
 
-                fname = global_PVs['HDF1_FileName'].get(as_string=True)
+                fname = fname_prefix + '_' + str(findex)
+                findex = findex + 1
+                
                 print(' ')
                 print('  *** File name prefix: %s' % fname)
-                print('start: %s' % str((time.time() - tic)))
-
 
                 dimaxSet(global_PVs, variableDict, fname)
-                print('set camera: %s' % str((time.time() - tic)))
 
                 setPSO(global_PVs, variableDict)
-                print('set fly scan: %s' % str((time.time() - tic)))
 
                 open_shutters(global_PVs, variableDict)
-                print('open shutter: %s' % str((time.time() - tic)))
                 
                 dimaxAcquisition(global_PVs, variableDict)
-                print('acquisition: %s' % str((time.time() - tic)))
                             
                 time.sleep(1)                
 
                 dimaxAcquireFlat(global_PVs, variableDict)
-                print('flat: %s' % str((time.time() - tic)))
                 
                 close_shutters(global_PVs, variableDict)
-                print('close: %s' % str((time.time() - tic)))
                 
                 dimaxAcquireDark(global_PVs, variableDict)
-                print('dark: %s' % str((time.time() - tic)))
                 
                 print(' ')
                 print('  *** Total scan time: %s minutes' % str((time.time() - tic)))

@@ -11,7 +11,7 @@ global variableDict
 variableDict = {
         'ExposureTime': 0.0005,
         'SlewSpeed': 180.0,
-        'AcclRot': 80.0,
+        'AcclRot': 180.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,

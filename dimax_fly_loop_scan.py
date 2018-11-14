@@ -59,6 +59,7 @@ def main():
             fname_prefix = global_PVs['HDF1_FileName'].get(as_string=True)
             
             print(np.arange(start, end, step))
+            open_shutters(global_PVs, variableDict)
             
             findex = 0
             for i in np.arange(start, end, step):
@@ -66,7 +67,8 @@ def main():
 
                 global_PVs['HDF1_FileNumber'].put(0, wait=True)
 
-                print ('*** Scan number %s' % (i))
+                print(' ')
+                print ('  *** Scan number %s' % (i))
                 #global_PVs['Motor_SampleY'].put(i, wait=True)
                 time.sleep(1)
 
@@ -79,8 +81,6 @@ def main():
                 dimaxSet(global_PVs, variableDict, fname)
 
                 setPSO(global_PVs, variableDict)
-
-                open_shutters(global_PVs, variableDict)
                 
                 dimaxAcquisition(global_PVs, variableDict)
                             
@@ -93,9 +93,13 @@ def main():
                 #dimaxAcquireDark(global_PVs, variableDict)
                 
                 print(' ')
-                print('  *** Total scan time: %s minutes' % str((time.time() - tic_scan)))
+                print('  *** Total scan time: %s s' % str((time.time() - tic_scan)))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
                 print('  *** Done!')
+            
+            dimaxAcquireFlat(global_PVs, variableDict)                
+            close_shutters(global_PVs, variableDict)               
+            dimaxAcquireDark(global_PVs, variableDict)
 
     except  KeyError:
         print('  *** Some PV assignment failed!')

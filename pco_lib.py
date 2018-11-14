@@ -69,8 +69,8 @@ def dimaxTest(global_PVs, variableDict):
 
     global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)
 
-    global_PVs['Cam1_SizeX'].put(str(2016), wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(str(600), wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeX'].put(variableDict['roiSizeX'], wait=True, timeout=1000.0)
+    global_PVs['Cam1_SizeY'].put(variableDict['roiSizeY'], wait=True, timeout=1000.0)
 
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)     # note on Acquire wait must be False

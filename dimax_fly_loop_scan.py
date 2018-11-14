@@ -48,9 +48,9 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
-            start = 0 
-            end = 7
-            step = 1
+            loop_start = 0 
+            loop_end = 7
+            loop_step = 1
             
             dimaxInit(global_PVs, variableDict)     
 
@@ -58,11 +58,11 @@ def main():
 
             fname_prefix = global_PVs['HDF1_FileName'].get(as_string=True)
             
-            print(np.arange(start, end, step))
+            print(np.arange(loop_start, loop_end, loop_step))
             open_shutters(global_PVs, variableDict)
             
             findex = 0
-            for i in np.arange(start, end, step):
+            for i in np.arange(loop_start, loop_end, loop_step):
                 tic_scan =  time.time()
 
                 global_PVs['HDF1_FileNumber'].put(0, wait=True)

@@ -9,14 +9,14 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.0002,
+        'ExposureTime': 0.0005,
         'SlewSpeed': 180.0,
         'AcclRot': 80.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
         'SampleXIn': 0.0,
-        'SampleXOut': 5,
+        'SampleXOut': 10,
         'roiSizeX': 2016, 
         'roiSizeY': 600,        
         'PostWhiteImages': 20,

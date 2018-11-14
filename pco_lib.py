@@ -20,7 +20,7 @@ FrameTypeDark = 1
 FrameTypeWhite = 2
 
 
-TESTING = True
+TESTING = False
 
 
 def update_variable_dict(variableDict):

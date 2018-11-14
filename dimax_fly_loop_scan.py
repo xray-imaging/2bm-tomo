@@ -61,7 +61,7 @@ def main():
             print(np.arange(loop_start, loop_end, loop_step))
             open_shutters(global_PVs, variableDict)
             
-            findex = 0
+            findex_loop = 0
             for i in np.arange(loop_start, loop_end, loop_step):
                 tic_scan =  time.time()
 
@@ -72,8 +72,8 @@ def main():
                 #global_PVs['Motor_SampleY'].put(i, wait=True)
                 time.sleep(1)
 
-                fname = fname_prefix + '_' + str(findex)
-                findex = findex + 1
+                fname = fname_prefix + '_' + str(findex_loop)
+                findex_loop = findex_loop + 1
                 
                 print(' ')
                 print('  *** File name prefix: %s' % fname)

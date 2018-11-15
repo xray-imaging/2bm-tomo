@@ -49,7 +49,7 @@ def main():
         else:
             print ('*** The %s is on' % (model))            # get sample file name
             loop_start = 0 
-            loop_end = 3
+            loop_end = 9
             loop_step = 1
             
             dimaxInit(global_PVs, variableDict)
@@ -86,6 +86,8 @@ def main():
                     print('                 *** File name prefix: %s' % fname)
 
                     dimaxSet(global_PVs, variableDict, fname)
+                    global_PVs['HDF1_FileTemplate'].put('%s%s.h5', wait=True, timeout=1000.0) 
+
                     setPSO(global_PVs, variableDict)
                     dimaxAcquisition(global_PVs, variableDict)
 
@@ -99,6 +101,7 @@ def main():
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
             
+            global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.h5', wait=True, timeout=1000.0) 
             dimaxAcquireFlat(global_PVs, variableDict)                
             close_shutters(global_PVs, variableDict)               
             dimaxAcquireDark(global_PVs, variableDict)

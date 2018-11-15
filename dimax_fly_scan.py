@@ -18,7 +18,7 @@ variableDict = {
         'SampleXIn': 0.0,
         'SampleXOut': 10,
         'roiSizeX': 2016, 
-        'roiSizeY': 600,        
+        'roiSizeY': 900,        
         'PostWhiteImages': 20,
         'PostDarkImages': 20,
         'ShutterOpenDelay': 0.00,
@@ -51,12 +51,11 @@ def main():
             dimaxInit(global_PVs, variableDict)     
 
             dimaxTest(global_PVs, variableDict)
-
+            
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
             print(' ')
             print('  *** File name prefix: %s' % fname)
             
-
             dimaxSet(global_PVs, variableDict, fname)
 
             setPSO(global_PVs, variableDict)
@@ -65,6 +64,7 @@ def main():
             
             dimaxAcquisition(global_PVs, variableDict)
                         
+            print('  *** Total projection time: %s s' % str((time.time() - tic)))
             time.sleep(2)                
 
             dimaxAcquireFlat(global_PVs, variableDict)  

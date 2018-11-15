@@ -387,6 +387,7 @@ def dimaxSet(global_PVs, variableDict, fname):
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                  
 
     ### from the edge set
+    global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.h5', wait=True, timeout=1000.0)                
     global_PVs['HDF1_NumCapture'].put(str(numImage), wait=True, timeout=1000.0)                
     global_PVs['HDF1_NumCapture_RBV'].put(str(numImage), wait=True, timeout=1000.0)  
     global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                

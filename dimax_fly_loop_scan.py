@@ -18,7 +18,7 @@ variableDict = {
         'SampleXIn': 0.0,
         'SampleXOut': 10,
         'roiSizeX': 2016, 
-        'roiSizeY': 600,        
+        'roiSizeY': 900,        
         'PostWhiteImages': 20,
         'PostDarkImages': 20,
         'ShutterOpenDelay': 0.00,
@@ -85,11 +85,10 @@ def main():
                 dimaxAcquisition(global_PVs, variableDict)
                             
                 #time.sleep(1)                
-
-                #dimaxAcquireFlat(global_PVs, variableDict)
                 
-                #close_shutters(global_PVs, variableDict)
-                
+                # for faster scans comment the 3 lines below
+                #dimaxAcquireFlat(global_PVs, variableDict)                
+                #close_shutters(global_PVs, variableDict) 
                 #dimaxAcquireDark(global_PVs, variableDict)
                 
                 print(' ')

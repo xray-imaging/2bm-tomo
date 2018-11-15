@@ -60,7 +60,7 @@ def main():
 
             setPSO(global_PVs, variableDict)
 
-            open_shutters(global_PVs, variableDict)
+            #open_shutters(global_PVs, variableDict)
             
             dimaxAcquisition(global_PVs, variableDict)
                         

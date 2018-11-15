@@ -49,7 +49,7 @@ def main():
         else:
             print ('*** The %s is on' % (model))            # get sample file name
             loop_start = 0 
-            loop_end = 9
+            loop_end = 18
             loop_step = 1
             
             dimaxInit(global_PVs, variableDict)

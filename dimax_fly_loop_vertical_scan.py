@@ -56,7 +56,7 @@ def main():
             dimaxTest(global_PVs, variableDict)
 
             fname_prefix = global_PVs['HDF1_FileName'].get(as_string=True)
-            open_shutters(global_PVs, variableDict)
+            #open_shutters(global_PVs, variableDict)
 
             vertical_start = 0 
             vertical_end = 2
@@ -103,7 +103,7 @@ def main():
             
             global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.h5', wait=True, timeout=1000.0) 
             dimaxAcquireFlat(global_PVs, variableDict)                
-            close_shutters(global_PVs, variableDict)               
+            #close_shutters(global_PVs, variableDict)               
             dimaxAcquireDark(global_PVs, variableDict)
 
     except  KeyError:

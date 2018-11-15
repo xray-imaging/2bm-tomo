@@ -277,8 +277,10 @@ def dimaxAcquisition(global_PVs, variableDict):
     global_PVs['Motor_SampleRot_Velo'].put('50.00000', wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot'].put('0.00000', wait=False, timeout=1000.0)   
 
+    open_shutters(global_PVs, variableDict)
     global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
     global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
+    close_shutters(global_PVs, variableDict)
 
 ##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
 ##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0) 
@@ -319,8 +321,9 @@ def dimaxAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
     global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)            
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
-
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
+
+    close_shutters(global_PVs, variableDict)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     
     global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)    
@@ -350,9 +353,11 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
-    
+
+    open_shutters(global_PVs, variableDict)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
-    
+    close_shutters(global_PVs, variableDict)
+
     global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)    
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)

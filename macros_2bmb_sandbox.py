@@ -8936,8 +8936,9 @@ def record_loading(exposureTime=0.5):
     
 def main():
 
-    DimaxSingleScan()
-     
+    # DimaxSingleScan()
+    change2Pink(ang=2.657)
+    
 if __name__ == '__main__':
     main()
 

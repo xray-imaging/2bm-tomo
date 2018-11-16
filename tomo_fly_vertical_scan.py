@@ -15,7 +15,7 @@ import imp
 import traceback
 import numpy as np
 
-from tomo_scan_lib import *
+from pg_lib import *
 
 global variableDict
 

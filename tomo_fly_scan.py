@@ -14,7 +14,7 @@ import os
 import imp
 import traceback
 
-from tomo_scan_lib import *
+from pg_lib import *
 
 global variableDict
 

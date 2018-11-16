@@ -16,7 +16,7 @@ variableDict = {
         'SampleRotEnd': 180.0,
         'Projections': 1500,
         'SampleXIn': 0.0,
-        'SampleXOut': 10,
+        'SampleXOut': 15,
         'roiSizeX': 2016, 
         'roiSizeY': 900,        
         'PostWhiteImages': 20,

@@ -9,9 +9,9 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.055,
+        'ExposureTime': 0.1,
         'SlewSpeed': 37.5, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
-        'AcclRot': 180.0,
+        'AcclRot': 60.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,

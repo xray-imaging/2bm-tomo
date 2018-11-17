@@ -9,8 +9,8 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.0005,
-        'SlewSpeed': 180.0,
+        'ExposureTime': 0.003,
+        'SlewSpeed': 37.5,
         'AcclRot': 180.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
@@ -24,7 +24,7 @@ variableDict = {
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC2:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.05,
+        'CCD_Readout': 0.0001,
         'EnergyPink': 2.657, # for now giver in mirror angle in rads
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
@@ -48,6 +48,9 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
+
+            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
+            
             dimaxInit(global_PVs, variableDict)     
 
             dimaxTest(global_PVs, variableDict)

@@ -303,7 +303,7 @@ def dimaxAcquisition(global_PVs, variableDict):
     while (global_PVs['HDF1_NumCaptured_RBV'].get() != global_PVs['Cam1_PCOImgs2Dump_RBV'].get()):   
         #print(global_PVs['HDF1_NumCaptured_RBV'].get(), global_PVs['Cam1_PCOImgs2Dump_RBV'].get())
         time.sleep(1)                    
-
+    print('          *** PCO Dimax dump: Done!')   
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** Projections: Done!')
 
@@ -331,7 +331,7 @@ def dimaxAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
-    print('      *** Dark Fileds: Done!')
+    print('      *** Dark Fields: Done!')
     print('  *** Acquisition: Done!')        
 
 
@@ -364,7 +364,7 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     time.sleep(10)     
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
-    print('      *** White Fileds: Done!')
+    print('      *** White Fields: Done!')
 
                 
 def dimaxSet(global_PVs, variableDict, fname):
@@ -423,9 +423,7 @@ def dimaxDump(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)                                
 #    while epics.caget(camPrefix + ":HDF1:Capture_RBV.VAL") != 'Capturing':
 #         epics.caput(camPrefix + ":HDF1:Capture.VAL","Capture", wait=False, timeout=1000.0)   
-#         time.sleep(1)
-
-    print('          *** PCO Dimax dump: Done!')                        
+#         time.sleep(1)                     
     
    
 def edgeInit(global_PVs, variableDict):
@@ -628,6 +626,59 @@ def find_nearest(array, value):
     idx = (np.abs(array - value)).argmin()
     return array[idx]
 
+
+def calc_blur_pixel(global_PVs, variableDict):
+    """
+    Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
+    
+    Parameters
+    ----------
+    variableDict['ExposureTime']: float
+        Detector exposure time
+    variableDict['CCD_Readout'] : float
+        Detector read out time
+    variableDict[''roiSizeX''] : int
+        Detector X size
+    variableDict['SampleRotEnd'] : float
+        Tomographic scan angle end
+    variableDict['SampleRotStart'] : float
+        Tomographic scan angle start
+    variableDict[''Projections'] : int
+        Numember of projections
+
+    Returns
+    -------
+    float
+        Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
+    """
+
+    angular_range =  variableDict['SampleRotEnd'] -  variableDict['SampleRotStart']
+    angular_step = angular_range/variableDict['Projections']
+    scan_time = variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
+    rot_speed = angular_range / scan_time
+    frame_rate = variableDict['Projections'] / scan_time
+    blur_delta = variableDict['ExposureTime'] * rot_speed
+    
+    mid_detector = variableDict['roiSizeX'] / 2.0
+    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
+
+    print("*************************************")
+    print("Total # of proj: ", variableDict['Projections'])
+    print("Exposure Time: ", variableDict['ExposureTime'], "s")
+    print("Readout Time: ", variableDict['CCD_Readout'], "s")
+    print("Angular Range: ", angular_range, "degrees")
+    print("Camera X size: ", variableDict['roiSizeX'])
+    print("*************************************")
+    print("Angular Step: ", angular_step, "degrees")   
+    print("Scan Time: ", scan_time ,"s") 
+    print("Rot Speed: ", rot_speed, "degrees/s")
+    print("Frame Rate: ", frame_rate, "fps")
+    print("Blur: ", blur_pixel, "pixels")
+    print("*************************************")
+    
+    return blur_pixel, rot_speed, scan_time
+    
+    
 # def change2White():
 #     shutter = "2bma:A_shutter"    
 #     BL = '2bma'

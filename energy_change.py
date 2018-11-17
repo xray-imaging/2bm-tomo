@@ -40,8 +40,8 @@ global_PVs = {}
 def main():
 
     init_general_PVs(global_PVs, variableDict)
-    angle_calibrated = change2Pink(1.52)
-    energy_calibrated = setEnergy(5)
+    angle_calibrated = change2Pink()
+    energy_calibrated = setEnergy()
  
     
 if __name__ == '__main__':

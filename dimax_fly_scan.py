@@ -9,8 +9,8 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.003,
-        'SlewSpeed': 37.5,
+        'ExposureTime': 0.055,
+        'SlewSpeed': 37.5, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 180.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
@@ -25,11 +25,12 @@ variableDict = {
         'IOC_Prefix': 'PCOIOC2:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.0001,
-        'EnergyPink': 2.657, # for now giver in mirror angle in rads
+        'EnergyPink': 2.657, 
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'StartSleep_min': 0,#        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
-#        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
+        'StartSleep_min': 0,
+        #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
+        #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
         }
 
 global_PVs = {}
@@ -49,10 +50,11 @@ def main():
         else:
             print ('*** The %s is on' % (model))            # get sample file name
 
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
-            
-            dimaxInit(global_PVs, variableDict)     
+            variableDict['SlewSpeed'] = rot_speed
 
+            dimaxInit(global_PVs, variableDict)            
             dimaxTest(global_PVs, variableDict)
             
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
@@ -62,11 +64,9 @@ def main():
             dimaxSet(global_PVs, variableDict, fname)
 
             setPSO(global_PVs, variableDict)
-
-            #open_shutters(global_PVs, variableDict)
             
             dimaxAcquisition(global_PVs, variableDict)
-                        
+            
             print('  *** Total projection time: %s s' % str((time.time() - tic)))
             time.sleep(2)                
 
@@ -74,7 +74,7 @@ def main():
 
             close_shutters(global_PVs, variableDict)
             dimaxAcquireDark(global_PVs, variableDict)
-            
+
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

@@ -18,23 +18,24 @@ from pg_lib import *
 
 global variableDict
 
-variableDict = {'PreDarkImages': 20,
-        'PreWhiteImages': 20,
-        'Projections': 1500,
-        'PostDarkImages': 0,
-        'PostWhiteImages': 0,
-        'SampleXIn': 0.0,
-        'SampleXOut': 5,
-        'SampleRotStart': 0.0,
-        'SampleRotEnd': 180.0,
-        'StartSleep_min': 0,
+variableDict = {
         'ExposureTime': 0.1,
         'ExposureTime_flat': 0.1,
+        'SampleRotStart': 0.0,
+        'SampleRotEnd': 180.0,
+        'Projections': 1500,
+        'SampleXIn': 0.0,
+        'SampleXOut': 5,
+        'PreDarkImages': 20,
+        'PreWhiteImages': 20,
+        'PostDarkImages': 0,
+        'PostWhiteImages': 0,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': '2bmbPG3:', # other supported detectors: 'PCOIOC2:', 'PCOIOC3:', '2bmbSP1:'
+        'IOC_Prefix': '2bmbPG3:', # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'Station': '2-BM-B'
+        'StartSleep_min': 0,
         }
 
 global_PVs = {}

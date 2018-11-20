@@ -10,28 +10,31 @@ from pco_lib import *
 
 global variableDict
 
-variableDict = {'PreDarkImages': 0,
-        'PreWhiteImages': 0,
-        'Projections': 1500,
-        'PostDarkImages': 20,
-        'PostWhiteImages': 20,
-        'SampleXIn': 0.0,
-        'SampleXOut': 5,
+variableDict = {
+        'ExposureTime': 0.1,
+        'SlewSpeed': 1.0, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'StartSleep_min': 0,
-        'SlewSpeed': 1.0,
-        'ExposureTime': 0.1,
+        'Projections': 1500,
+        'SampleXIn': 0.0,
+        'SampleXOut': 5,
+        'roiSizeX': 2560, 
+        'roiSizeY': 2160,       
+        'PostWhiteImages': 20,
+        'PostDarkImages': 20,
+        'PreWhiteImages': 0,        
+        'PreDarkImages': 0,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
-        'AcclRot': 1.0,
-        'EnergyPink': 2.657, # for now giver in mirror angle in rads
+        'EnergyPink': 2.657, 
         'EnergyMono': 24.9,
-        'Station': '2-BM-A'
-#        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
-#        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
+        'Station': '2-BM-A',
+        'StartSleep_min': 0,
+        #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
+        #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
         }
 
 global_PVs = {}

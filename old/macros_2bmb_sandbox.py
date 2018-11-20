@@ -86,7 +86,7 @@ def change2Mono():
     epics.caput(BL+":m25.VAL",81.5, wait=False, timeout=1000.0)    
     epics.caput(BL+":m28.VAL",81.5, wait=True, timeout=1000.0)
     time.sleep(3)                
-    epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+    #epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
     epics.caput(BL+":m7.VAL",30.35, wait=True, timeout=1000.0)                
                 
                 
@@ -8937,8 +8937,8 @@ def record_loading(exposureTime=0.5):
 def main():
 
     # DimaxSingleScan()
-    change2Pink(ang=2.657)
-    
+    #change2Pink(ang=2.657)
+    change2Mono()
 if __name__ == '__main__':
     main()
 

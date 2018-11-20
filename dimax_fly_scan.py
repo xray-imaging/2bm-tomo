@@ -35,6 +35,9 @@ variableDict = {
 
 global_PVs = {}
 
+def getVariableDict():
+    global variableDict
+    return variableDict
 
 def main():
 

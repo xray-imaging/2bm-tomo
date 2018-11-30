@@ -16,6 +16,8 @@ import traceback
 import math
 import signal
 
+import numpy as np
+
 ShutterA_Open_Value = 1
 ShutterA_Close_Value = 0
 ShutterB_Open_Value = 1
@@ -195,11 +197,11 @@ def stop_scan(global_PVs, variableDict):
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
         wait_pv(global_PVs['HDF1_Capture'], 0)
-        reset_CCD(global_PVs, variableDict)
-        reset_CCD(global_PVs, variableDict)
+        pgInit(global_PVs, variableDict)
+        pgInit(global_PVs, variableDict)
 
 
-def reset_CCD(global_PVs, variableDict):
+def pgInit(global_PVs, variableDict):
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
@@ -216,7 +218,7 @@ def reset_CCD(global_PVs, variableDict):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
 
 
-def setup_detector(global_PVs, variableDict):
+def pgSet(global_PVs, variableDict, fname):
 
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
@@ -296,7 +298,7 @@ def setup_detector(global_PVs, variableDict):
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
-
+    setup_hdf_writer(global_PVs, variableDict, fname)
 
 def setup_frame_type(global_PVs, variableDict):
     global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
@@ -332,13 +334,7 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         global_PVs['HDF1_EnableCallbacks'].put('Enable')
         global_PVs['HDF1_BlockingCallbacks'].put('No')
 
-        if variableDict.has_key('ProjectionsPerRot'):
-            totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
-                       (int(variableDict['Projections']) * int(variableDict['ProjectionsPerRot'])) + \
-                        int(variableDict['PostDarkImages']) + int(variableDict['PostWhiteImages'])
-        else:
-            totalProj = int(variableDict['PreDarkImages']) + int(variableDict['PreWhiteImages']) + \
-                        int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
+        totalProj = int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
                         int(variableDict['PostWhiteImages'])
 
         global_PVs['HDF1_NumCapture'].put(totalProj)
@@ -352,17 +348,54 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
 
-####
-def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type):
+
+def pgAcquisition(global_PVs, variableDict):
+    theta = []
+    # Estimate the time needed for the flyscan
+    flyscan_time_estimate = (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
+                      float(variableDict['CCD_Readout'])) ) + 30
+    print(' ')
+    print('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
+    global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
+
+    num_images = int(variableDict['Projections'])
+    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
+    
+    global_PVs['Cam1_NumImages'].put(num_images, wait=True)
+    global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
+    # start acquiring
+    global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+    wait_pv(global_PVs['Cam1_Acquire'], 1)
+
+    print(' ')
+    print('  *** Fly Scan: Start!')
+    global_PVs['Fly_Run'].put(1, wait=True)
+    # wait for acquire to finish 
+    wait_pv(global_PVs['Fly_Run'], 0)
+
+    # if the fly scan wait times out we should call done on the detector
+    if False == wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate):
+        global_PVs['Cam1_Acquire'].put(DetectorIdle)
+    
+    print('  *** Fly Scan: Done!')
+    # set trigger mode to internal for post dark and white
+    global_PVs['Cam1_TriggerMode'].put('Internal')
+    theta = global_PVs['Theta_Array'].get(count=int(variableDict['Projections']))
+    return theta
+            
+             
+def pgAcquireDark(global_PVs, variableDict):
+    print("      *** Dark Fields") 
     wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
-    global_PVs['Cam1_FrameType'].put(frame_type)
+    global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
         
     global_PVs['Cam1_NumImages'].put(1)
-    for i in range(int(num_proj)):
+
+    for i in range(int(variableDict['PostDarkImages'])):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
@@ -371,6 +404,36 @@ def capture_multiple_projections(global_PVs, variableDict, num_proj, frame_type)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
         time.sleep(0.1)
+    wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
+    print('      *** Dark Fields: Done!')
+    print('  *** Acquisition: Done!')        
+
+
+def pgAcquireFlat(global_PVs, variableDict):
+    print('      *** White Fields')
+    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+
+    wait_time_sec = int(variableDict['ExposureTime']) + 5
+    global_PVs['Cam1_ImageMode'].put('Multiple')
+    global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
+        global_PVs['Cam1_TriggerMode'].put('Overlapped')
+        
+    global_PVs['Cam1_NumImages'].put(1)
+
+    for i in range(int(variableDict['PostWhiteImages'])):
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        time.sleep(0.1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        time.sleep(0.1)
+        global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+        time.sleep(0.1)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        time.sleep(0.1)
+
+    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    print('      *** White Fields: Done!')
 
 
 def move_sample_in(global_PVs, variableDict):
@@ -443,3 +506,86 @@ def add_theta(global_PVs, variableDict, theta_arr):
     except:
         traceback.print_exc(file=sys.stdout)
         print('  *** add_theta: Failed accessing:', fullname)
+
+def setPSO(global_PVs, variableDict):
+    delta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
+            (float(variableDict['Projections'])))
+    slew_speed = (float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
+                 (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
+                  float(variableDict['CCD_Readout'])))
+    print('  *** *** start_pos',float(variableDict['SampleRotStart']))
+    print('  *** *** end pos', float(variableDict['SampleRotEnd']))
+
+    global_PVs['Fly_StartPos'].put(float(variableDict['SampleRotStart']), wait=True)
+    global_PVs['Fly_EndPos'].put(float(variableDict['SampleRotEnd']), wait=True)
+    global_PVs['Fly_SlewSpeed'].put(slew_speed, wait=True)
+    global_PVs['Fly_ScanDelta'].put(delta, wait=True)
+    time.sleep(3.0)
+    calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+
+    if calc_num_proj == None:
+        print('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
+        calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+    if calc_num_proj != int(variableDict['Projections']):
+        print('  *** ***   *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', calc_num_proj)
+        variableDict['Projections'] = int(calc_num_proj)
+    print('  *** *** num projections = ',int(variableDict['Projections']), ' fly calc triggers = ', calc_num_proj)
+    global_PVs['Fly_ScanControl'].put('Custom')
+
+    print(' ')
+    print('  *** Taxi before starting capture')
+    global_PVs['Fly_Taxi'].put(1, wait=True)
+    wait_pv(global_PVs['Fly_Taxi'], 0)
+    print('  *** Taxi before starting capture: Done!')
+
+
+def calc_blur_pixel(global_PVs, variableDict):
+    """
+    Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
+    
+    Parameters
+    ----------
+    variableDict['ExposureTime']: float
+        Detector exposure time
+    variableDict['CCD_Readout'] : float
+        Detector read out time
+    variableDict[''roiSizeX''] : int
+        Detector X size
+    variableDict['SampleRotEnd'] : float
+        Tomographic scan angle end
+    variableDict['SampleRotStart'] : float
+        Tomographic scan angle start
+    variableDict[''Projections'] : int
+        Numember of projections
+
+    Returns
+    -------
+    float
+        Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
+    """
+
+    angular_range =  variableDict['SampleRotEnd'] -  variableDict['SampleRotStart']
+    angular_step = angular_range/variableDict['Projections']
+    scan_time = variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
+    rot_speed = angular_range / scan_time
+    frame_rate = variableDict['Projections'] / scan_time
+    blur_delta = variableDict['ExposureTime'] * rot_speed
+    
+    mid_detector = variableDict['roiSizeX'] / 2.0
+    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
+
+    print("*************************************")
+    print("Total # of proj: ", variableDict['Projections'])
+    print("Exposure Time: ", variableDict['ExposureTime'], "s")
+    print("Readout Time: ", variableDict['CCD_Readout'], "s")
+    print("Angular Range: ", angular_range, "degrees")
+    print("Camera X size: ", variableDict['roiSizeX'])
+    print("*************************************")
+    print("Angular Step: ", angular_step, "degrees")   
+    print("Scan Time: ", scan_time ,"s") 
+    print("Rot Speed: ", rot_speed, "degrees/s")
+    print("Frame Rate: ", frame_rate, "fps")
+    print("Blur: ", blur_pixel, "pixels")
+    print("*************************************")
+    
+    return blur_pixel, rot_speed, scan_time

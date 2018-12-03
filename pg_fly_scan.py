@@ -90,8 +90,7 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
     
-    if 0==0:
-    # try: 
+    try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if detector_sn == None:
             print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
@@ -99,7 +98,8 @@ def main():
         else:
             print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
-            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
+            
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
@@ -114,9 +114,9 @@ def main():
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
-    # except  KeyError:
-    #     print('  *** Some PV assignment failed!')
-    #     pass
+    except  KeyError:
+        print('  *** Some PV assignment failed!')
+        pass
         
         
 

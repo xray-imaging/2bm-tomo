@@ -111,7 +111,7 @@ def change2Pink(ang=2.657):
         epics.caput(BL+":m27.VAL",-10., wait=False, timeout=1000.0)    
         epics.caput(BL+":m29.VAL",-10., wait=True, timeout=1000.0)                
         time.sleep(3)                
-        epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+        #epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
         epics.caput(BL+":m7.VAL",18.75, wait=True, timeout=1000.0)
     elif ang == 2.1:
         shutter = "2bma:A_shutter"    
@@ -235,19 +235,18 @@ def changeDMMEng(eng = 24.9):
     if idx[0].size == 0:
         print 'there is no specified energy in the energy lookup table. please choose a calibrated energy.'
         return    0                            
-    USArm = USArm_list[idx[0]]                
-    DSArm = DSArm_list[idx[0]]
-    M2Y = M2Y_list[idx[0]]
+    USArm = USArm_list[idx[0][0]]                
+    DSArm = DSArm_list[idx[0][0]] 
+    M2Y = M2Y_list[idx[0][0]] 
     
-    DMM_USX = DMM_USX_list[idx[0]]
-    DMM_DSX = DMM_DSX_list[idx[0]]
-    DMM_USY_OB = DMM_USY_OB_list[idx[0]] 
-    DMM_USY_IB = DMM_USY_IB_list[idx[0]]
-    DMM_DSY = DMM_DSY_list[idx[0]
-    ]
-    Mirr_Ang = Mirr_Ang_list[idx[0]] 
-    Mirr_YAvg = Mirr_YAvg_list[idx[0]]
-    XIASlit = XIASlit_list[idx[0]]          
+    DMM_USX = DMM_USX_list[idx[0][0]]
+    DMM_DSX = DMM_DSX_list[idx[0][0]]
+    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+    DMM_DSY = DMM_DSY_list[idx[0][0]]
+    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+    XIASlit = XIASlit_list[idx[0][0]]          
 
     epics.caput(BL+":M1angl.VAL",Mirr_Ang, wait=False, timeout=1000.0) 
     epics.caput(BL+":M1avg.VAL",Mirr_YAvg, wait=False, timeout=1000.0) 
@@ -8940,7 +8939,7 @@ def main():
     #change2Pink(ang=2.657)
     #change2Mono()
     # 55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
-	changeDMMEng(eng = 24.9)
+	changeDMMEng(eng = 50.00)
 
 if __name__ == '__main__':
     main()

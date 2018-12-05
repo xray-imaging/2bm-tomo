@@ -36,6 +36,8 @@ variableDict = {
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'Station': '2-BM-B'
+        'Recursive_Filter_Enabled': True,
+        'Recursive_Filter_N_Images': 4,
         'StartSleep_min': 0,
         'SampleYStart': 0,
         'SampleYStepSize': 0.1,

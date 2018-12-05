@@ -1,5 +1,5 @@
 '''
-    FlyScan for Sector 2-BM
+    FlyScan for Sector 2-BM using Point Grey Grasshooper3 or FLIR Oryx cameras
 
 '''
 from __future__ import print_function
@@ -19,12 +19,12 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.01,
-        'SlewSpeed': 0.8, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'ExposureTime': 0.1,
+        'SlewSpeed': 0.8, # to use this as default value comment the calc_pixel_blur(global_PVs, variableDict) function below
         'AcclRot': 10.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 600,
+        'Projections': 1500,
         'SampleXIn': 0.0,
         'SampleXOut': 1.0,
         'roiSizeX': 1920, 
@@ -32,10 +32,12 @@ variableDict = {
         'PostDarkImages': 20,
         'PostWhiteImages': 20,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': '2bmbPG3:', # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
+        'IOC_Prefix': '2bmbPG3:', # options: 1. PointGrey: '2bmbPG3:', 2. FLIR Oryx '2bmbSP1:' 
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'Station': '2-BM-B',
+        'Recursive_Filter_Enabled': True,
+        'Recursive_Filter_N_Images': 4
         }
 
 global_PVs = {}
@@ -48,7 +50,7 @@ def getVariableDict():
 
 def start_scan(variableDict, fname):
     print(' ')
-    print('  *** start_scan')
+    print('  *** Start scan')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -59,9 +61,11 @@ def start_scan(variableDict, fname):
         stop_scan(global_PVs, variableDict)
         return
 
+    pgInit(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
 
     fname = global_PVs['HDF1_FileName'].get(as_string=True)
+    print(' ')
     print('  *** File name prefix: %s' % fname)
 
     pgSet(global_PVs, variableDict, fname) 
@@ -83,6 +87,7 @@ def start_scan(variableDict, fname):
     if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
         global_PVs['HDF1_Capture'].put(0)
     pgInit(global_PVs, variableDict)
+    print('  *** Start scan: Done!')
 
 
 def main():
@@ -99,12 +104,13 @@ def main():
             print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
-            # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
+            # calling calc_pixel_blur() to replace the default 'SlewSpeed' 
+            blur_pixel, rot_speed, scan_time = calc_pixel_blur(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            print(' ')
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             print('  *** Moving rotary stage to start position: Done!')

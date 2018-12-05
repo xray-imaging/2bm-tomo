@@ -1,5 +1,5 @@
 '''
-    Tomo Scan Lib for Sector 2-BM
+    Tomo Scan Lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
     
 '''
 from __future__ import print_function
@@ -177,7 +177,14 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Proc1_Reset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:ResetFilter')
         global_PVs['Proc1_AutoReset_Filter'] = PV(variableDict['IOC_Prefix'] + 'Proc1:AutoResetFilter')
         global_PVs['Proc1_Filter_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'Proc1:FilterCallbacks')       
-    
+
+        global_PVs['Proc1_Enable_Background'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableBackground')
+        global_PVs['Proc1_Enable_FlatField'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableFlatField')
+        global_PVs['Proc1_Enable_Offset_Scale'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableOffsetScale')
+        global_PVs['Proc1_Enable_Low_Clip'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableLowClip')
+        global_PVs['Proc1_Enable_High_Clip'] = PV(variableDict['IOC_Prefix'] + 'Proc1:EnableHighClip')
+
+
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
 
@@ -209,13 +216,18 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
         global_PVs['Cam1_Display'].put(1)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        global_PVs['Proc1_Callbacks'].put('Disable')
+        global_PVs['Proc1_Filter_Enable'].put('Disable')
+        global_PVs['HDF1_ArrayPort'].put('PG3')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
         global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
         global_PVs['Cam1_Display'].put(1)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire); wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
 
 
 def pgSet(global_PVs, variableDict, fname):
@@ -284,15 +296,6 @@ def pgSet(global_PVs, variableDict, fname):
         global_PVs['Cam1_TriggerMode'].put('On', wait=True)
         global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
         global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True) 
-        global_PVs['Cam1_NumImages'].put(1, wait=True)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
         print('  *** setup FLIR camera: Done!')
     
     else:
@@ -314,15 +317,23 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         print('  *** setup hdf_writer')
         setup_frame_type(global_PVs, variableDict)
         if variableDict.has_key('Recursive_Filter_Enabled'):
-            if variableDict['Recursive_Filter_Enabled'] == 1:
-                global_PVs['Proc1_Callbacks'].put('Enable')
-                global_PVs['Proc1_Filter_Enable'].put('Disable')
-                global_PVs['HDF1_ArrayPort'].put('PROC1')
-                global_PVs['Proc1_Filter_Type'].put( Recursive_Filter_Type )
-                global_PVs['Proc1_Num_Filter'].put( int( variableDict['Recursive_Filter_N_Images'] ) )
-                global_PVs['Proc1_Reset_Filter'].put( 1 )
-                global_PVs['Proc1_AutoReset_Filter'].put( 'Yes' )
-                global_PVs['Proc1_Filter_Callbacks'].put( 'Array N only' )
+            if variableDict['Recursive_Filter_Enabled'] == True:
+                print('    *** Recursive Filter Enabled')
+                global_PVs['Proc1_Enable_Background'].put('Disable', wait=True)
+                global_PVs['Proc1_Enable_FlatField'].put('Disable', wait=True)
+                global_PVs['Proc1_Enable_Offset_Scale'].put('Disable', wait=True)
+                global_PVs['Proc1_Enable_Low_Clip'].put('Disable', wait=True)
+                global_PVs['Proc1_Enable_High_Clip'].put('Disable', wait=True)
+
+                global_PVs['Proc1_Callbacks'].put('Enable', wait=True)
+                global_PVs['Proc1_Filter_Enable'].put('Enable', wait=True)
+                global_PVs['HDF1_ArrayPort'].put('PROC1', wait=True)
+                global_PVs['Proc1_Filter_Type'].put(Recursive_Filter_Type, wait=True)
+                global_PVs['Proc1_Num_Filter'].put(int(variableDict['Recursive_Filter_N_Images']), wait=True)
+                global_PVs['Proc1_Reset_Filter'].put(1, wait=True)
+                global_PVs['Proc1_AutoReset_Filter'].put('Yes', wait=True)
+                global_PVs['Proc1_Filter_Callbacks'].put('Array N only', wait=True)
+                print('    *** Recursive Filter Enabled: Done!')
             else:
                 global_PVs['Proc1_Filter_Enable'].put('Disable')
                 global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
@@ -334,8 +345,11 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         global_PVs['HDF1_EnableCallbacks'].put('Enable')
         global_PVs['HDF1_BlockingCallbacks'].put('No')
 
-        totalProj = int(variableDict['Projections']) + int(variableDict['PostDarkImages']) + \
-                        int(variableDict['PostWhiteImages'])
+        # if (variableDict['Recursive_Filter_Enabled'] == False):
+        #     variableDict['Recursive_Filter_N_Images'] = 1
+
+        totalProj = ((int(variableDict['Projections'] / image_factor(global_PVs, variableDict))) + int(variableDict['PostDarkImages']) + \
+                        int(variableDict['PostWhiteImages']))
 
         global_PVs['HDF1_NumCapture'].put(totalProj)
         global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
@@ -349,6 +363,15 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         return
 
 
+def image_factor(global_PVs, variableDict):
+
+    if (variableDict['Recursive_Filter_Enabled'] == False):
+        factor = 1 
+    else:
+        factor = variableDict['Recursive_Filter_N_Images']
+    return int(factor)
+
+
 def pgAcquisition(global_PVs, variableDict):
     theta = []
     # Estimate the time needed for the flyscan
@@ -358,11 +381,21 @@ def pgAcquisition(global_PVs, variableDict):
     print('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
     global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
 
-    num_images = int(variableDict['Projections'])
+    if (variableDict['Recursive_Filter_Enabled'] == False):
+        variableDict['Recursive_Filter_N_Images'] = 1
+
+    num_images = int(variableDict['Projections']) ## * image_factor(global_PVs, variableDict)
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     
     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
-    global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
+
+
+    # Set detectors
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+
     # start acquiring
     global_PVs['Cam1_Acquire'].put(DetectorAcquire)
     wait_pv(global_PVs['Cam1_Acquire'], 1)
@@ -378,12 +411,20 @@ def pgAcquisition(global_PVs, variableDict):
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
     print('  *** Fly Scan: Done!')
-    # set trigger mode to internal for post dark and white
-    global_PVs['Cam1_TriggerMode'].put('Internal')
+    # Set trigger mode to internal for post dark and white
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        global_PVs['Cam1_TriggerMode'].put('Internal')
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+
+
     theta = global_PVs['Theta_Array'].get(count=int(variableDict['Projections']))
+    if (image_factor(global_PVs, variableDict) > 1):
+        theta = np.mean(theta.reshape(-1, image_factor(global_PVs, variableDict)), axis=1)
+    
     return theta
             
-             
+
 def pgAcquireDark(global_PVs, variableDict):
     print("      *** Dark Fields") 
     wait_time_sec = int(variableDict['ExposureTime']) + 5
@@ -392,10 +433,12 @@ def pgAcquireDark(global_PVs, variableDict):
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         
     global_PVs['Cam1_NumImages'].put(1)
 
-    for i in range(int(variableDict['PostDarkImages'])):
+    for i in range(int(variableDict['PostDarkImages']) * image_factor(global_PVs, variableDict)):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
@@ -419,10 +462,12 @@ def pgAcquireFlat(global_PVs, variableDict):
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         
     global_PVs['Cam1_NumImages'].put(1)
 
-    for i in range(int(variableDict['PostWhiteImages'])):
+    for i in range(int(variableDict['PostWhiteImages']) * image_factor(global_PVs, variableDict)):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
@@ -508,17 +553,15 @@ def add_theta(global_PVs, variableDict, theta_arr):
         print('  *** add_theta: Failed accessing:', fullname)
 
 def setPSO(global_PVs, variableDict):
-    delta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
-            (float(variableDict['Projections'])))
-    slew_speed = (float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart'])) / \
-                 (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
-                  float(variableDict['CCD_Readout'])))
+
+    delta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict)))
+
     print('  *** *** start_pos',float(variableDict['SampleRotStart']))
     print('  *** *** end pos', float(variableDict['SampleRotEnd']))
 
     global_PVs['Fly_StartPos'].put(float(variableDict['SampleRotStart']), wait=True)
     global_PVs['Fly_EndPos'].put(float(variableDict['SampleRotEnd']), wait=True)
-    global_PVs['Fly_SlewSpeed'].put(slew_speed, wait=True)
+    global_PVs['Fly_SlewSpeed'].put(variableDict['SlewSpeed'], wait=True)
     global_PVs['Fly_ScanDelta'].put(delta, wait=True)
     time.sleep(3.0)
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
@@ -527,9 +570,10 @@ def setPSO(global_PVs, variableDict):
         print('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
     if calc_num_proj != int(variableDict['Projections']):
-        print('  *** ***   *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', calc_num_proj)
+        print('  *** ***  *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', int(calc_num_proj))
         variableDict['Projections'] = int(calc_num_proj)
-    print('  *** *** num projections = ',int(variableDict['Projections']), ' fly calc triggers = ', calc_num_proj)
+    print('  *** *** Number of projections: ', int(variableDict['Projections']))
+    print('  *** *** Fly calc triggers: ', int(calc_num_proj))
     global_PVs['Fly_ScanControl'].put('Custom')
 
     print(' ')
@@ -539,7 +583,7 @@ def setPSO(global_PVs, variableDict):
     print('  *** Taxi before starting capture: Done!')
 
 
-def calc_blur_pixel(global_PVs, variableDict):
+def calc_pixel_blur(global_PVs, variableDict):
     """
     Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
     
@@ -564,28 +608,32 @@ def calc_blur_pixel(global_PVs, variableDict):
         Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
     """
 
+    print(' ')
+    print('  *** Calc pixel blur')
     angular_range =  variableDict['SampleRotEnd'] -  variableDict['SampleRotStart']
-    angular_step = angular_range/variableDict['Projections']
-    scan_time = variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
+    angular_step = angular_range/variableDict['Projections'] / float(image_factor(global_PVs, variableDict))
+    scan_time = image_factor(global_PVs, variableDict) * variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
     rot_speed = angular_range / scan_time
-    frame_rate = variableDict['Projections'] / scan_time
+    frame_rate = image_factor(global_PVs, variableDict) * variableDict['Projections'] / scan_time
     blur_delta = variableDict['ExposureTime'] * rot_speed
     
     mid_detector = variableDict['roiSizeX'] / 2.0
-    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
+    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.)) * image_factor(global_PVs, variableDict)
 
-    print("*************************************")
-    print("Total # of proj: ", variableDict['Projections'])
-    print("Exposure Time: ", variableDict['ExposureTime'], "s")
-    print("Readout Time: ", variableDict['CCD_Readout'], "s")
-    print("Angular Range: ", angular_range, "degrees")
-    print("Camera X size: ", variableDict['roiSizeX'])
-    print("*************************************")
-    print("Angular Step: ", angular_step, "degrees")   
-    print("Scan Time: ", scan_time ,"s") 
-    print("Rot Speed: ", rot_speed, "degrees/s")
-    print("Frame Rate: ", frame_rate, "fps")
-    print("Blur: ", blur_pixel, "pixels")
-    print("*************************************")
+#    print("*************************************")
+    print("  *** *** Total # of proj: ", variableDict['Projections'])
+    print("  *** *** Exposure Time: ", variableDict['ExposureTime'], "s")
+    print("  *** *** Readout Time: ", variableDict['CCD_Readout'], "s")
+    print("  *** *** Angular Range: ", angular_range, "degrees")
+    print("  *** *** Camera X size: ", variableDict['roiSizeX'])
+    print(' ')
+#    print("*************************************")
+    print("  *** *** *** *** Angular Step: ", angular_step, "degrees")   
+    print("  *** *** *** *** Scan Time: ", scan_time ,"s") 
+    print("  *** *** *** *** Rot Speed: ", rot_speed, "degrees/s")
+    print("  *** *** *** *** Frame Rate: ", frame_rate, "fps")
+    print("  *** *** *** *** Blur: ", blur_pixel, "pixels")
+#    print("*************************************")
+    print('  *** Calc pixel blur: Done!')
     
     return blur_pixel, rot_speed, scan_time

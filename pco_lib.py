@@ -464,7 +464,7 @@ def dimaxAcquisition2D(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCounter'].put(str(0), wait=True, timeout=1000.0)     
     time.sleep(1)
 
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
 
     frate = 1.0 / variableDict['ExposureTime']                        
     
@@ -493,7 +493,7 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
     print('      *** White Fields')
 
     # global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
     time.sleep(1)
     # global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
     # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
@@ -514,7 +514,7 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)     
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
 #    global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** White Fields: Done!')
 

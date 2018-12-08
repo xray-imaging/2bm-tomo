@@ -10,9 +10,9 @@ global variableDict
 
 variableDict = {
         'ExposureTime': 0.01,
-        'Projections': 12000,
-        'SampleXIn': 0.0,
-        'SampleXOut': 14,
+        'Projections': 300,
+        'SampleYIn': 0.0,
+        'SampleYOut': -3,
         'roiSizeX': 2016, 
         'roiSizeY': 900,        
         'PostWhiteImages': 20,
@@ -29,6 +29,8 @@ variableDict = {
         'AcclRot': 90.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
+        'SampleXIn': 0.0,
+        'SampleXOut': 14,
         }
 
 global_PVs = {}

@@ -20,7 +20,7 @@ variableDict = {
         'SampleXIn': 0.0,
         'SampleXOut': 5,
         'roiSizeX': 2560, 
-        'roiSizeY': 2160,       
+        'roiSizeY': 1600,       
         'PostWhiteImages': 20,
         'PostDarkImages': 20,
         'PreWhiteImages': 0,        
@@ -61,8 +61,8 @@ def main():
         else:
             print ('*** The %s is on' % (model))            # get sample file name
             start = 0
-            end = 5
-            step = 0.01
+            end = 2
+            step = 1
             
             print(np.arange(start, end, step))
             for i in np.arange(start, end, step):

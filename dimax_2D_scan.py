@@ -10,7 +10,7 @@ global variableDict
 
 variableDict = {
         'ExposureTime': 0.01,
-        'Projections': 3000,
+        'Projections': 12000,
         'SampleXIn': 0.0,
         'SampleXOut': 14,
         'roiSizeX': 2016, 

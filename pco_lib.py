@@ -22,8 +22,9 @@ FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
 
-TESTING = False
+TESTING = True
 
+sampleInOutVertical = True
 
 def update_variable_dict(variableDict):
     argDic = {}
@@ -257,12 +258,6 @@ def dimaxInit(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOLiveView'].put('Yes', wait=True, timeout=1000.0)    
-
-# confirm we don't nees these here
-    # global_PVs['Motor_SampleRot_Cnen'].put('Enable', wait=True, timeout=1000.0)
-    # global_PVs['Motor_SampleRot_Velo'].put('180', wait=True, timeout=1000.0)
-    # global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)
-    # global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
     
     print('  *** Init PCO Dimax: Done!')                        
       
@@ -277,7 +272,11 @@ def dimaxAcquisition(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCounter'].put(str(0), wait=True, timeout=1000.0)     
     time.sleep(1)
 
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+
     global_PVs['Motor_SampleRot_Velo'].put('50.00000', wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot'].put('0.00000', wait=False, timeout=1000.0)   
 
@@ -289,14 +288,17 @@ def dimaxAcquisition(global_PVs, variableDict):
 ##    if epics.caget(PSO+":fly.VAL") == 0 & clShutter == 1:               
 ##        epics.caput(shutter+":close.VAL",1, wait=True, timeout=1000.0) 
 
-    rotCurrPos = global_PVs['Motor_SampleRot'].get()
+    # rotCurrPos = global_PVs['Motor_SampleRot'].get()
 
-    global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
-    global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
-    global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleRot_Accl'].put('1.00000', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+    # global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
+    # global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
+    # global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
+
+    # global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
+    # global_PVs['Motor_SampleRot_Accl'].put('1.00000', wait=True, timeout=1000.0)                
+    # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+    
+    homeRotary(global_PVs, variableDict)
 
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     time.sleep(1)
@@ -317,7 +319,12 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     print('      *** White Fields')
 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+
     time.sleep(1)
     global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
     global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
@@ -339,8 +346,12 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)     
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
-    global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+
+    lobal_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** White Fields: Done!')
 
 
@@ -464,7 +475,10 @@ def dimaxAcquisition2D(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCounter'].put(str(0), wait=True, timeout=1000.0)     
     time.sleep(1)
 
-    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
 
     frate = 1.0 / variableDict['ExposureTime']                        
     
@@ -493,7 +507,12 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
     print('      *** White Fields')
 
     # global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+
     time.sleep(1)
     # global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
     # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
@@ -513,8 +532,13 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
     global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)    
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
-    time.sleep(10)     
-    global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+    time.sleep(10)
+
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0) 
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
+                 
 #    global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** White Fields: Done!')
 
@@ -565,6 +589,20 @@ def dimaxDump(global_PVs, variableDict):
 #         epics.caput(camPrefix + ":HDF1:Capture.VAL","Capture", wait=False, timeout=1000.0)   
 #         time.sleep(1)                     
     
+def homeRotary(global_PVs, variableDict):
+    print(' ')
+    print('  *** Home rotary')                        
+
+    global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
+    global_PVs['Motor_SampleRot'].put(1.0*global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
+    global_PVs['Motor_SampleRot_Set'].put('Use', wait=True, timeout=1000.0) 
+
+    global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
+    global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
+    global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
+    print('  *** Home rotary: Done!')                        
+
    
 def edgeInit(global_PVs, variableDict):
     print(' ')
@@ -588,16 +626,8 @@ def edgeInit(global_PVs, variableDict):
     global_PVs['Cam1_AcquireTime'].put(0.2, wait=True, timeout=1000.0)
     global_PVs['Image1_EnableCallbacks'].put('Enable', wait=True, timeout=1000.0)
 
-    global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot'].put(global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
-
-    global_PVs['Motor_SampleRot_Set'].put('Use', wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
-    global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
-    if variableDict['SampleXIn'] is not None:
-        global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)  
+    # homeRotary(global_PVs, variableDict)
+    
     print('  *** Init PCO Edge: Done!')
 
 
@@ -656,33 +686,43 @@ def edgeSet(global_PVs, variableDict, fname):
 
 
 def edgeAcquisition(global_PVs, variableDict):
+
+    homeRotary(global_PVs, variableDict)                 
+
     print(' ')
     print('  *** Acquisition')
     print('      *** Projections')
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0) 
     time.sleep(2)    
-    global_PVs['Motor_SampleRot'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
     
-    rotCurrPos = global_PVs['Motor_SampleRot'].get()
+    # rotCurrPos = global_PVs['Motor_SampleRot'].get()
 
-    global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
-    global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
-    global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
-                 
+    # global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
+    # global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
+    # global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
+    # global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
+    # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+
+    
     global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
     global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
         
-    rotCurrPos = global_PVs['Motor_SampleRot'].get()
-    global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
-    global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0) 
+    # rotCurrPos = global_PVs['Motor_SampleRot'].get()
+    # global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
+    # global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
+    # global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0) 
              
-    global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
-    time.sleep(1)
-    global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+    # global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
+    # time.sleep(1)
+    # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
+
+    # homeRotary(global_PVs, variableDict)                 
+
     while (global_PVs['HDF1_NumCaptured_RBV'].get() != global_PVs['Cam1_NumImagesCounter_RBV'].get()):      
         time.sleep(1)                    
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
@@ -691,7 +731,12 @@ def edgeAcquisition(global_PVs, variableDict):
 
 def edgeAcquireFlat(global_PVs, variableDict):    
     print('      *** White Fields')
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)                
+       
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
@@ -701,7 +746,11 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                    
+
+    if (sampleInOutVertical):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
     print('      *** White Fileds: Done!')
 
@@ -718,7 +767,11 @@ def edgeAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
     print('      *** Dark Fileds: Done!')
+
+    homeRotary(global_PVs, variableDict)                 
+    print(' ')
     print('  *** Acquisition: Done!')        
+
  
 
 def set_frame_type(global_PVs, variableDict):
@@ -812,19 +865,20 @@ def calc_blur_pixel(global_PVs, variableDict):
     mid_detector = variableDict['roiSizeX'] / 2.0
     blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
-    print("*************************************")
-    print("Total # of proj: ", variableDict['Projections'])
-    print("Exposure Time: ", variableDict['ExposureTime'], "s")
-    print("Readout Time: ", variableDict['CCD_Readout'], "s")
-    print("Angular Range: ", angular_range, "degrees")
-    print("Camera X size: ", variableDict['roiSizeX'])
-    print("*************************************")
-    print("Angular Step: ", angular_step, "degrees")   
-    print("Scan Time: ", scan_time ,"s") 
-    print("Rot Speed: ", rot_speed, "degrees/s")
-    print("Frame Rate: ", frame_rate, "fps")
-    print("Blur: ", blur_pixel, "pixels")
-    print("*************************************")
+    print(' ')
+    print('  *** Calc blur pixel')
+    print("  *** *** Total # of proj: ", variableDict['Projections'])
+    print("  *** *** Exposure Time: ", variableDict['ExposureTime'], "s")
+    print("  *** *** Readout Time: ", variableDict['CCD_Readout'], "s")
+    print("  *** *** Angular Range: ", angular_range, "degrees")
+    print("  *** *** Camera X size: ", variableDict['roiSizeX'])
+    print(' ')
+    print("  *** *** *** *** Angular Step: ", angular_step, "degrees")   
+    print("  *** *** *** *** Scan Time: ", scan_time ,"s") 
+    print("  *** *** *** *** Rot Speed: ", rot_speed, "degrees/s")
+    print("  *** *** *** *** Frame Rate: ", frame_rate, "fps")
+    print("  *** *** *** *** Blur: ", blur_pixel, "pixels")
+    print('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time
               

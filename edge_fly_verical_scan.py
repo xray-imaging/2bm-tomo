@@ -17,8 +17,8 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
-        'SampleXIn': 0.0,
-        'SampleXOut': 5,
+        'SampleYIn': 0,            # default white field is taken moving the Y
+        'SampleYOut': -4,
         'roiSizeX': 2560, 
         'roiSizeY': 1600,       
         'PostWhiteImages': 20,
@@ -33,6 +33,8 @@ variableDict = {
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
         'StartSleep_min': 0,
+        'SampleXIn': 0,           # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'SampleXOut': 0,
         #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
         #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
         }

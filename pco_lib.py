@@ -22,7 +22,7 @@ FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
 
-TESTING = True
+TESTING = False
 
 sampleInOutVertical = True
 

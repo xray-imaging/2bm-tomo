@@ -35,8 +35,6 @@ variableDict = {
         'StartSleep_min': 0,
         'SampleXIn': 0,           # to use X change the sampleInOutVertical = False in PCO_lib.py
         'SampleXOut': 0,
-        #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
-        #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
         }
 
 global_PVs = {}
@@ -64,10 +62,10 @@ def main():
             print ('*** The %s is on' % (model))            # get sample file name
             start = 0
             end = 2
-            step = 1
+            number_of_steps = 1
             
-            print(np.arange(start, end, step))
-            for i in np.arange(start, end, step):
+            print(np.arange(start, end, number_of_steps))
+            for i in np.arange(start, end, number_of_steps):
                 
                 print ('*** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)

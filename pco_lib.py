@@ -298,7 +298,7 @@ def dimaxAcquisition(global_PVs, variableDict):
     # global_PVs['Motor_SampleRot_Accl'].put('1.00000', wait=True, timeout=1000.0)                
     # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
     
-    homeRotary(global_PVs, variableDict)
+    rotary_to_start_position(global_PVs, variableDict)
 
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     time.sleep(1)
@@ -589,19 +589,26 @@ def dimaxDump(global_PVs, variableDict):
 #         epics.caput(camPrefix + ":HDF1:Capture.VAL","Capture", wait=False, timeout=1000.0)   
 #         time.sleep(1)                     
     
-def homeRotary(global_PVs, variableDict):
-    print(' ')
-    print('  *** Home rotary')                        
+def rotary_to_start_position(global_PVs, variableDict):
 
-    global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
-    global_PVs['Motor_SampleRot'].put(1.0*global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
-    global_PVs['Motor_SampleRot_Set'].put('Use', wait=True, timeout=1000.0) 
 
-    global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
-    global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
-    global_PVs['Motor_SampleRot'].put('0', wait=True, timeout=1000.0)
-    print('  *** Home rotary: Done!')                        
+    if(global_PVs['Motor_SampleRot'].get() == variableDict['SampleRotStart']):
+        print(' ')
+        print('  *** Rotary already at the start position')                        
+        return
+    else:    
+        print(' ')
+        print('  *** Home rotary')                        
+
+        global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
+        global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
+        global_PVs['Motor_SampleRot'].put(1.0*global_PVs['Motor_SampleRot'].get()%360.0, wait=True, timeout=1000.0)
+        global_PVs['Motor_SampleRot_Set'].put('Use', wait=True, timeout=1000.0) 
+
+        global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
+        global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
+        global_PVs['Motor_SampleRot'].put(str(variableDict['SampleRotStart']), wait=True, timeout=1000.0)
+        print('  *** Home rotary: Done!')                        
 
    
 def edgeInit(global_PVs, variableDict):
@@ -625,8 +632,6 @@ def edgeInit(global_PVs, variableDict):
     global_PVs['Cam1_PCOIsFrameRateMode'].put(0, wait=True, timeout=1000.0)    
     global_PVs['Cam1_AcquireTime'].put(0.2, wait=True, timeout=1000.0)
     global_PVs['Image1_EnableCallbacks'].put('Enable', wait=True, timeout=1000.0)
-
-    # homeRotary(global_PVs, variableDict)
     
     print('  *** Init PCO Edge: Done!')
 
@@ -687,7 +692,7 @@ def edgeSet(global_PVs, variableDict, fname):
 
 def edgeAcquisition(global_PVs, variableDict):
 
-    homeRotary(global_PVs, variableDict)                 
+    rotary_to_start_position(global_PVs, variableDict)                 
 
     print(' ')
     print('  *** Acquisition')
@@ -700,29 +705,11 @@ def edgeAcquisition(global_PVs, variableDict):
     else:
         global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
     
-    # rotCurrPos = global_PVs['Motor_SampleRot'].get()
 
-    # global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
-    # global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    # global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0)  
-    # global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
-    # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
-
-    
     global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
     global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
         
-    # rotCurrPos = global_PVs['Motor_SampleRot'].get()
-    # global_PVs['Motor_SampleRot_Set'].put(str(1), wait=True, timeout=1000.0)       
-    # global_PVs['Motor_SampleRot'].put(str(1.0*rotCurrPos%360.0), wait=True, timeout=1000.0) 
-    # global_PVs['Motor_SampleRot_Set'].put(str(0), wait=True, timeout=1000.0) 
-             
-    # global_PVs['Motor_SampleRot_Velo'].put("50.00000", wait=True, timeout=1000.0)
-    # time.sleep(1)
-    # global_PVs['Motor_SampleRot'].put("0.00000", wait=False, timeout=1000.0)   
-
-    # homeRotary(global_PVs, variableDict)                 
-
+    # wait for hdf plugin to dump images to disk
     while (global_PVs['HDF1_NumCaptured_RBV'].get() != global_PVs['Cam1_NumImagesCounter_RBV'].get()):      
         time.sleep(1)                    
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
@@ -768,7 +755,7 @@ def edgeAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
     print('      *** Dark Fileds: Done!')
 
-    homeRotary(global_PVs, variableDict)                 
+    rotary_to_start_position(global_PVs, variableDict)                 
     print(' ')
     print('  *** Acquisition: Done!')        
 

@@ -11,13 +11,13 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.001,
+        'ExposureTime': 0.1,
         'SlewSpeed': 1.0, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
-        'SampleYIn': 0,            # default white field is taken moving the Y
+        'SampleYIn': 0,            # default white field is taken moving the Y axis
         'SampleYOut': -1,
         'roiSizeX': 2560, 
         'roiSizeY': 1600,       
@@ -28,7 +28,7 @@ variableDict = {
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.05,
+        'CCD_Readout': 0.04,
         'EnergyPink': 2.657, 
         'EnergyMono': 24.9,
         'Station': '2-BM-A',

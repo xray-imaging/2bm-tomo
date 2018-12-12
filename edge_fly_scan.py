@@ -11,16 +11,18 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.1,
+        'ExposureTime': 0.003,
         'SlewSpeed': 1.0, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 1500,
-        'SampleYIn': 0,            # default white field is taken moving the Y axis
-        'SampleYOut': -1,
-        'roiSizeX': 2560, 
-        'roiSizeY': 1600,       
+        'Projections': 750,
+        'SampleXIn': -0.416,           # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'SampleXOut': 0.7,
+#        'SampleYIn': 0,            # default white field is taken moving the Y axis
+#        'SampleYOut': -3,
+        'roiSizeX': 1280, 
+        'roiSizeY': 2160,       
         'PostWhiteImages': 20,
         'PostDarkImages': 20,
         'PreWhiteImages': 0,        
@@ -33,8 +35,6 @@ variableDict = {
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
         'StartSleep_min': 0,
-        'SampleXIn': 0.0,           # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'SampleXOut': 5.0,
         #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
         #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
         }

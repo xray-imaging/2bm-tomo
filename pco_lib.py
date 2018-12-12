@@ -24,7 +24,7 @@ FrameTypeWhite = 2
 
 TESTING = False
 
-sampleInOutVertical = True
+sampleInOutVertical = False
 
 def update_variable_dict(variableDict):
     argDic = {}

@@ -770,7 +770,7 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
 
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
-    print('      *** White Fileds: Done!')
+    print('      *** White Fields: Done!')
 
 
 def edgeAcquireDark(global_PVs, variableDict):    
@@ -784,7 +784,7 @@ def edgeAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)       
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
-    print('      *** Dark Fileds: Done!')
+    print('      *** Dark Fields: Done!')
 
     rotary_to_start_position(global_PVs, variableDict)                 
     print(' ')

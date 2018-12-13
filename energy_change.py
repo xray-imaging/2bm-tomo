@@ -10,11 +10,10 @@ from pco_lib import *
 
 global variableDict
 
-variableDict = {'PreDarkImages': 0,
-        'PreWhiteImages': 0,
+variableDict = {
         'Projections': 1500,
-        'PostDarkImages': 20,
-        'PostWhiteImages': 20,
+        'NumDarkImages': 20,
+        'NumWhiteImages': 20,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
         'SampleStartPos': 0.0,

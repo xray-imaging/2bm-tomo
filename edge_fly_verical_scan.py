@@ -25,10 +25,8 @@ variableDict = {
                                     # sample environment 
         'roiSizeX': 2560, 
         'roiSizeY': 1600,       
-        'PostWhiteImages': 20,
-        'PostDarkImages': 20,
-        'PreWhiteImages': 0,        
-        'PreDarkImages': 0,
+        'NumWhiteImages': 20,
+        'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',

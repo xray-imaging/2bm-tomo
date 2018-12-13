@@ -27,10 +27,8 @@ variableDict = {
         'Projections': 1500,
         'SampleXIn': 0.0,
         'SampleXOut': 5,
-        'PreDarkImages': 20,
-        'PreWhiteImages': 20,
-        'PostDarkImages': 0,
-        'PostWhiteImages': 0,
+        'NumDarkImages': 20,
+        'NumWhiteImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': '2bmbPG3:', # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
@@ -136,23 +134,6 @@ def start_scan(variableDict, fname):
     setup_detector(global_PVs, variableDict) #####
     setup_hdf_writer(global_PVs, variableDict, fname)
 
-    if int(variableDict['PreDarkImages']) > 0:
-        close_shutters(global_PVs, variableDict)
-        time.sleep(2)
-        print(' ')
-        print('  *** Capturing Pre Dark Field')
-        capture_multiple_projections(global_PVs, variableDict, int(variableDict['PreDarkImages']), FrameTypeDark)
-        print('  *** Capturing Pre Dark Field: Done!')
-    if int(variableDict['PreWhiteImages']) > 0:
-        global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime_flat']) )
-        open_shutters(global_PVs, variableDict)
-        time.sleep(2)
-        move_sample_out(global_PVs, variableDict)
-        print(' ')
-        print('  *** Capturing Pre White Field')
-        capture_multiple_projections(global_PVs, variableDict, int(variableDict['PreWhiteImages']), FrameTypeWhite)
-        print('  *** Capturing Pre White Field: Done!')
-        global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
     move_sample_in(global_PVs, variableDict)
 
     open_shutters(global_PVs, variableDict)
@@ -160,17 +141,17 @@ def start_scan(variableDict, fname):
     # run fly scan
     theta = fly_scan(variableDict)
 
-    if int(variableDict['PostWhiteImages']) > 0:
+    if int(variableDict['NumWhiteImages']) > 0:
         print('Capturing Post White Field')
         global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime_flat']) )
         move_sample_out(global_PVs, variableDict)
-        capture_multiple_projections(global_PVs, variableDict, int(variableDict['PostWhiteImages']), FrameTypeWhite)
+        capture_multiple_projections(global_PVs, variableDict, int(variableDict['NumWhiteImages']), FrameTypeWhite)
         global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
-    if int(variableDict['PostDarkImages']) > 0:
+    if int(variableDict['NumDarkImages']) > 0:
         print('Capturing Post Dark Field')
         close_shutters(global_PVs, variableDict)
         time.sleep(2)
-        capture_multiple_projections(global_PVs, variableDict, int(variableDict['PostDarkImages']), FrameTypeDark)
+        capture_multiple_projections(global_PVs, variableDict, int(variableDict['NumDarkImages']), FrameTypeDark)
     close_shutters(global_PVs, variableDict)
     time.sleep(0.25)
     wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)

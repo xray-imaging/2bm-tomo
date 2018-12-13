@@ -29,8 +29,8 @@ variableDict = {
         'SampleXOut': 1.0,
         'roiSizeX': 1920, 
         'roiSizeY': 1200,       
-        'PostDarkImages': 20,
-        'PostWhiteImages': 20,
+        'NumDarkImages': 20,
+        'NumWhiteImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': '2bmbPG3:', # options: 1. PointGrey: '2bmbPG3:', 2. FLIR Oryx '2bmbSP1:' 
         'FileWriteMode': 'Stream',

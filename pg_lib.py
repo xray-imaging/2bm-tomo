@@ -348,8 +348,8 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         # if (variableDict['Recursive_Filter_Enabled'] == False):
         #     variableDict['Recursive_Filter_N_Images'] = 1
 
-        totalProj = ((int(variableDict['Projections'] / image_factor(global_PVs, variableDict))) + int(variableDict['PostDarkImages']) + \
-                        int(variableDict['PostWhiteImages']))
+        totalProj = ((int(variableDict['Projections'] / image_factor(global_PVs, variableDict))) + int(variableDict['NumDarkImages']) + \
+                        int(variableDict['NumWhiteImages']))
 
         global_PVs['HDF1_NumCapture'].put(totalProj)
         global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
@@ -438,7 +438,7 @@ def pgAcquireDark(global_PVs, variableDict):
         
     global_PVs['Cam1_NumImages'].put(1)
 
-    for i in range(int(variableDict['PostDarkImages']) * image_factor(global_PVs, variableDict)):
+    for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
@@ -467,7 +467,7 @@ def pgAcquireFlat(global_PVs, variableDict):
         
     global_PVs['Cam1_NumImages'].put(1)
 
-    for i in range(int(variableDict['PostWhiteImages']) * image_factor(global_PVs, variableDict)):
+    for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         time.sleep(0.1)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)

@@ -341,15 +341,15 @@ def dimaxAcquireFlat(global_PVs, variableDict):
                 
 
     time.sleep(1)
-    global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
-    global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
+    global_PVs['HDF1_NumCapture'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)
+    global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
     global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
     global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
 
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
     time.sleep(1) 
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
 
@@ -357,8 +357,8 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     close_shutters(global_PVs, variableDict)
 
-    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)    
-    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)     
     # if (SampleInOutVertical):
@@ -376,22 +376,22 @@ def dimaxAcquireDark(global_PVs, variableDict):
     print("      *** Dark Fields") 
 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
-    global_PVs['HDF1_NumCapture'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)
-    global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)                
+    global_PVs['HDF1_NumCapture'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)
+    global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)                
 ##    global_PVs['HDF1_FilePath'].put(filepath, wait=True, timeout=1000.0)
     global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
     global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
     global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)            
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)            
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
 
     close_shutters(global_PVs, variableDict)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     
-    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)    
-    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)
     global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
@@ -446,7 +446,7 @@ def dimaxSet2D(global_PVs, variableDict, fname):
 
     set_frame_type(global_PVs, variableDict)
 
-    numImage = variableDict['Projections'] + variableDict['PostDarkImages'] + variableDict['PostWhiteImages']
+    numImage = variableDict['Projections'] + variableDict['NumDarkImages'] + variableDict['NumWhiteImages']
 
     frate = 1.0 / variableDict['ExposureTime'] 
     
@@ -540,23 +540,23 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
             global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
 
     time.sleep(1)
-    # global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
-    # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
+    # global_PVs['HDF1_NumCapture'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)
+    # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)                
     # global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
     # global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
     # global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
 
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
     time.sleep(1) 
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
 
     open_shutters(global_PVs, variableDict)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
 
-    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)    
-    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)
 
@@ -575,23 +575,23 @@ def dimaxAcquireDark2D(global_PVs, variableDict):
     print("      *** Dark Fields") 
 
     # global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
-    # global_PVs['HDF1_NumCapture'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)
-    # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)                
+    # global_PVs['HDF1_NumCapture'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)
+    # global_PVs['HDF1_NumCapture_RBV'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)                
     # global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
     # global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
     # global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
 
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
     time.sleep(1) 
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)            
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)            
     global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
 
     close_shutters(global_PVs, variableDict)
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     
-    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)    
-    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)                
+    global_PVs['Cam1_PCOImgs2Dump'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)    
+    global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)
 #    global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
@@ -686,9 +686,7 @@ def edgeSet(global_PVs, variableDict, fname):
 
     set_frame_type(global_PVs, variableDict)
 
-    numImage = variableDict['PreDarkImages'] + \
-        variableDict['PreWhiteImages'] + variableDict['Projections'] + \
-        variableDict['PostDarkImages'] + variableDict['PostWhiteImages']   
+    numImage = variableDict['Projections'] + variableDict['NumDarkImages'] + variableDict['NumWhiteImages']   
 
     frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleRotEnd'] - \
              variableDict['SampleRotStart'])/variableDict['SlewSpeed']) + 5)
@@ -765,18 +763,12 @@ def edgeAcquireFlat(global_PVs, variableDict):
 
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
     time.sleep(2)    
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)   
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumWhiteImages']), wait=True, timeout=1000.0)   
     
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)   
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
 
-    # if (SampleInOutVertical):
-    #     global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
-    # else:
-    #     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
-    #     if (UseFurnace):
-    #         global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
     print('      *** White Fileds: Done!')
 
@@ -786,7 +778,7 @@ def edgeAcquireDark(global_PVs, variableDict):
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)
     global_PVs['Cam1_FrameType'].put(FrameTypeDark, wait=True, timeout=1000.0)             
 
-    global_PVs['Cam1_NumImages'].put(str(variableDict['PostDarkImages']), wait=True, timeout=1000.0)   
+    global_PVs['Cam1_NumImages'].put(str(variableDict['NumDarkImages']), wait=True, timeout=1000.0)   
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)            
 
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)       

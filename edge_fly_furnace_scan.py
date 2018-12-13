@@ -26,10 +26,8 @@ variableDict = {
         'StartSleep_s': 180,        # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'roiSizeX': 1280, 
         'roiSizeY': 2160,       
-        'PostWhiteImages': 20,
-        'PostDarkImages': 20,
-        'PreWhiteImages': 0,        
-        'PreDarkImages': 0,
+        'NumWhiteImages': 20,
+        'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:',   # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
@@ -61,36 +59,12 @@ def main():
             start = 0
             end = 41
             number_of_steps = 1
+
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
-
-            variableDict['SampleMoveEnabled'] = False
-            
-            for i in np.arange(start, end, number_of_steps):
-                print('*** Sample Move Enabled: %s ' % variableDict['SampleMoveEnabled'])                
-                print ('*** Data set number: %s of %s ' % (i, number_of_steps))
-                time.sleep(.5)
-                edgeInit(global_PVs, variableDict)     
-                edgeTest(global_PVs, variableDict)
-                setPSO(global_PVs, variableDict)
-
-                fname = global_PVs['HDF1_FileName'].get(as_string=True)
-                print('  *** File name: %s' % fname)
-                edgeSet(global_PVs, variableDict, fname)
-
-                print('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
-                time.sleep(variableDict['StartSleep_s']) 
-
-                open_shutters(global_PVs, variableDict)
-                edgeAcquisition(global_PVs, variableDict)
-                edgeAcquireFlat(global_PVs, variableDict) 
-                close_shutters(global_PVs, variableDict)
-                edgeAcquireDark(global_PVs, variableDict) 
-
-
-            print ('*** Last data set ***')
-
+           
+            print ('*** First data set ***')
             variableDict['SampleMoveEnabled'] = True
             print('*** Sample Move Enabled: %s ' % variableDict['SampleMoveEnabled'])                
             time.sleep(.5)
@@ -103,10 +77,35 @@ def main():
             edgeSet(global_PVs, variableDict, fname)
 
             open_shutters(global_PVs, variableDict)
-            edgeAcquisition(global_PVs, variableDict)
             edgeAcquireFlat(global_PVs, variableDict) 
+            edgeAcquisition(global_PVs, variableDict)
             close_shutters(global_PVs, variableDict)
             edgeAcquireDark(global_PVs, variableDict) 
+
+            print('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+            time.sleep(variableDict['StartSleep_s']) 
+            
+            variableDict['SampleMoveEnabled'] = False
+            for i in np.arange(start, end, number_of_steps):
+                print('*** Sample Move Enabled: %s ' % variableDict['SampleMoveEnabled'])                
+                print ('*** Data set number: %s of %s ' % (i, number_of_steps))
+                time.sleep(.5)
+                edgeInit(global_PVs, variableDict)     
+                edgeTest(global_PVs, variableDict)
+                setPSO(global_PVs, variableDict)
+
+                fname = global_PVs['HDF1_FileName'].get(as_string=True)
+                print('  *** File name: %s' % fname)
+                edgeSet(global_PVs, variableDict, fname)
+
+                open_shutters(global_PVs, variableDict)
+                edgeAcquisition(global_PVs, variableDict)
+                edgeAcquireFlat(global_PVs, variableDict) 
+                close_shutters(global_PVs, variableDict)
+                edgeAcquireDark(global_PVs, variableDict) 
+
+                print('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+                time.sleep(variableDict['StartSleep_s']) 
 
             global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
             

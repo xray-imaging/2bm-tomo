@@ -107,8 +107,8 @@ def main():
                 print('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                 time.sleep(variableDict['StartSleep_s']) 
 
-            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
-            
+            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
+
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

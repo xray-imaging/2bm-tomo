@@ -10,7 +10,7 @@ global variableDict
 
 variableDict = {
         'ExposureTime': 0.007,
-        'SlewSpeed': 37.5, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'SlewSpeed': 37.5,         # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 90.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
@@ -22,17 +22,18 @@ variableDict = {
         'PostWhiteImages': 20,
         'PostDarkImages': 20,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': 'PCOIOC2:', # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
+        'IOC_Prefix': 'PCOIOC2:',   # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.0001,
         'EnergyPink': 2.657, 
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'StartSleep_min': 0,
-        'SampleXIn': 0,           # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'SampleXIn': 0,             # to use X change the sampleInOutVertical = False in PCO_lib.py
         'SampleXOut': 0,
-        #'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
-        #'camShutterMode': 'Rolling' # options: 'Rolling', 'Global'
+        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'FurnaceYOut': 49.0,
+        'StartSleep_s': 0,          # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SampleMoveEnabled': True,  # False to freeze sample motion during white field data collection
         }
 
 global_PVs = {}

@@ -28,7 +28,10 @@ variableDict = {
         'EnergyPink': 2.657, 
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'StartSleep_min': 0
+        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'FurnaceYOut': 49.0,
+        'StartSleep_s': 0,          # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SampleMoveEnabled': True,  # False to freeze sample motion during white field data collection
         }
 
 global_PVs = {}

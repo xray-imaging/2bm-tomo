@@ -13,10 +13,10 @@ from epics import PV
 
 TESTING = False
 
-SampleInOutVertical = False     # True: use X to take the white field
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
-UseFurnace = False              # True: moves the furnace  to FurnaceYOut position to take white field: 
-                                #       set  SampleInOutVertical = False if you want to move X to clear the field of view
+UseFurnace = True               # True: moves the furnace  to FurnaceYOut position to take white field: 
+                                #       Note: this flag is active ONLY when SampleInOutVertical = False 
+SampleInOutVertical = False     # True: use X to take the white field
 
 ShutterA_Open_Value = 1
 ShutterA_Close_Value = 0
@@ -26,7 +26,6 @@ ShutterB_Close_Value = 0
 FrameTypeData = 0
 FrameTypeDark = 1
 FrameTypeWhite = 2
-
 
 
 def update_variable_dict(variableDict):
@@ -283,6 +282,9 @@ def dimaxAcquisition(global_PVs, variableDict):
         if (UseFurnace):
             global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
 
+    # print('          *** Wait (s) %s ' % str(variableDict['StartSleep_s']))   
+    # time.sleep(variableDict['StartSleep_s']) 
+
     global_PVs['Motor_SampleRot_Velo'].put('50.00000', wait=True, timeout=1000.0)
     global_PVs['Motor_SampleRot'].put('0.00000', wait=False, timeout=1000.0)   
 
@@ -326,12 +328,16 @@ def dimaxAcquireFlat(global_PVs, variableDict):
 
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+    if (variableDict['SampleMoveEnabled']):
+        print('      *** *** Move Sample Out')
+        if (SampleInOutVertical):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+        else:
+            if (UseFurnace):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
     else:
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+        print('      *** *** Sample Stack is Frozen')
                 
 
     time.sleep(1)
@@ -355,12 +361,12 @@ def dimaxAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_PCOImgs2Dump_RBV'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)                
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)     
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
-    else:
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+    # if (SampleInOutVertical):
+    #     global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+    # else:
+    #     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    #     if (UseFurnace):
+    #         global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
 
     lobal_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** White Fields: Done!')
@@ -486,12 +492,16 @@ def dimaxAcquisition2D(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCounter'].put(str(0), wait=True, timeout=1000.0)     
     time.sleep(1)
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
-    else:
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+    if (variableDict['SampleMoveEnabled']):
+        if (SampleInOutVertical):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+        else:
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
+            if (UseFurnace):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+
+    # print('          *** Wait (s)', str(variableDict['StartSleep_s']))   
+    # time.sleep(variableDict['StartSleep_s']) 
 
     frate = 1.0 / variableDict['ExposureTime']                        
     
@@ -521,12 +531,13 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
 
     # global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
-    else:
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+    if (variableDict['SampleMoveEnabled']):
+        if (SampleInOutVertical):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+        else:
+            if (UseFurnace):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
 
     time.sleep(1)
     # global_PVs['HDF1_NumCapture'].put(str(variableDict['PostWhiteImages']), wait=True, timeout=1000.0)
@@ -549,12 +560,12 @@ def dimaxAcquireFlat2D(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCameraMemory'].put(1, wait=True, timeout=1000.0)
     time.sleep(10)
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0) 
-    else:
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+    # if (SampleInOutVertical):
+    #     global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0) 
+    # else:
+    #     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
+    #     if (UseFurnace):
+    #         global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
                  
 #    global_PVs['HDF1_Capture'].put('Done',wait=True,timeout=1000.0)
     print('      *** White Fields: Done!')
@@ -615,7 +626,7 @@ def rotary_to_start_position(global_PVs, variableDict):
         return
     else:    
         print(' ')
-        print('  *** Home rotary')                        
+        print('  *** Homing the rotary stage')                        
 
         global_PVs['Motor_SampleRot_Stop'].put(1, wait=True, timeout=1000.0)
         global_PVs['Motor_SampleRot_Set'].put('Set', wait=True, timeout=1000.0) 
@@ -625,7 +636,7 @@ def rotary_to_start_position(global_PVs, variableDict):
         global_PVs['Motor_SampleRot_Velo'].put('30', wait=True, timeout=1000.0)    
         global_PVs['Motor_SampleRot_Accl'].put('3', wait=True, timeout=1000.0)                
         global_PVs['Motor_SampleRot'].put(str(variableDict['SampleRotStart']), wait=True, timeout=1000.0)
-        print('  *** Home rotary: Done!')                        
+        print('  *** Homing the rotary stage: Done!')                        
 
    
 def edgeInit(global_PVs, variableDict):
@@ -717,14 +728,18 @@ def edgeAcquisition(global_PVs, variableDict):
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True, timeout=1000.0) 
     time.sleep(2)    
+
     if (SampleInOutVertical):
         global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
     else:
         global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
         if (UseFurnace):
             global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
-     
 
+    # print('          *** Wait (s): ', str(variableDict['StartSleep_s']))   
+    # time.sleep(variableDict['StartSleep_s']) 
+
+    print('          *** Fly Scan')   
     global_PVs['Fly_Taxi'].put('Taxi', wait=True, timeout=1000.0)
     global_PVs['Fly_Run'].put('Fly', wait=True, timeout=1000.0) 
         
@@ -738,12 +753,13 @@ def edgeAcquisition(global_PVs, variableDict):
 def edgeAcquireFlat(global_PVs, variableDict):    
     print('      *** White Fields')
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
-    else:
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+    if (variableDict['SampleMoveEnabled']):
+        if (SampleInOutVertical):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+        else:
+            if (UseFurnace):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
        
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
 
@@ -755,12 +771,12 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)  
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
 
-    if (SampleInOutVertical):
-        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
-    else:
-        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
-        if (UseFurnace):
-            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+    # if (SampleInOutVertical):
+    #     global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
+    # else:
+    #     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
+    #     if (UseFurnace):
+    #         global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
     print('      *** White Fileds: Done!')
 

@@ -12,15 +12,17 @@ global variableDict
 
 variableDict = {
         'ExposureTime': 0.040,
-        'SlewSpeed': 1.0, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'SlewSpeed': 1.0,           # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 750,
-        'SampleXIn': -0.416,           # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'SampleXIn': -0.416,        # to use X change the sampleInOutVertical = False in PCO_lib.py
         'SampleXOut': 0.7,
-        'FurnaceYIn': 0.0,           # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'FurnaceYOut': 0.0,
+        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'FurnaceYOut': 49.0,
+        'WaitBeforeStart': 50,      # wait time (s) before starting data collection; usefull to stabilize 
+                                    # sample environment 
 #        'SampleYIn': 0,            # default white field is taken moving the Y axis
 #        'SampleYOut': -3,
         'roiSizeX': 1280, 

@@ -28,8 +28,10 @@ variableDict = {
         'EnergyPink': 2.657, # for now giver in mirror angle in rads
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'StartSleep_min': 0,#        'camScanSpeed': 'Normal', # options: 'Normal', 'Fast', 'Fastest'
-#        'camShutterMode': 'Rolling'# options: 'Rolling', 'Global''
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
+                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
+        'SampleInOutVertical': False,     # False: use X to take the white field
         }
 
 global_PVs = {}

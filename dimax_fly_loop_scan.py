@@ -31,7 +31,10 @@ variableDict = {
         'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
         'FurnaceYOut': 49.0,
         'StartSleep_s': 0,          # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'SampleMoveEnabled': True   # False to freeze sample motion during white field data collection
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
+                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
+        'SampleInOutVertical': False,     # False: use X to take the white field
         }
 
 global_PVs = {}

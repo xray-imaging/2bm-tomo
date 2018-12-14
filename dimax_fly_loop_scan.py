@@ -15,26 +15,30 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
-        'SampleXIn': 0.0,
+        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleXIn': 0.0,                 # to use X change the sampleInOutVertical = False
         'SampleXOut': 10,
+        'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
+        'SampleYOut': -4,
         'roiSizeX': 2016, 
         'roiSizeY': 900,        
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': 'PCOIOC2:',   # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
+        'IOC_Prefix': 'PCOIOC2:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
-        'EnergyPink': 2.657,        # for now giver in mirror angle in rads
+        'EnergyPink': 2.657,              # for now giver in mirror angle in rads
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'FurnaceYOut': 49.0,
-        'StartSleep_s': 0,          # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'StartSleep_s': 0,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
-                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'SampleInOutVertical': False,     # False: use X to take the white field
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,                
+        'FurnaceYOut': 48.0,
         }
 
 global_PVs = {}

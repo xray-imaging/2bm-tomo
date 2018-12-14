@@ -37,9 +37,11 @@ variableDict = {
         'StartSleep_min': 0,
         'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
         'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
-                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'FurnaceYIn': 0.0,               
-        'FurnaceYOut': 49.0,
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,                
+        'FurnaceYOut': 48.0,
         }
 
 global_PVs = {}

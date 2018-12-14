@@ -15,6 +15,7 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
         'SampleXOut': -2,
@@ -32,11 +33,12 @@ variableDict = {
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
         'StartSleep_s': 0,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
         'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
-                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'FurnaceYIn': 0.0,         
-        'FurnaceYOut': 49.0,
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,                
+        'FurnaceYOut': 48.0,
         }
 
 global_PVs = {}

@@ -233,7 +233,7 @@ def changeDMMEng(eng = 24.9):
 
     idx = np.where(caliEng_list==eng)                
     if idx[0].size == 0:
-        print 'there is no specified energy in the energy lookup table. please choose a calibrated energy.'
+        print ('there is no specified energy in the energy lookup table. please choose a calibrated energy.')
         return    0                            
     USArm = USArm_list[idx[0][0]]                
     DSArm = DSArm_list[idx[0][0]] 
@@ -8936,10 +8936,10 @@ def record_loading(exposureTime=0.5):
 def main():
 
     # DimaxSingleScan()
-    change2Pink(ang=2.657)
+    #change2Pink(ang=2.657)
     #change2Mono()
     # 55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
-	#changeDMMEng(eng = 24.90)
+	changeDMMEng(eng = 24.90)
 
 if __name__ == '__main__':
     main()

@@ -16,15 +16,15 @@ variableDict = {
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 750,
+        'Projections': 1500,
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleInOutVertical': False,     # False: use X to take the white field
-        'SampleXIn': -0.404,              # to use X change the sampleInOutVertical = False 
-        'SampleXOut': 0.7,
+        'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
+        'SampleXOut': 2,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'StartSleep_s': 1,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'roiSizeX': 1280, 
+        'roiSizeX': 2560, 
         'roiSizeY': 2160,       
         'NumWhiteImages': 20,
         'NumDarkImages': 20,

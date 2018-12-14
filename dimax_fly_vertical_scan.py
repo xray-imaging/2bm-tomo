@@ -15,28 +15,28 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
-        'SampleYIn': 0,            # default white field is taken moving the Y
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
+        'SampleXOut': -2,
+        'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
         'SampleYOut': -4,
         'roiSizeX': 2016, 
         'roiSizeY': 600,        
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': 'PCOIOC2:',   # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
+        'IOC_Prefix': 'PCOIOC2:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
-        'EnergyPink': 2.657,        # for now giver in mirror angle in rads
+        'EnergyPink': 2.657,              # for now giver in mirror angle in rads
         'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'SampleXIn': 0,             # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'SampleXOut': 0,
-        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'FurnaceYOut': 49.0,
-        'StartSleep_s': 0,          # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'StartSleep_s': 0,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
         'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
                                           #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'SampleInOutVertical': False,     # False: use X to take the white field
+        'FurnaceYIn': 0.0,          
+        'FurnaceYOut': 49.0,
         }
 
 global_PVs = {}

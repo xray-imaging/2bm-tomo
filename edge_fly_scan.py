@@ -85,6 +85,8 @@ def main():
             close_shutters(global_PVs, variableDict)
             edgeAcquireDark(global_PVs, variableDict) 
 
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

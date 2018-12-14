@@ -17,17 +17,13 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 750,
+        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleXIn': -0.404,              # to use X change the sampleInOutVertical = False 
         'SampleXOut': 0.7,
-#        'SampleYIn': 0,                  # default white field is taken moving the Y axis
-#        'SampleYOut': -3,
-        'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
-        'FurnaceYIn': 0.0,                #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'FurnaceYOut': 49.0,
-               
+        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
+        # 'SampleYOut': -4,
         'StartSleep_s': 1,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
-
         'roiSizeX': 1280, 
         'roiSizeY': 2160,       
         'NumWhiteImages': 20,
@@ -36,11 +32,13 @@ variableDict = {
         'IOC_Prefix': 'PCOIOC3:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.04,
-        'EnergyPink': 2.657, 
-        'EnergyMono': 24.9,
         'Station': '2-BM-A',
-        'StartSleep_min': 0,
-        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
+        'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,                
+        'FurnaceYOut': 48.0,
         }
 
 global_PVs = {}

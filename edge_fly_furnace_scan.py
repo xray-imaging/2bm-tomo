@@ -12,31 +12,33 @@ global variableDict
 
 variableDict = {
         'ExposureTime': 0.040,
-        'SlewSpeed': 1.0,           # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'SlewSpeed': 1.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 750,
-        'SampleXIn': -0.404,        # to use X change the sampleInOutVertical = False in PCO_lib.py
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleXIn': -0.404,              # to use X change the sampleInOutVertical = False
         'SampleXOut': 0.7,
-        # 'SampleYIn': 0,           # default white field is taken moving the Y
+        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
-        'FurnaceYIn': 0.0,          # to use X change the sampleInOutVertical = False in PCO_lib.py
-        'FurnaceYOut': 48.0,
-        'StartSleep_s': 180,        # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'roiSizeX': 1280, 
         'roiSizeY': 2160,       
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': 'PCOIOC3:',   # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
+        'IOC_Prefix': 'PCOIOC3:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.05,
         'Station': '2-BM-A',
-        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
-        'UseFurnace': True,               # True: moves the furnace  to FurnaceYOut position to take white field: 
-                                          #       Note: this flag is active ONLY when SampleInOutVertical = False 
-        'SampleInOutVertical': False,     # False: use X to take the white field
+        'UseFurnace': True,               # True: moves the furnace to FurnaceYOut position to take white field: 
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,  
+        'FurnaceYOut': 48.0,
         }
 
 global_PVs = {}

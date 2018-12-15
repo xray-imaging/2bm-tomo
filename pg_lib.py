@@ -190,8 +190,12 @@ def init_general_PVs(global_PVs, variableDict):
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateEnable')
+
         global_PVs['Cam1_TriggerSource'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerSource')
         global_PVs['Cam1_TriggerOverlap'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerOverlap')
+        global_PVs['Cam1_ExposureMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:ExposureMode')
+        global_PVs['Cam1_TriggerSelector'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerSelector')
+        global_PVs['Cam1_TriggerActivation'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerActivation')
     
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
@@ -284,18 +288,28 @@ def pgSet(global_PVs, variableDict, fname):
         if variableDict.has_key('Display_live'):
             print('** disable live display')
             global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
+
+
+        # #########################################################################
+        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+        global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
+        global_PVs['Cam1_TriggerOverlap'].put('Off', wait=True)
+        global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
+        global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
+        global_PVs['Cam1_TriggerActivation'].put('LevelHigh', wait=True)
+        # #########################################################################
+
+
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
         #global_PVs['Image1_Callbacks'].put('Enable')
-        global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
+        #global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
+        global_PVs['Cam1_FrameRateOnOff'].put(0)
         global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
         # if we are using external shutter then set the exposure time
-        global_PVs['Cam1_FrameRateOnOff'].put(0)
 
         wait_time_sec = int(variableDict['ExposureTime']) + 5
-        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
-        global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
-        global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True) 
+
         print('  *** setup FLIR camera: Done!')
     
     else:

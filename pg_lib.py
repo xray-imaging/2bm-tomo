@@ -189,6 +189,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateOnOff')
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_AcquireTimeAuto'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTimeAuto')
         global_PVs['Cam1_FrameRateOnOff'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameRateEnable')
 
         global_PVs['Cam1_TriggerSource'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerSource')
@@ -293,7 +294,7 @@ def pgSet(global_PVs, variableDict, fname):
         # #########################################################################
         global_PVs['Cam1_TriggerMode'].put('On', wait=True)
         global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
-        global_PVs['Cam1_TriggerOverlap'].put('Off', wait=True)
+        global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True)
         global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
         global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
         global_PVs['Cam1_TriggerActivation'].put('LevelHigh', wait=True)
@@ -305,6 +306,8 @@ def pgSet(global_PVs, variableDict, fname):
         #global_PVs['Image1_Callbacks'].put('Enable')
         #global_PVs['Cam1_AcquirePeriod'].put(float(variableDict['ExposureTime']))
         global_PVs['Cam1_FrameRateOnOff'].put(0)
+        global_PVs['Cam1_AcquireTimeAuto'].put('Off')
+
         global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']))
         # if we are using external shutter then set the exposure time
 
@@ -353,7 +356,9 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
                 global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
         else:
             global_PVs['Proc1_Filter_Enable'].put('Disable')
+            print("1:done")
             global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
+            print("2:Done")
         global_PVs['HDF1_AutoSave'].put('Yes')
         global_PVs['HDF1_DeleteDriverFile'].put('No')
         global_PVs['HDF1_EnableCallbacks'].put('Enable')

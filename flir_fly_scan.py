@@ -74,11 +74,11 @@ def start_scan(variableDict, fname):
     # run fly scan
     theta = pgAcquisition(global_PVs, variableDict)
 
-    # pgAcquireFlat(global_PVs, variableDict)
-    # close_shutters(global_PVs, variableDict)
-    # time.sleep(2)
+    pgAcquireFlat(global_PVs, variableDict)
+    close_shutters(global_PVs, variableDict)
+    time.sleep(2)
 
-    # pgAcquireDark(global_PVs, variableDict)
+    pgAcquireDark(global_PVs, variableDict)
 
     # add_theta(global_PVs, variableDict, theta)
     # global_PVs['Fly_ScanControl'].put('Standard')

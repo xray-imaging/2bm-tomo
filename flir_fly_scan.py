@@ -35,7 +35,7 @@ variableDict = {
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': '2bmbSP1:', # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.05,
+        'CCD_Readout': 0.005,
         'Station': '2-BM-B',
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4
@@ -62,6 +62,7 @@ def start_scan(variableDict, fname):
         stop_scan(global_PVs, variableDict)
         return
 
+    pgInit(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
 
     fname = global_PVs['HDF1_FileName'].get(as_string=True)
@@ -71,17 +72,17 @@ def start_scan(variableDict, fname):
 
     open_shutters(global_PVs, variableDict)
 
-    # run fly scan
+    # # run fly scan
     theta = pgAcquisition(global_PVs, variableDict)
-
+    # print(theta)
     pgAcquireFlat(global_PVs, variableDict)
     close_shutters(global_PVs, variableDict)
     time.sleep(2)
 
     pgAcquireDark(global_PVs, variableDict)
 
-    # add_theta(global_PVs, variableDict, theta)
-    # global_PVs['Fly_ScanControl'].put('Standard')
+    add_theta(global_PVs, variableDict, theta)
+    global_PVs['Fly_ScanControl'].put('Standard')
 
     # if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
     #     global_PVs['HDF1_Capture'].put(0)
@@ -93,8 +94,7 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
     
-    # try: 
-    if (1==1):
+    try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if detector_sn == None:
             print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
@@ -118,9 +118,9 @@ def main():
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
-    # except  KeyError:
-    #     print('  *** Some PV assignment failed!')
-    #     pass
+    except  KeyError:
+        print('  *** Some PV assignment failed!')
+        pass
         
         
 

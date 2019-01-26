@@ -42,10 +42,11 @@ def update_variable_dict(variableDict):
     if len(sys.argv) > 1:
         strArgv = sys.argv[1]
         argDic = json.loads(strArgv)
-    ##print('orig variable dict', variableDict)
+    # print('orig variable dict', variableDict)
+    # for k,v in argDic.items(): # python 3
     for k,v in argDic.iteritems():
         variableDict[k] = v
-    ##print('new variable dict', variableDict)
+    # print('new variable dict', variableDict)
 
 
 def wait_pv(pv, wait_val, max_timeout_sec=-1):
@@ -139,7 +140,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
         global_PVs['Cam1_AcquirePeriod'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquirePeriod')
         global_PVs['Cam1_TriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerMode')
-        global_PVs['Cam1_SoftwareTrigger'] = PV(variableDict['IOC_Prefix'] + 'cam1:SoftwareTrigger')
+        global_PVs['Cam1_SoftwareTrigger'] = PV(variableDict['IOC_Prefix'] + 'cam1:SoftwareTrigger')  ### ask Mark is this is exposed in the medm screen
         global_PVs['Cam1_AcquireTime'] = PV(variableDict['IOC_Prefix'] + 'cam1:AcquireTime')
         global_PVs['Cam1_FrameType'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType')
         global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')
@@ -210,7 +211,7 @@ def stop_scan(global_PVs, variableDict):
         global_PVs['HDF1_Capture'].put(0)
         wait_pv(global_PVs['HDF1_Capture'], 0)
         pgInit(global_PVs, variableDict)
-        pgInit(global_PVs, variableDict)
+        ##pgInit(global_PVs, variableDict)
 
 
 def pgInit(global_PVs, variableDict):
@@ -227,6 +228,8 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Proc1_Filter_Enable'].put('Disable')
         global_PVs['HDF1_ArrayPort'].put('PG3')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
+        global_PVs['Cam1_Acquire'].put(DetectorIdle)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
         global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
@@ -250,9 +253,6 @@ def pgSet(global_PVs, variableDict, fname):
             global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
             global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
 
-        if variableDict.has_key('Display_live'):
-            print('** disable live display')
-            global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
         #global_PVs['Image1_Callbacks'].put('Enable')
@@ -286,20 +286,18 @@ def pgSet(global_PVs, variableDict, fname):
             global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
             global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
 
-        if variableDict.has_key('Display_live'):
-            print('** disable live display')
-            global_PVs['Cam1_Display'].put( int( variableDict['Display_live'] ) )
-
+        global_PVs['Cam1_Acquire'].put(DetectorIdle)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
 
         # #########################################################################
-        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
         global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True)
         global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
         global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
-        global_PVs['Cam1_TriggerActivation'].put('LevelHigh', wait=True)
-        # #########################################################################
+        global_PVs['Cam1_TriggerActivation'].put('RisingEdge', wait=True)
 
+        # #########################################################################
 
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
@@ -313,6 +311,7 @@ def pgSet(global_PVs, variableDict, fname):
 
         wait_time_sec = int(variableDict['ExposureTime']) + 5
 
+        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
         print('  *** setup FLIR camera: Done!')
     
     else:
@@ -403,7 +402,7 @@ def pgAcquisition(global_PVs, variableDict):
     if (variableDict['Recursive_Filter_Enabled'] == False):
         variableDict['Recursive_Filter_N_Images'] = 1
 
-    num_images = int(variableDict['Projections']) ## * image_factor(global_PVs, variableDict)
+    num_images = int(variableDict['Projections'])  * image_factor(global_PVs, variableDict)
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     
     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
@@ -426,7 +425,7 @@ def pgAcquisition(global_PVs, variableDict):
     wait_pv(global_PVs['Fly_Run'], 0)
 
     # if the fly scan wait times out we should call done on the detector
-    if False == wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate):
+    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
     print('  *** Fly Scan: Done!')
@@ -444,33 +443,6 @@ def pgAcquisition(global_PVs, variableDict):
     return theta
             
 
-def pgAcquireDark(global_PVs, variableDict):
-    print("      *** Dark Fields") 
-    wait_time_sec = int(variableDict['ExposureTime']) + 5
-    global_PVs['Cam1_ImageMode'].put('Multiple')
-    global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
-
-    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
-        global_PVs['Cam1_TriggerMode'].put('Overlapped')
-    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
-        
-    global_PVs['Cam1_NumImages'].put(1)
-
-    for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        time.sleep(0.1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        time.sleep(0.1)
-        global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
-        time.sleep(0.1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        time.sleep(0.1)
-    wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
-    print('      *** Dark Fields: Done!')
-    print('  *** Acquisition: Done!')        
-
-
 def pgAcquireFlat(global_PVs, variableDict):
     print('      *** White Fields')
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
@@ -484,20 +456,63 @@ def pgAcquireFlat(global_PVs, variableDict):
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         
-    global_PVs['Cam1_NumImages'].put(1)
+    # Set detectors
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
 
-    for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
+        global_PVs['Cam1_NumImages'].put(1)
+
+        for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
+            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+            time.sleep(0.1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            time.sleep(0.1)
+            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+            time.sleep(0.1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+            time.sleep(0.1)
+
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_NumImages'].put(int(variableDict['NumWhiteImages']))
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        time.sleep(0.1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        time.sleep(0.1)
-        global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
-        time.sleep(0.1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        time.sleep(0.1)
 
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
     print('      *** White Fields: Done!')
+
+
+def pgAcquireDark(global_PVs, variableDict):
+    print("      *** Dark Fields") 
+    wait_time_sec = int(variableDict['ExposureTime']) + 5
+    global_PVs['Cam1_ImageMode'].put('Multiple')
+    global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
+
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
+        global_PVs['Cam1_TriggerMode'].put('Overlapped')
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+        
+    # Set detectors
+    if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+
+        global_PVs['Cam1_NumImages'].put(1)
+
+        for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
+            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+            time.sleep(0.1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            time.sleep(0.1)
+            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+            time.sleep(0.1)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+            time.sleep(0.1)
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
+
+    elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+        global_PVs['Cam1_NumImages'].put(int(variableDict['NumDarkImages']))
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
+
+    print('      *** Dark Fields: Done!')
+    print('  *** Acquisition: Done!')        
 
 
 def move_sample_in(global_PVs, variableDict):
@@ -559,6 +574,7 @@ def close_shutters(global_PVs, variableDict):
 def add_theta(global_PVs, variableDict, theta_arr):
     print(' ')
     print('  *** add_theta')
+    
     fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
     try:
         hdf_f = h5py.File(fullname, mode='a')
@@ -588,6 +604,7 @@ def setPSO(global_PVs, variableDict):
     if calc_num_proj == None:
         print('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+        print ("##############", calc_num_proj, variableDict['Projections'])
     if calc_num_proj != int(variableDict['Projections']):
         print('  *** ***  *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', int(calc_num_proj))
         variableDict['Projections'] = int(calc_num_proj)

@@ -24,8 +24,6 @@ variableDict = {
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'roiSizeX': 1280, 
-        'roiSizeY': 2160,       
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,

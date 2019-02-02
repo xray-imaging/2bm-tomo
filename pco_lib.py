@@ -71,8 +71,8 @@ def dimaxTest(global_PVs, variableDict):
 
     global_PVs['Cam1_AcquireTime'].put('0.001000', wait=True, timeout=1000.0)
 
-    global_PVs['Cam1_SizeX'].put(variableDict['roiSizeX'], wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(variableDict['roiSizeY'], wait=True, timeout=1000.0)
+    # global_PVs['Cam1_SizeX'].put(variableDict['roiSizeX'], wait=True, timeout=1000.0)
+    # global_PVs['Cam1_SizeY'].put(variableDict['roiSizeY'], wait=True, timeout=1000.0)
 
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)     # note on Acquire wait must be False
@@ -195,9 +195,15 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Cam1_PCODumpCameraMemory'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_dump_camera_memory')
     global_PVs['Cam1_PCODumpCounter'] = PV(variableDict['IOC_Prefix'] + 'cam1:pco_dump_counter')
 
+	
     
+
+    global_PVs['Cam1_MaxSizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeX_RBV')
+    global_PVs['Cam1_MaxSizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeY_RBV')
+
     global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
     global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
+
     global_PVs['Cam1_NumImages'] = PV(variableDict['IOC_Prefix'] + 'cam1:NumImages')     
     global_PVs['Cam1_ArrayCallbacks'] = PV(variableDict['IOC_Prefix'] + 'cam1:ArrayCallbacks')
     global_PVs['Cam1_TriggerMode'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerMode')           
@@ -670,8 +676,8 @@ def edgeTest(global_PVs, variableDict):
     global_PVs['Cam1_PCOGlobalShutter'].put('Rolling', wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOEdgeFastscan'].put('Normal', wait=True, timeout=1000.0)                
     global_PVs['Cam1_AcquireTime'].put("0.001000", wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeX'].put(variableDict['roiSizeX'], wait=True, timeout=1000.0)
-    global_PVs['Cam1_SizeY'].put(variableDict['roiSizeY'], wait=True, timeout=1000.0)
+    # global_PVs['Cam1_SizeX'].put(variableDict['roiSizeX'], wait=True, timeout=1000.0)
+    # global_PVs['Cam1_SizeY'].put(variableDict['roiSizeY'], wait=True, timeout=1000.0)
     global_PVs['Cam1_PCOTriggerMode'].put('Auto', wait=True, timeout=1000.0)    
     global_PVs['Cam1_Acquire'].put('Acquire', wait=True, timeout=1000.0)     
     print('  *** Testing PCO Edge camera: Done!')
@@ -873,8 +879,9 @@ def calc_blur_pixel(global_PVs, variableDict):
     rot_speed = angular_range / scan_time
     frame_rate = variableDict['Projections'] / scan_time
     blur_delta = variableDict['ExposureTime'] * rot_speed
-    
-    mid_detector = variableDict['roiSizeX'] / 2.0
+ 
+   
+    mid_detector = global_PVs['Cam1_MaxSizeX'].get() / 2.0
     blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
     print(' ')
@@ -889,7 +896,7 @@ def calc_blur_pixel(global_PVs, variableDict):
     print("  *** *** *** *** Scan Time: ", scan_time ,"s") 
     print("  *** *** *** *** Rot Speed: ", rot_speed, "degrees/s")
     print("  *** *** *** *** Frame Rate: ", frame_rate, "fps")
-    print("  *** *** *** *** Blur: ", blur_pixel, "pixels")
+    print("  *** *** *** *** Max Blur: ", blur_pixel, "pixels")
     print('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time

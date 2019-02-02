@@ -20,8 +20,6 @@ variableDict = {
         'SampleXOut': -2,
         'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
         'SampleYOut': -4,
-        'roiSizeX': 2016, 
-        'roiSizeY': 600,        
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,

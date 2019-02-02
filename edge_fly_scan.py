@@ -11,7 +11,7 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.10,
+        'ExposureTime': 0.02,
         'SlewSpeed': 1.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'SampleRotStart': 0.0,
@@ -20,13 +20,11 @@ variableDict = {
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': 2,
+        'SampleXOut': 10,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'StartSleep_s': 1,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
-        'roiSizeX': 2560, 
-        'roiSizeY': 2160,       
-        'NumWhiteImages': 20,
+        'NumWhiteImages': 100,
         'NumDarkImages': 20,
         'ShutterOpenDelay': 0.00,
         'IOC_Prefix': 'PCOIOC3:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'

@@ -11,9 +11,11 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.040,
-        'SlewSpeed': 1.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'ExposureTime': 0.040,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        'SlewSpeed': 1.0,                  # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
+        'roiSizeX': 2560,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
+        'roiSizeY': 2160,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 750,
@@ -66,7 +68,14 @@ def main():
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
-                       
+    
+            # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
+            variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
+            # calling global_PVs['roiSizeX/Y'] to replace the default 'roiSizeX/Y' with the one set in the camera
+            variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
+            variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
+
+                   
             variableDict['SampleMoveEnabled'] = False
             for i in np.arange(start, end, number_of_steps):
                 print('*** Sample Move Enabled: %s ' % variableDict['SampleMoveEnabled'])                

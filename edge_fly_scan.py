@@ -11,16 +11,18 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.02,
+        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'SlewSpeed': 1.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
+        'roiSizeX': 2560,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
+        'roiSizeY': 2160,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': 10,
+        'SampleXOut': 3,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'StartSleep_s': 1,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
@@ -59,9 +61,15 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))
-            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optimal value 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
+
+            # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
+            variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
+            # calling global_PVs['roiSizeX/Y'] to replace the default 'roiSizeX/Y' with the one set in the camera
+            variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
+            variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
 
             edgeInit(global_PVs, variableDict)     
             edgeTest(global_PVs, variableDict)

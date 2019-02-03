@@ -9,9 +9,11 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.0005,
+        'ExposureTime': 0.0005,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'SlewSpeed': 180.0,
         'AcclRot': 180.0,
+        'roiSizeX': 2016,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
+        'roiSizeY': 2016,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
@@ -60,6 +62,14 @@ def main():
             loop_end = 18
             loop_step = 1
             
+
+            # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
+            variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
+
+            # calling global_PVs['roiSizeX/Y'] to replace the default 'roiSizeX/Y' with the one set in the camera
+            variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
+            variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
+
             dimaxInit(global_PVs, variableDict)
             dimaxTest(global_PVs, variableDict)
 

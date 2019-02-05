@@ -11,7 +11,7 @@ import json
 
 from epics import PV
 
-TESTING = True
+TESTING = False
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 

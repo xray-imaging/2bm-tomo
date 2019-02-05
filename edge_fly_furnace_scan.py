@@ -11,28 +11,29 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.040,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
-        'SlewSpeed': 1.0,                  # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
-        'AcclRot': 1.0,
-        'roiSizeX': 2560,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
-        'roiSizeY': 2160,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
-        'SampleRotStart': 0.0,
-        'SampleRotEnd': 180.0,
-        'Projections': 750,
-        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
-        'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleXIn': -0.404,              # to use X change the sampleInOutVertical = False
         'SampleXOut': 0.7,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
-        'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleRotStart': 0.0,
+        'SampleRotEnd': 180.0,
+        'Projections': 750,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
-        'ShutterOpenDelay': 0.00,
+        # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
+        'Station': '2-BM-A',
+        'ExposureTime': 0.040,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        'roiSizeX': 2560,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
+        'roiSizeY': 2160,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
+        'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SlewSpeed': 1.0,                  # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'AcclRot': 1.0,
         'IOC_Prefix': 'PCOIOC3:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.05,
-        'Station': '2-BM-A',
+        'CCD_Readout': 0.03,
+        'ShutterOpenDelay': 0.00,
         'UseFurnace': True,               # True: moves the furnace to FurnaceYOut position to take white field: 
                                           #       Note: this flag is active ONLY when both 1. and 2. are met:
                                           #           1. SampleMoveEnabled = True

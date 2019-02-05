@@ -11,7 +11,7 @@ import json
 
 from epics import PV
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -807,6 +807,9 @@ def open_shutters(global_PVs, variableDict):
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
             if ShutterAisFast:
+                global_PVs['ShutterA_Open'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                time.sleep(3)                
                 global_PVs['Fast_Shutter'].put(1, wait=True)
                 time.sleep(1)
                 print('  *** open_shutter fast: Done!')

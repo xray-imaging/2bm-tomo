@@ -9,30 +9,29 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
+        'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
+        'SampleXOut': -4,
+        # 'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
+        # 'SampleYOut': -4,
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'SampleRotStart': 0.0,
+        'SampleRotEnd': 180.0,
+        'Projections': 12000,
+        'NumWhiteImages': 20,
+        'NumDarkImages': 25,
+        # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
+        'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'roiSizeX': 2016,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
         'roiSizeY': 2016,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
-        'Projections': 12000,
-        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
-        'SampleInOutVertical': False,     # False: use X to take the white field
-        'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
-        'SampleXOut': 0,
-        'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
-        'SampleYOut': -4,
-        'NumWhiteImages': 20,
-        'NumDarkImages': 25,
-        'ShutterOpenDelay': 0.00,
+        'StartSleep_s': 0,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SlewSpeed': 37.5,               # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        'AcclRot': 90.0,
         'IOC_Prefix': 'PCOIOC2:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.0001,
-        'EnergyPink': 2.657, 
-        'EnergyMono': 24.9,
-        'Station': '2-BM-A',
-        'SlewSpeed': 37.5,               # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
-        'AcclRot': 90.0,
-        'SampleRotStart': 0.0,
-        'SampleRotEnd': 180.0,
-        'StartSleep_s': 0,                # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'ShutterOpenDelay': 0.00,
         'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
                                           #       Note: this flag is active ONLY when both 1. and 2. are met:
                                           #           1. SampleMoveEnabled = True

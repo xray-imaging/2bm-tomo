@@ -12,7 +12,7 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': 3,
+        'SampleXOut': -7,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -91,8 +91,6 @@ def main():
             edgeAcquireFlat(global_PVs, variableDict) 
             close_shutters(global_PVs, variableDict)
             edgeAcquireDark(global_PVs, variableDict) 
-
-            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
 
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))

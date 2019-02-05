@@ -754,12 +754,15 @@ def edgeAcquisition(global_PVs, variableDict):
 def edgeAcquireFlat(global_PVs, variableDict):    
     print('      *** White Fields')
     if (variableDict['SampleMoveEnabled']):
+        print('      *** *** Move Sample Out')
         if (variableDict['SampleInOutVertical']):
             global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
         else:
             if (variableDict['UseFurnace']):
                 global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
             global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+    else:
+        print('      *** *** Sample Stack is Frozen')
        
     global_PVs['Fly_ScanControl'].put('Standard', wait=True, timeout=1000.0)                
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite, wait=True, timeout=1000.0)     
@@ -770,6 +773,18 @@ def edgeAcquireFlat(global_PVs, variableDict):
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)
 
     global_PVs['Cam1_Acquire'].put('Done', wait=True, timeout=1000.0)             
+
+    if (variableDict['SampleMoveEnabled']):
+        print('      *** *** Move Sample In')
+        if (variableDict['SampleInOutVertical']):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+        else:
+            if (variableDict['UseFurnace']):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+    else:
+        print('      *** *** Sample Stack is Frozen')
+
     print('      *** White Fields: Done!')
 
 

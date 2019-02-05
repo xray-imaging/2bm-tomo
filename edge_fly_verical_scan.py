@@ -11,12 +11,15 @@ from pco_lib import *
 global variableDict
 
 variableDict = {
+        'StartY': 0,
+        'EndY': 6.0,
+        'StepSize': 1.5,
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
-        'SampleXOut': -2,
+        'SampleXOut': -7,
         # 'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
-        'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
+        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
@@ -51,9 +54,6 @@ def getVariableDict():
 
 def main():
 
-    update_variable_dict(variableDict)
-    init_general_PVs(global_PVs, variableDict)
-
     tic =  time.time()
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
@@ -65,9 +65,9 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
-            start = 0
-            end = 2
-            number_of_steps = 1
+            start = variableDict['StartY']
+            end = variableDict['EndY']
+            step_size = variableDict['StepSize']
 
 
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -78,8 +78,8 @@ def main():
             variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
             variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
             
-            print(np.arange(start, end, number_of_steps))
-            for i in np.arange(start, end, number_of_steps):
+            print("Vertical Position (mm): ", np.arange(start, end, step_size))
+            for i in np.arange(start, end, step_size):
                 
                 print ('*** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)
@@ -97,11 +97,12 @@ def main():
                 edgeAcquireFlat(global_PVs, variableDict) 
                 close_shutters(global_PVs, variableDict)
                 edgeAcquireDark(global_PVs, variableDict) 
-
+                                
                 print(' ')
                 print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                print('  *** Done!')
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+            print('  *** Done!')
 
     except  KeyError:
         print('  *** Some PV assignment failed!')

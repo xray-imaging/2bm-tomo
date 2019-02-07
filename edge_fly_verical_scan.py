@@ -78,7 +78,7 @@ def main():
             variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
             variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
             
-            print("Vertical Position (mm): ", np.arange(start, end, step_size))
+            print("Vertical Positions (mm): ", np.arange(start, end, step_size))
             for i in np.arange(start, end, step_size):
                 
                 print ('*** The sample vertical position is at %s mm' % (i))

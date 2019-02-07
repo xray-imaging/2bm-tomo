@@ -255,11 +255,11 @@ def pgSet(global_PVs, variableDict, fname):
         print('  *** setup Point Grey')
 
         if variableDict['Station'] == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
+            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
         else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
 
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')

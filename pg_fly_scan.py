@@ -82,11 +82,12 @@ def start_scan(variableDict, fname):
 
     pgAcquireDark(global_PVs, variableDict)
 
+    if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
+        global_PVs['HDF1_Capture'].put(0)
+
     add_theta(global_PVs, variableDict, theta)
     global_PVs['Fly_ScanControl'].put('Standard')
 
-    if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
-        global_PVs['HDF1_Capture'].put(0)
     pgInit(global_PVs, variableDict)
     print('  *** Start scan: Done!')
 

@@ -433,7 +433,8 @@ def pgAcquisition(global_PVs, variableDict):
     wait_pv(global_PVs['Fly_Run'], 0)
 
     # if the fly scan wait times out we should call done on the detector
-    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+#    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
     print('  *** Fly Scan: Done!')

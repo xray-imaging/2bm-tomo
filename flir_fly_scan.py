@@ -15,28 +15,28 @@ import imp
 import traceback
 
 from pg_lib import *
-from pco_lib import calc_blur_pixel
 
 global variableDict
 
 variableDict = {
-        'ExposureTime': 0.01,
-        'SlewSpeed': 0.8, # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
-        'AcclRot': 10.0,
-        'SampleRotStart': 0.0,
-        'SampleRotEnd': 180.0,
-        'Projections': 1500,
         'SampleXIn': 0.0,
         'SampleXOut': 1.0,
-        'roiSizeX': 1920, 
-        'roiSizeY': 1200,       
-        'NumDarkImages': 20,
+        'SampleRotStart': 0.0,
+        'SampleRotEnd':180.0,
+        'Projections': 1500,
         'NumWhiteImages': 20,
-        'ShutterOpenDelay': 0.00,
-        'IOC_Prefix': '2bmbSP1:', # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
-        'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.005,
+        'NumDarkImages': 20,
+        # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'Station': '2-BM-B',
+        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        # 'roiSizeX': 2448, 
+        # 'roiSizeY': 2048,       
+        'SlewSpeed': 5.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
+        # 'AcclRot': 10.0,
+        'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
+        'FileWriteMode': 'Stream',
+        'CCD_Readout': 0.005,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
+        'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4
         }
@@ -103,6 +103,8 @@ def main():
             print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
+            # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
+            variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed

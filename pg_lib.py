@@ -151,6 +151,14 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_FrameTypeTWST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.TWST')
         global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
+        global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
+        global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
+        global_PVs['Cam1_SizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX_RBV')
+        global_PVs['Cam1_SizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY_RBV')
+        global_PVs['Cam1_MaxSizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeX_RBV')
+        global_PVs['Cam1_MaxSizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeY_RBV')
+    
+
 
         # hdf5 writer PV's
         global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
@@ -619,7 +627,7 @@ def setPSO(global_PVs, variableDict):
     print('  *** Taxi before starting capture: Done!')
 
 
-def calc_pixel_blur(global_PVs, variableDict):
+def calc_blur_pixel(global_PVs, variableDict):
     """
     Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
     
@@ -644,32 +652,30 @@ def calc_pixel_blur(global_PVs, variableDict):
         Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
     """
 
-    print(' ')
-    print('  *** Calc pixel blur')
     angular_range =  variableDict['SampleRotEnd'] -  variableDict['SampleRotStart']
-    angular_step = angular_range/variableDict['Projections'] / float(image_factor(global_PVs, variableDict))
-    scan_time = image_factor(global_PVs, variableDict) * variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
+    angular_step = angular_range/variableDict['Projections']
+    scan_time = variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
     rot_speed = angular_range / scan_time
-    frame_rate = image_factor(global_PVs, variableDict) * variableDict['Projections'] / scan_time
+    frame_rate = variableDict['Projections'] / scan_time
     blur_delta = variableDict['ExposureTime'] * rot_speed
-    
-    mid_detector = variableDict['roiSizeX'] / 2.0
-    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.)) * image_factor(global_PVs, variableDict)
+ 
+   
+    mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
+    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
-#    print("*************************************")
+    print(' ')
+    print('  *** Calc blur pixel')
     print("  *** *** Total # of proj: ", variableDict['Projections'])
     print("  *** *** Exposure Time: ", variableDict['ExposureTime'], "s")
     print("  *** *** Readout Time: ", variableDict['CCD_Readout'], "s")
     print("  *** *** Angular Range: ", angular_range, "degrees")
-    print("  *** *** Camera X size: ", variableDict['roiSizeX'])
+    print("  *** *** Camera X size: ", global_PVs['Cam1_SizeX'].get())
     print(' ')
-#    print("*************************************")
     print("  *** *** *** *** Angular Step: ", angular_step, "degrees")   
     print("  *** *** *** *** Scan Time: ", scan_time ,"s") 
     print("  *** *** *** *** Rot Speed: ", rot_speed, "degrees/s")
     print("  *** *** *** *** Frame Rate: ", frame_rate, "fps")
-    print("  *** *** *** *** Blur: ", blur_pixel, "pixels")
-#    print("*************************************")
-    print('  *** Calc pixel blur: Done!')
+    print("  *** *** *** *** Max Blur: ", blur_pixel, "pixels")
+    print('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time

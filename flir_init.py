@@ -22,7 +22,7 @@ variableDict = {
         'SampleXIn': 0.0,
         'SampleXOut': 1.0,
         'SampleRotStart': 0.0,
-        'SampleRotEnd':180.0,
+        'SampleRotEnd': 180.0,
         'Projections': 1500,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
@@ -41,6 +41,7 @@ variableDict = {
         'Recursive_Filter_N_Images': 4
         }
 
+
 global_PVs = {}
 
 
@@ -58,35 +59,11 @@ def start_scan(variableDict, fname):
         sys.exit(0)
     signal.signal(signal.SIGINT, cleanup)
 
-    if variableDict.has_key('StopTheScan'):
-        stop_scan(global_PVs, variableDict)
-        return
 
     pgInit(global_PVs, variableDict)
-    setPSO(global_PVs, variableDict)
 
-    fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    print('  *** File name prefix: %s' % fname)
+    # pgSet(global_PVs, variableDict, fname) 
 
-    pgSet(global_PVs, variableDict, fname) 
-
-    open_shutters(global_PVs, variableDict)
-
-    # # run fly scan
-    theta = pgAcquisition(global_PVs, variableDict)
-    # print(theta)
-    pgAcquireFlat(global_PVs, variableDict)
-    close_shutters(global_PVs, variableDict)
-    time.sleep(2)
-
-    pgAcquireDark(global_PVs, variableDict)
-
-    add_theta(global_PVs, variableDict, theta)
-    global_PVs['Fly_ScanControl'].put('Standard')
-
-    # if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
-    #     global_PVs['HDF1_Capture'].put(0)
-    # pgInit(global_PVs, variableDict)
 
 
 def main():
@@ -94,7 +71,8 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
     
-    try: 
+    if (0==0):
+    # try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if detector_sn == None:
             print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
@@ -120,9 +98,9 @@ def main():
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
-    except  KeyError:
-        print('  *** Some PV assignment failed!')
-        pass
+    # except  KeyError:
+    #     print('  *** Some PV assignment failed!')
+    #     pass
         
         
 

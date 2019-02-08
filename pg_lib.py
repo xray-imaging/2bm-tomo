@@ -67,7 +67,7 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
                 curTime = time.time()
                 diffTime = curTime - startTime
                 if diffTime >= max_timeout_sec:
-                    #print('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
+                    print('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
                     return False
             time.sleep(.01)
         else:
@@ -151,6 +151,14 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_FrameTypeTWST'] = PV(variableDict['IOC_Prefix'] + 'cam1:FrameType.TWST')
         global_PVs['Cam1_Display'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
 
+        global_PVs['Cam1_SizeX'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX')
+        global_PVs['Cam1_SizeY'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY')
+        global_PVs['Cam1_SizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeX_RBV')
+        global_PVs['Cam1_SizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY_RBV')
+        global_PVs['Cam1_MaxSizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeX_RBV')
+        global_PVs['Cam1_MaxSizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeY_RBV')
+    
+
 
         # hdf5 writer PV's
         global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
@@ -228,6 +236,12 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Proc1_Filter_Enable'].put('Disable')
         global_PVs['HDF1_ArrayPort'].put('PG3')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
+        if variableDict['Station'] == '2-BM-A':
+            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
+        else: # Mona (B-station)
+            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
@@ -246,12 +260,9 @@ def pgSet(global_PVs, variableDict, fname):
         print(' ')
         print('  *** setup Point Grey')
 
-        if variableDict['Station'] == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
-        else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+        # mona runf always in B with PG camera
+        global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
+        global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
 
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
@@ -280,11 +291,11 @@ def pgSet(global_PVs, variableDict, fname):
         print('  *** setup FLIR camera')
 
         if variableDict['Station'] == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('fastDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('fastHDFLayout.xml')           
+            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
         else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
 
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
@@ -425,7 +436,8 @@ def pgAcquisition(global_PVs, variableDict):
     wait_pv(global_PVs['Fly_Run'], 0)
 
     # if the fly scan wait times out we should call done on the detector
-    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+#    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
     print('  *** Fly Scan: Done!')
@@ -473,10 +485,26 @@ def pgAcquireFlat(global_PVs, variableDict):
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumWhiteImages']))
+        # #ver 1
+        # global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
+        # global_PVs['Cam1_Acquire'].put(DetectorIdle)
+        #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False: # adjust wait time
+            global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
     global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
     print('      *** White Fields: Done!')
+
+
+def checkclose_hdf(global_PVs, variableDict):
+
+    if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 10) == False:
+        global_PVs["HDF1_Capture"].put(0)
+        print("file was not closed => forced to close")
+        print(global_PVs["HDF1_Capture_RBV"].get())
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 2) 
+        print(global_PVs["HDF1_Capture_RBV"].get())
 
 
 def pgAcquireDark(global_PVs, variableDict):
@@ -485,10 +513,13 @@ def pgAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
+    print("      *** Dark Fields: 1") 
+
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+    print("      *** Dark Fields: 1") 
         
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
@@ -508,8 +539,10 @@ def pgAcquireDark(global_PVs, variableDict):
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumDarkImages']))
+        #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False: # adjust wait time
+            global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
     print('      *** Dark Fields: Done!')
     print('  *** Acquisition: Done!')        
@@ -619,7 +652,7 @@ def setPSO(global_PVs, variableDict):
     print('  *** Taxi before starting capture: Done!')
 
 
-def calc_pixel_blur(global_PVs, variableDict):
+def calc_blur_pixel(global_PVs, variableDict):
     """
     Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
     
@@ -644,32 +677,30 @@ def calc_pixel_blur(global_PVs, variableDict):
         Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
     """
 
-    print(' ')
-    print('  *** Calc pixel blur')
     angular_range =  variableDict['SampleRotEnd'] -  variableDict['SampleRotStart']
-    angular_step = angular_range/variableDict['Projections'] / float(image_factor(global_PVs, variableDict))
-    scan_time = image_factor(global_PVs, variableDict) * variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
+    angular_step = angular_range/variableDict['Projections']
+    scan_time = variableDict['Projections'] * (variableDict['ExposureTime'] + variableDict['CCD_Readout'])
     rot_speed = angular_range / scan_time
-    frame_rate = image_factor(global_PVs, variableDict) * variableDict['Projections'] / scan_time
+    frame_rate = variableDict['Projections'] / scan_time
     blur_delta = variableDict['ExposureTime'] * rot_speed
-    
-    mid_detector = variableDict['roiSizeX'] / 2.0
-    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.)) * image_factor(global_PVs, variableDict)
+ 
+   
+    mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
+    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
-#    print("*************************************")
+    print(' ')
+    print('  *** Calc blur pixel')
     print("  *** *** Total # of proj: ", variableDict['Projections'])
     print("  *** *** Exposure Time: ", variableDict['ExposureTime'], "s")
     print("  *** *** Readout Time: ", variableDict['CCD_Readout'], "s")
     print("  *** *** Angular Range: ", angular_range, "degrees")
-    print("  *** *** Camera X size: ", variableDict['roiSizeX'])
+    print("  *** *** Camera X size: ", global_PVs['Cam1_SizeX'].get())
     print(' ')
-#    print("*************************************")
     print("  *** *** *** *** Angular Step: ", angular_step, "degrees")   
     print("  *** *** *** *** Scan Time: ", scan_time ,"s") 
     print("  *** *** *** *** Rot Speed: ", rot_speed, "degrees/s")
     print("  *** *** *** *** Frame Rate: ", frame_rate, "fps")
-    print("  *** *** *** *** Blur: ", blur_pixel, "pixels")
-#    print("*************************************")
-    print('  *** Calc pixel blur: Done!')
+    print("  *** *** *** *** Max Blur: ", blur_pixel, "pixels")
+    print('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time

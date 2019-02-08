@@ -19,6 +19,9 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
+        'StartY': -11.0,
+        'EndY': -10.0,
+        'StepSize': 0.001,
         'SampleXIn': 0.0,
         'SampleXOut': 1.0,
         'SampleRotStart': 0.0,
@@ -76,17 +79,17 @@ def start_scan(variableDict, fname):
     theta = pgAcquisition(global_PVs, variableDict)
     # print(theta)
     pgAcquireFlat(global_PVs, variableDict)
+
     close_shutters(global_PVs, variableDict)
-    time.sleep(2)
 
     pgAcquireDark(global_PVs, variableDict)
+
+
+    checkclose_hdf(global_PVs, variableDict)
 
     add_theta(global_PVs, variableDict, theta)
     global_PVs['Fly_ScanControl'].put('Standard')
 
-    # if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
-    #     global_PVs['HDF1_Capture'].put(0)
-    # pgInit(global_PVs, variableDict)
 
 
 def main():
@@ -111,13 +114,25 @@ def main():
 
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            print('  *** Moving rotary stage to start position')
-            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            print('  *** Moving rotary stage to start position: Done!')
-            start_scan(variableDict, fname)
-            print(' ')
-            print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+
+            start = variableDict['StartY']
+            end = variableDict['EndY']
+            step_size = variableDict['StepSize']
+
+            print("Vertical Positions (mm): ", np.arange(start, end, step_size))
+            for i in np.arange(start, end, step_size):
+                print('  *** Moving rotary stage to start position')
+                global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                print('  *** Moving rotary stage to start position: Done!')
+
+                print ('*** The sample vertical position is at %s mm' % (i))
+                global_PVs['Motor_SampleY'].put(i, wait=True)
+
+                start_scan(variableDict, fname)
+
+                print(' ')
+                print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
     except  KeyError:

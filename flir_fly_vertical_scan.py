@@ -79,14 +79,13 @@ def start_scan(variableDict, fname):
     theta = pgAcquisition(global_PVs, variableDict)
     # print(theta)
     pgAcquireFlat(global_PVs, variableDict)
+
     close_shutters(global_PVs, variableDict)
-    time.sleep(2)
 
     pgAcquireDark(global_PVs, variableDict)
 
-    if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
-         global_PVs['HDF1_Capture'].put(0)
-    ## pgInit(global_PVs, variableDict)
+
+    checkclose_hdf(global_PVs, variableDict)
 
     add_theta(global_PVs, variableDict, theta)
     global_PVs['Fly_ScanControl'].put('Standard')

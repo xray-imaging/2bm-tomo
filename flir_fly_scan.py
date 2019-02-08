@@ -23,7 +23,7 @@ variableDict = {
         'SampleXOut': 1.0,
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
-        'Projections': 1500,
+        'Projections': 2048,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
@@ -35,7 +35,7 @@ variableDict = {
         # 'AcclRot': 10.0,
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.005,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
+        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4
@@ -65,28 +65,27 @@ def start_scan(variableDict, fname):
     pgInit(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
 
-    fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    print('  *** File name prefix: %s' % fname)
+    # fname = global_PVs['HDF1_FileName'].get(as_string=True)
+    # print('  *** File name prefix: %s' % fname)
 
-    pgSet(global_PVs, variableDict, fname) 
+    # pgSet(global_PVs, variableDict, fname) 
 
-    open_shutters(global_PVs, variableDict)
+    # open_shutters(global_PVs, variableDict)
 
-    # # run fly scan
-    theta = pgAcquisition(global_PVs, variableDict)
-    # print(theta)
-    pgAcquireFlat(global_PVs, variableDict)
-    close_shutters(global_PVs, variableDict)
-    time.sleep(2)
+    # # # run fly scan
+    # theta = pgAcquisition(global_PVs, variableDict)
+    # # print(theta)
+    # pgAcquireFlat(global_PVs, variableDict)
+    # close_shutters(global_PVs, variableDict)
+    # time.sleep(2)
 
-    pgAcquireDark(global_PVs, variableDict)
+    # pgAcquireDark(global_PVs, variableDict)
+    
+    # checkclose_hdf(global_PVs, variableDict)
 
-    add_theta(global_PVs, variableDict, theta)
-    global_PVs['Fly_ScanControl'].put('Standard')
+    # add_theta(global_PVs, variableDict, theta)
+    # global_PVs['Fly_ScanControl'].put('Standard')
 
-    # if wait_pv(global_PVs['HDF1_Capture'], 0, 10) == False:
-    #     global_PVs['HDF1_Capture'].put(0)
-    # pgInit(global_PVs, variableDict)
 
 
 def main():

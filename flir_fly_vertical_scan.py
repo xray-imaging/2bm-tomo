@@ -38,7 +38,7 @@ variableDict = {
         # 'AcclRot': 10.0,
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.005,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
+        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4

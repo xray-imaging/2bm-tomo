@@ -175,6 +175,9 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
         global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
         global_PVs['HDF1_XMLFileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:XMLFileName')
+
+        global_PVs['HDF1_QueueSize'] = PV(variableDict['IOC_Prefix'] + 'HDF1:QueueSize')
+        global_PVs['HDF1_QueueFree'] = PV(variableDict['IOC_Prefix'] + 'HDF1:QueueFree')
                                                                       
         # proc1 PV's
         global_PVs['Image1_Callbacks'] = PV(variableDict['IOC_Prefix'] + 'image1:EnableCallbacks')
@@ -499,12 +502,14 @@ def pgAcquireFlat(global_PVs, variableDict):
 
 def checkclose_hdf(global_PVs, variableDict):
 
-    if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 10) == False:
+    wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
+    print('  *** Wait HDD (s): ', wait_on_hdd)
+    if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
         global_PVs["HDF1_Capture"].put(0)
-        print("file was not closed => forced to close")
-        print(global_PVs["HDF1_Capture_RBV"].get())
+        print('  *** File was not closed => forced to close')
+        print('      *** before ', global_PVs["HDF1_Capture_RBV"].get())
         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 2) 
-        print(global_PVs["HDF1_Capture_RBV"].get())
+        print('      *** after ', global_PVs["HDF1_Capture_RBV"].get())
 
 
 def pgAcquireDark(global_PVs, variableDict):
@@ -513,13 +518,10 @@ def pgAcquireDark(global_PVs, variableDict):
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
-    print("      *** Dark Fields: 1") 
-
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):
         global_PVs['Cam1_TriggerMode'].put('Overlapped')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
-    print("      *** Dark Fields: 1") 
         
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   

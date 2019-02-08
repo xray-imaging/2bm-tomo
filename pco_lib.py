@@ -25,6 +25,7 @@ FrameTypeDark = 1
 FrameTypeWhite = 2
 
 
+
 def update_variable_dict(variableDict):
     argDic = {}
     if len(sys.argv) > 1:

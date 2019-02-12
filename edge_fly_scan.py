@@ -10,9 +10,10 @@ from pco_lib import *
 
 global variableDict
 
+
 variableDict = {
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': -4,
+        'SampleXOut': -3,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field

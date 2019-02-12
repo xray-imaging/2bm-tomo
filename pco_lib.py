@@ -719,6 +719,44 @@ def edgeSet(global_PVs, variableDict, fname):
     global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)            
     print('  *** Set PCO Edge: Done!')
 
+
+def edgeNormalize(global_PVs, variableDict, fname):    
+    print(' ')
+    print('  *** Set PCO Edge Normalize')
+
+    # customize this to set the plugin for taking normalized images
+    set_frame_type(global_PVs, variableDict)
+
+    numImage = variableDict['Projections'] + variableDict['NumDarkImages'] + variableDict['NumWhiteImages']   
+
+    frate =  int(1.0*variableDict['Projections']/(1.0*(variableDict['SampleRotEnd'] - \
+             variableDict['SampleRotStart'])/variableDict['SlewSpeed']) + 5)
+             
+    global_PVs['Cam1_PCOIsFrameRateMode'].put('DelayExp', wait=True, timeout=1000.0)
+    global_PVs['Cam1_AcquirePeriod'].put('0', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate+1), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOSetFrameRate'].put(str(frate), wait=True, timeout=1000.0)                    
+    global_PVs['HDF1_AutoIncrement'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_NumCapture'].put(str(numImage), wait=True, timeout=1000.0)                
+    global_PVs['HDF1_NumCapture_RBV'].put(str(numImage), wait=True, timeout=1000.0)  
+    global_PVs['HDF1_NumCaptured_RBV'].put('0', wait=True, timeout=1000.0)                
+
+    if fname is not None:
+        global_PVs['HDF1_FileName'].put(fname)
+
+    global_PVs['HDF1_FileTemplate'].put('%s%s_%4.4d.h5', wait=True, timeout=1000.0)                
+    global_PVs['HDF1_AutoSave'].put('Yes', wait=True, timeout=1000.0)
+    global_PVs['HDF1_FileWriteMode'].put('Stream', wait=True, timeout=1000.0)
+    global_PVs['HDF1_Capture'].put('Capture', wait=False, timeout=1000.0)
+    global_PVs['Cam1_NumImages'].put(str(numImage), wait=True, timeout=1000.0)                                
+    global_PVs['Cam1_ImageMode'].put('Multiple', wait=True, timeout=1000.0)
+    global_PVs['Cam1_AcquireTime'].put(str(variableDict['ExposureTime']), wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOTriggerMode'].put('Soft/Ext', wait=True, timeout=1000.0)
+    global_PVs['Cam1_PCOReady2Acquire'].put('0', wait=True, timeout=1000.0)
+    global_PVs['Cam1_Acquire'].put('Acquire', wait=False, timeout=1000.0)            
+    print('  *** Set PCO Edge Normalize: Done!')
+
+
 def edgeSetInternal(global_PVs, variableDict, fname):    
     print(' ')
     print('  *** Set PCO Edge Internal')

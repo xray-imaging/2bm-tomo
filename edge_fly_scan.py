@@ -20,7 +20,7 @@ variableDict = {
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 1500,
+        'Projections': 750,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################

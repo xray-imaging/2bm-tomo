@@ -12,7 +12,11 @@ global variableDict
 
 
 variableDict = {
-        'SampleXIn': -0.404,              # to use X change the sampleInOutVertical = False
+        'StartY': 0,
+        'EndY': 48,
+        'StepSize': 1,
+        'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
+        'SampleXIn': 0,              # to use X change the sampleInOutVertical = False
         'SampleXOut': 0.7,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
@@ -28,7 +32,6 @@ variableDict = {
         'ExposureTime': 0.040,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'roiSizeX': 2560,                 # to use this as default value comment the variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get() line
         'roiSizeY': 2160,                 # to use this as default value comment the variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get() line
-        'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'SlewSpeed': 1.0,                  # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
         'AcclRot': 1.0,
         'IOC_Prefix': 'PCOIOC3:',         # options: 1. DIMAX: 'PCOIOC2:', 2. EDGE: 'PCOIOC3:'
@@ -40,7 +43,7 @@ variableDict = {
                                           #           1. SampleMoveEnabled = True
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,  
-        'FurnaceYOut': 48.0,
+        'FurnaceYOut': 43.0,
         }
 
 global_PVs = {}
@@ -63,13 +66,9 @@ def main():
             print('  *** Failed!')
         else:
             print ('*** The %s is on' % (model))            # get sample file name
-            start = 0
-            end = 42
-            number_of_steps = 1
-
-            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
-            variableDict['SlewSpeed'] = rot_speed
+            start = variableDict['StartY']
+            end = variableDict['EndY']
+            step_size = variableDict['StepSize']
     
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
@@ -77,9 +76,12 @@ def main():
             variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
             variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
 
-                   
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optinal value 
+            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
+            variableDict['SlewSpeed'] = rot_speed
+
             variableDict['SampleMoveEnabled'] = False
-            for i in np.arange(start, end, number_of_steps):
+            for i in np.arange(start, end, step_size):
                 print('*** Sample Move Enabled: %s ' % variableDict['SampleMoveEnabled'])                
                 print ('     ')
                 print ('*** New data set: %s of %s ' % (i+1, end))

@@ -13,7 +13,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 48,
+        'EndY': 96,
         'StepSize': 1,
         'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'SampleXIn': 0,              # to use X change the sampleInOutVertical = False
@@ -21,7 +21,7 @@ variableDict = {
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleMoveEnabled': False,       # False to freeze sample motion during white field data collection
-        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleInOutVertical': False,     # False: use X to take the white field; keep False if using the furnace
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 750,

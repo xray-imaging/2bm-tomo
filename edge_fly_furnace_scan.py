@@ -13,7 +13,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 72,
+        'EndY': 96,
         'StepSize': 1,
         'StartSleep_s': 180,              # wait time (s) before starting data collection; usefull to stabilize sample environment 
         'SampleXIn': 0,              # to use X change the sampleInOutVertical = False

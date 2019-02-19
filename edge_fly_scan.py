@@ -12,14 +12,14 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': -3,
+        'SampleXOut': -8,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 750,
+        'Projections': 1500,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################

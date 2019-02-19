@@ -10,7 +10,6 @@ from pco_lib import *
 
 global variableDict
 
-
 variableDict = {
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
         'SampleXOut': -3,

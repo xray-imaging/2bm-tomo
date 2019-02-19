@@ -7,7 +7,6 @@ import tkMessageBox as mbox
 
 from pco_lib import *
 
-
 global variableDict
 
 variableDict = {

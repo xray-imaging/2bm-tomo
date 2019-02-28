@@ -213,7 +213,10 @@ def changeDMMEng(eng = 24.9):
 #    if epics.caget(BL+":M1angl.VAL") is not 2.657:
 #        print 'mirror angle is wrong. quit!'
 #        return 0
-    caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
+    # original energy calibration from Xianghui
+    # caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
+    # New calibration at 33 keV
+    caliEng_list = np.array([50.00, 45.00, 40.00, 35.50, 32.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
     XIASlit_list = np.array([21.45, 24.05, 25.05, 23.35, 26.35, 28.35, 29.35, 30.35, 31.35, 32.35, 33.35, 34.35, 34.35, 52.35, 53.35, 54.35, 51.35])    
 #    XIASlit_list = np.array([38.35,43.35,42.35,44.35,46.35,46.35,47.35,48.35,50.35,50.35,52.35,53.35,54.35,55.35]) 
 #    FlagSlit_list = np.array([19.9,,19.47])    
@@ -8939,8 +8942,11 @@ def main():
     # change2Pink(ang=1.5)
     #change2Pink(ang=2.657)
     #change2Mono()
+    # original energy calibration from Xianghui
     # 55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
-	changeDMMEng(eng = 40.00)
+    # New calibration at 33 keV
+    # 50.00, 45.00, 40.00, 35.50, 32.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
+	changeDMMEng(eng = 20.20)
 
 if __name__ == '__main__':
     main()

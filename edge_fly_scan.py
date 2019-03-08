@@ -12,16 +12,16 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False 
-        'SampleXOut': 9,
+        'SampleXOut': 6,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
-        'Projections': 900,
-        'NumWhiteImages': 50,
-        'NumDarkImages': 50,
+        'Projections': 1500,
+        'NumWhiteImages': 20,
+        'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line

@@ -77,6 +77,10 @@ def main():
             variableDict['roiSizeX'] = global_PVs['Cam1_SizeX_RBV'].get()
             variableDict['roiSizeY'] = global_PVs['Cam1_SizeY_RBV'].get()
             
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' with its optimal value 
+            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
+            variableDict['SlewSpeed'] = rot_speed
+
             print("Vertical Positions (mm): ", np.arange(start, end, step_size))
             for i in np.arange(start, end, step_size):
                 

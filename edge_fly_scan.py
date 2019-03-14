@@ -20,8 +20,8 @@ variableDict = {
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180.0,
         'Projections': 1500,
-        'NumWhiteImages': 20,
-        'NumDarkImages': 20,
+        'NumWhiteImages': 100,
+        'NumDarkImages': 100,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line

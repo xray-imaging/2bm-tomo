@@ -11,8 +11,8 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 3.0,
-        'StepSize': 1.5,
+        'EndY': 2.4,
+        'StepSize': 0.8,
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
         'SampleXOut': -7,
         # 'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True

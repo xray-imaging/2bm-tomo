@@ -11,10 +11,10 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 2.4,
-        'StepSize': 0.8,
+        'EndY': 16.0,
+        'StepSize': 1.6,
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
-        'SampleXOut': -7,
+        'SampleXOut': -12,
         # 'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field

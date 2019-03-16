@@ -104,7 +104,6 @@ def main():
                 print(' ')
                 print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
             print('  *** Done!')
 
     except  KeyError:

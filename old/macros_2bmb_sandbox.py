@@ -8939,7 +8939,7 @@ def record_loading(exposureTime=0.5):
 def main():
 
     # DimaxSingleScan()
-    # change2Pink(ang=1.5)
+    change2Pink(ang=1.5)
     # change2White()
     # change2Pink(ang=2.657)
     #change2Mono()
@@ -8947,7 +8947,7 @@ def main():
     # 55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
     # New calibration at 33 keV
     # 50.00, 45.00, 40.00, 35.50, 32.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40
-	changeDMMEng(eng = 27.40)
+	# changeDMMEng(eng = 27.40)
 
 if __name__ == '__main__':
     main()

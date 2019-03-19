@@ -18,6 +18,10 @@ import signal
 
 import numpy as np
 
+TESTING = False
+
+ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
+
 ShutterA_Open_Value = 1
 ShutterA_Close_Value = 0
 ShutterB_Open_Value = 1
@@ -29,10 +33,7 @@ FrameTypeWhite = 2
 
 DetectorIdle = 0
 DetectorAcquire = 1
-
 EPSILON = 0.1
-
-TESTING = True
 
 Recursive_Filter_Type = 'RecursiveAve'
 
@@ -89,8 +90,12 @@ def init_general_PVs(global_PVs, variableDict):
         # Set sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
         global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
-        global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL')  
-        global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') # Aerotech ABR-250
+        global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
+        global_PVs['Motor_SampleRot_Cnen'] = PV('2bma:m82.CNEN') 
+        global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
+        global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
+        global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
         global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
         global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
         # Set FlyScan
@@ -103,6 +108,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Fly_ScanControl'] = PV('2bma:PSOFly2:scanControl')
         global_PVs['Fly_Calc_Projections'] = PV('2bma:PSOFly2:numTriggers')
         global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
+
+        global_PVs['Fast_Shutter'] = PV('2bma:m23.VAL')
         
     elif variableDict['Station'] == '2-BM-B':   
         print('*** Running in station B:')
@@ -110,7 +117,10 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
         global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
         global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech ABR-150
-        global_PVs['Motor_SampleRot_Stop'] = PV('2bmb:m100.STOP') 
+        global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m100.ACCL') 
+        global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m100.STOP') 
+        global_PVs['Motor_SampleRot_Set'] = PV('2bma:m100.SET') 
+        global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m100.VELO') 
         global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
         global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
 
@@ -411,14 +421,23 @@ def pgAcquisition(global_PVs, variableDict):
                       float(variableDict['CCD_Readout'])) ) + 30
     print(' ')
     print('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
-    global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
+
+    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
+    time.sleep(2)    
+
+    if (variableDict['SampleInOutVertical']):
+        global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                    
+    else:
+        global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0) 
+        if (variableDict['UseFurnace']):
+            global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+
+    # global_PVs['Cam1_AcquireTime'].put(float(variableDict['ExposureTime']) )
 
     if (variableDict['Recursive_Filter_Enabled'] == False):
         variableDict['Recursive_Filter_N_Images'] = 1
 
-    num_images = int(variableDict['Projections'])  * image_factor(global_PVs, variableDict)
-    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
-    
+    num_images = int(variableDict['Projections'])  * image_factor(global_PVs, variableDict)   
     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
 
 
@@ -460,7 +479,16 @@ def pgAcquisition(global_PVs, variableDict):
 
 def pgAcquireFlat(global_PVs, variableDict):
     print('      *** White Fields')
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+    if (variableDict['SampleMoveEnabled']):
+        print('      *** *** Move Sample Out')
+        if (variableDict['SampleInOutVertical']):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
+        else:
+            if (variableDict['UseFurnace']):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
+    else:
+        print('      *** *** Sample Stack is Frozen')
 
     wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
@@ -496,7 +524,17 @@ def pgAcquireFlat(global_PVs, variableDict):
         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
-    global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)                
+    if (variableDict['SampleMoveEnabled']):
+        print('      *** *** Move Sample In')
+        if (variableDict['SampleInOutVertical']):
+            global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
+        else:
+            if (variableDict['UseFurnace']):
+                global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
+    else:
+        print('      *** *** Sample Stack is Frozen')
+
     print('      *** White Fields: Done!')
 
 
@@ -580,10 +618,18 @@ def open_shutters(global_PVs, variableDict):
     else:
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
-            global_PVs['ShutterA_Open'].put(1, wait=True)
-            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
-            time.sleep(3)
-            print('  *** open_shutter A: Done!')
+            if ShutterAisFast:
+                global_PVs['ShutterA_Open'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                time.sleep(3)                
+                global_PVs['Fast_Shutter'].put(1, wait=True)
+                time.sleep(1)
+                print('  *** open_shutter fast: Done!')
+            else:
+                global_PVs['ShutterA_Open'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                time.sleep(3)
+                print('  *** open_shutter A: Done!')
         elif variableDict['Station'] == '2-BM-B':
             global_PVs['ShutterB_Open'].put(1, wait=True)
             wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
@@ -597,9 +643,14 @@ def close_shutters(global_PVs, variableDict):
         print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
     else:
         if variableDict['Station'] == '2-BM-A':
-            global_PVs['ShutterA_Close'].put(1, wait=True)
-            wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
-            print('  *** close_shutter A: Done!')
+            if ShutterAisFast:
+                global_PVs['Fast_Shutter'].put(0, wait=True)
+                time.sleep(1)
+                print('  *** close_shutter fast: Done!')
+            else:
+                global_PVs['ShutterA_Close'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+                print('  *** close_shutter A: Done!')
         elif variableDict['Station'] == '2-BM-B':
             global_PVs['ShutterB_Close'].put(1, wait=True)
             wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
@@ -624,7 +675,8 @@ def add_theta(global_PVs, variableDict, theta_arr):
 
 def setPSO(global_PVs, variableDict):
 
-    delta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict)))
+    acclTime = 1.0 * variableDict['SlewSpeed']/variableDict['AcclRot']
+    scanDelta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict)))
 
     print('  *** *** start_pos',float(variableDict['SampleRotStart']))
     print('  *** *** end pos', float(variableDict['SampleRotEnd']))
@@ -632,7 +684,7 @@ def setPSO(global_PVs, variableDict):
     global_PVs['Fly_StartPos'].put(float(variableDict['SampleRotStart']), wait=True)
     global_PVs['Fly_EndPos'].put(float(variableDict['SampleRotEnd']), wait=True)
     global_PVs['Fly_SlewSpeed'].put(variableDict['SlewSpeed'], wait=True)
-    global_PVs['Fly_ScanDelta'].put(delta, wait=True)
+    global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
     time.sleep(3.0)
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
 
@@ -645,7 +697,7 @@ def setPSO(global_PVs, variableDict):
         variableDict['Projections'] = int(calc_num_proj)
     print('  *** *** Number of projections: ', int(variableDict['Projections']))
     print('  *** *** Fly calc triggers: ', int(calc_num_proj))
-    global_PVs['Fly_ScanControl'].put('Custom')
+    global_PVs['Fly_ScanControl'].put('Standard')
 
     print(' ')
     print('  *** Taxi before starting capture')

@@ -19,29 +19,40 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'StartY': -11.0,
-        'EndY': -10.0,
-        'StepSize': 0.001,
+        'StartY': 11.4,
+        'EndY': 12.4,
+        'StepSize': 0.002,
         'SampleXIn': 0.0,
         'SampleXOut': 1.0,
+        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
+        # 'SampleYOut': -4,
+        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
         'Projections': 1500,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'Station': '2-BM-B',
+        'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         # 'roiSizeX': 2448, 
         # 'roiSizeY': 2048,       
         'SlewSpeed': 5.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
-        # 'AcclRot': 10.0,
+        'AcclRot': 1.0,
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
+        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
-        'Recursive_Filter_N_Images': 4
+        'Recursive_Filter_N_Images': 4,
+        'UseFurnace': False,              # True: moves the furnace  to FurnaceYOut position to take white field: 
+                                          #       Note: this flag is active ONLY when both 1. and 2. are met:
+                                          #           1. SampleMoveEnabled = True
+                                          #           2. SampleInOutVertical = False  
+        'FurnaceYIn': 0.0,                
+        'FurnaceYOut': 48.0
         }
 
 global_PVs = {}
@@ -79,16 +90,14 @@ def start_scan(variableDict, fname):
     theta = pgAcquisition(global_PVs, variableDict)
     # print(theta)
     pgAcquireFlat(global_PVs, variableDict)
-
     close_shutters(global_PVs, variableDict)
+    time.sleep(2)
 
     pgAcquireDark(global_PVs, variableDict)
-
 
     checkclose_hdf(global_PVs, variableDict)
 
     add_theta(global_PVs, variableDict, theta)
-    global_PVs['Fly_ScanControl'].put('Standard')
 
 
 

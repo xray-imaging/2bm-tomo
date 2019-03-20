@@ -40,6 +40,7 @@ variableDict = {
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
         'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4,
@@ -94,7 +95,6 @@ def start_scan(variableDict, fname):
     checkclose_hdf(global_PVs, variableDict)
 
     add_theta(global_PVs, variableDict, theta)
-    global_PVs['Fly_ScanControl'].put('Standard')
 
 
 
@@ -103,8 +103,7 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
     
-    # try: 
-    if 0==0:
+    try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if detector_sn == None:
             print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
@@ -120,20 +119,21 @@ def main():
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
-            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            fnaame = 'Exp_' + global_PVs['HDF1_FileNumber'].get() + '_' + global_PVs['Sample_Name'].get()
+            fname = global_PVs['HDF1_FileName'].get(as_string=True)
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             print('  *** Moving rotary stage to start position: Done!')
             start_scan(variableDict, fname)
+            print('  *** Moving rotary stage to start position')
+            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
             print('  *** Done!')
 
-    # except  KeyError:
-    #     print('  *** Some PV assignment failed!')
-    #     pass
+    except  KeyError:
+        print('  *** Some PV assignment failed: ', KeyError)
+        pass
         
         
 

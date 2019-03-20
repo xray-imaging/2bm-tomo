@@ -85,8 +85,6 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
     global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
-    global_PVs['Sample_Name'] = PV('2bmb:caputRecorderGbl_4')
-
     if variableDict['Station'] == '2-BM-A':
         print('*** Running in station A:')
         # Set sample stack motor pv's:
@@ -169,9 +167,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_SizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:SizeY_RBV')
         global_PVs['Cam1_MaxSizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeX_RBV')
         global_PVs['Cam1_MaxSizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeY_RBV')
+        global_PVs['Cam1PixelFormat_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:PixelFormat_RBV')
     
-
-
         # hdf5 writer PV's
         global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
         global_PVs['HDF1_DeleteDriverFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:DeleteDriverFile')
@@ -185,7 +182,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['HDF1_FullFileName_RBV'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FullFileName_RBV')
         global_PVs['HDF1_FileTemplate'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileTemplate')
         global_PVs['HDF1_ArrayPort'] = PV(variableDict['IOC_Prefix'] + 'HDF1:NDArrayPort')
-        global_PVs['HDF1_FileNumber'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
+        global_PVs['HDF1_NextFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:FileNumber')
         global_PVs['HDF1_XMLFileName'] = PV(variableDict['IOC_Prefix'] + 'HDF1:XMLFileName')
 
         global_PVs['HDF1_QueueSize'] = PV(variableDict['IOC_Prefix'] + 'HDF1:QueueSize')

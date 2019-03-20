@@ -120,7 +120,8 @@ def main():
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
-            fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            fnaame = 'Exp_' + global_PVs['HDF1_FileNumber'].get() + '_' + global_PVs['Sample_Name'].get()
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             print('  *** Moving rotary stage to start position: Done!')

@@ -76,7 +76,7 @@ def start_scan(variableDict, fname):
     pgInit(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
 
-    fname = global_PVs['HDF1_FileName'].get(as_string=True)
+    # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     print('  *** File name prefix: %s' % fname)
 
     pgSet(global_PVs, variableDict, fname) 
@@ -119,7 +119,9 @@ def main():
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
-            fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            fname = 'Exp_' + str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
+
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             print('  *** Moving rotary stage to start position: Done!')

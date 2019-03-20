@@ -91,7 +91,8 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
     global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
-
+    global_PVs['Sample_Name'] = PV('2bmb:caputRecorderGbl_4')
+    
     # Filters
     global_PVs['Filters'] = PV('2bma:fltr1:select.VAL')
 

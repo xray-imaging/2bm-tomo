@@ -20,7 +20,7 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0.0,
-        'SampleXOut': 1.0,
+        'SampleXOut': 5.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -31,6 +31,8 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
+        # 'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         # 'roiSizeX': 2448, 
@@ -39,8 +41,6 @@ variableDict = {
         'AcclRot': 1.0,
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         'FileWriteMode': 'Stream',
-        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
         'Recursive_Filter_N_Images': 4,

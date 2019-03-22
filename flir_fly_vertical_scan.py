@@ -79,7 +79,7 @@ def start_scan(variableDict, fname):
     pgInit(global_PVs, variableDict)
     setPSO(global_PVs, variableDict)
 
-    fname = global_PVs['HDF1_FileName'].get(as_string=True)
+    # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     print('  *** File name prefix: %s' % fname)
 
     pgSet(global_PVs, variableDict, fname) 
@@ -122,7 +122,7 @@ def main():
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
-            fname = global_PVs['HDF1_FileName'].get(as_string=True)
+            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
 
             start = variableDict['StartY']
             end = variableDict['EndY']
@@ -130,6 +130,7 @@ def main():
 
             print("Vertical Positions (mm): ", np.arange(start, end, step_size))
             for i in np.arange(start, end, step_size):
+                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                 print('  *** Moving rotary stage to start position')
                 global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
                 print('  *** Moving rotary stage to start position: Done!')
@@ -142,6 +143,7 @@ def main():
                 print(' ')
                 print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            global_PVs['Cam1_ImageMode'].put('Continuous')
             print('  *** Done!')
 
     except  KeyError:

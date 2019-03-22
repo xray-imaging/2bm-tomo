@@ -120,7 +120,7 @@ def main():
 
             # get sample file name
             # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            fname = 'Exp_' + str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
+            fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
 
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
@@ -128,6 +128,7 @@ def main():
             start_scan(variableDict, fname)
             print('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+            global_PVs['Cam1_ImageMode'].put('Continuous')
             print(' ')
             print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

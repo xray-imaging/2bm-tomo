@@ -250,12 +250,6 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Proc1_Filter_Enable'].put('Disable')
         global_PVs['HDF1_ArrayPort'].put('PG3')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
-        if variableDict['Station'] == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
-        else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
@@ -264,6 +258,12 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
+        if variableDict['Station'] == '2-BM-A':
+            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
+        else: # Mona (B-station)
+            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
 
 
 def pgSet(global_PVs, variableDict, fname):

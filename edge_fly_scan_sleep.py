@@ -11,9 +11,9 @@ global variableDict
 
 variableDict = {
         'StartY': 0,                      # This script will NOT move Y, is just using StartY, EndY, StepSize
-        'EndY': 100,                      # as a counter to collect a series of identical dataset separated by
+        'EndY': 12,                      # as a counter to collect a series of identical dataset separated by
         'StepSize': 1,                    # a delay time in seconds = to StartSleep_s
-        'StartSleep_s': 180,              # wait time (s) between each data collection
+        'StartSleep_s': 550,              # wait time (s) between each data collection
         'SampleXIn': 0,                   # to use X change the sampleInOutVertical = False
         'SampleXOut': -12,
         # 'SampleYIn': 0,                   # to use Y change the sampleInOutVertical = True

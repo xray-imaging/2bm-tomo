@@ -19,7 +19,7 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'SampleXIn': 0.0,
+        'SampleXIn': 0.0, 
         'SampleXOut': 5.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,

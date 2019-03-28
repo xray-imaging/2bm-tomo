@@ -541,7 +541,7 @@ def pgAcquireFlat(global_PVs, variableDict):
 
 def checkclose_hdf(global_PVs, variableDict):
 
-    wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 60
+    wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
     print('  *** Wait HDD (s): ', wait_on_hdd)
     if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
         global_PVs["HDF1_Capture"].put(0)

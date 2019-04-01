@@ -20,9 +20,9 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 100,
+        'EndY': 300,
         'StepSize': 1,
-        'StartSleep_s': 180,              # wait time (s) between each data collection
+        'StartSleep_s': 0,              # wait time (s) between each data collection
         'SampleXIn': 0.0,
         'SampleXOut': -11,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -130,6 +130,7 @@ def main():
             step_size = variableDict['StepSize']
 
             print("Sleep Scan: ", np.arange(start, end, step_size))
+            
             for i in np.arange(start, end, step_size):
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                 print('  *** Moving rotary stage to start position')

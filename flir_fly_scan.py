@@ -20,15 +20,15 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0.0, 
-        'SampleXOut': -10,
+        'SampleXOut': -5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
-        'Projections': 2000,
-        'NumWhiteImages': 30,
+        'Projections': 1500,
+        'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01

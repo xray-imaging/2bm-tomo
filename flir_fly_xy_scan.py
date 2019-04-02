@@ -19,22 +19,22 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'StartY': 19.1,
-        'EndY': 38.5,
-        'StepSizeY': 1.6,
+        'StartY': 19,
+        'EndY': 22,
+        'StepSizeY': 1,
         'StartX': -2,
         'EndX': 2,
         'StepSizeX': 2,
-        'SampleXIn': 0.0,
-        'SampleXOut': -11.0,
+        'SampleXIn': 0.0, 
+        'SampleXOut': -5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
-        'Projections': 2000,
-        'NumWhiteImages': 30,
+        'Projections': 1500,
+        'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         # 'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
@@ -129,7 +129,12 @@ def main():
 
             start_y = variableDict['StartY']
             end_y = variableDict['EndY']
-            step_size_Y = variableDict['StepSizeY']
+            step_size_y = variableDict['StepSizeY']
+
+
+            start_x = variableDict['StartX']
+            end_x = variableDict['EndX']
+            step_size_x = variableDict['StepSizeX']
 
             print("Vertical Positions (mm): ", np.arange(start_y, end_y, step_size_y))
             for i in np.arange(start_y, end_y, step_size_y):
@@ -141,7 +146,7 @@ def main():
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 for j in np.arange(start_x, end_x, step_size_x):
                     print ('*** The sample horizontal position is at %s mm' % (i))
-                    global_PVs['Motor_Sample_Top_0'].put(i, wait=True)
+                    global_PVs['Motor_Sample_Top_0'].put(j, wait=True)
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                     start_scan(variableDict, fname)
                 print(' ')

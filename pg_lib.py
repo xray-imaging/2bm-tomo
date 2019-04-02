@@ -98,8 +98,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
         global_PVs['Motor_SampleRot_Set'] = PV('2bma:m82.SET') 
         global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
-        global_PVs['Motor_Sample_Top_X'] = PV('2bma:m50.VAL')
-        global_PVs['Motor_Sample_Top_Z'] = PV('2bma:m51.VAL') 
+        global_PVs['Motor_Sample_Top_0'] = PV('2bmS1:m2.VAL')
+        global_PVs['Motor_Sample_Top_90'] = PV('2bmS1:m1.VAL') 
         # Set FlyScan
         global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
         global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')
@@ -123,8 +123,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m100.STOP') 
         global_PVs['Motor_SampleRot_Set'] = PV('2bma:m100.SET') 
         global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m100.VELO') 
-        global_PVs['Motor_Sample_Top_X'] = PV('2bmb:m76.VAL') 
-        global_PVs['Motor_Sample_Top_Z'] = PV('2bmb:m77.VAL')
+        global_PVs['Motor_Sample_Top_0'] = PV('2bmb:m76.VAL') 
+        global_PVs['Motor_Sample_Top_90'] = PV('2bmb:m77.VAL')
 
         # Set CCD stack motor PVs:
         global_PVs['Motor_CCD_Z'] = PV('2bmb:m31.VAL')

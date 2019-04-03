@@ -491,7 +491,6 @@ def pgAcquireFlat(global_PVs, variableDict):
     else:
         print('      *** *** Sample Stack is Frozen')
 
-    wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
 
@@ -502,7 +501,7 @@ def pgAcquireFlat(global_PVs, variableDict):
         
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
-
+	    wait_time_sec = int(variableDict['ExposureTime']) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
         for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
@@ -516,13 +515,14 @@ def pgAcquireFlat(global_PVs, variableDict):
             time.sleep(0.1)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+	    wait_time_sec = (int(variableDict['NumWhiteImages']) * int(variableDict['ExposureTime'])) + 5
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumWhiteImages']))
         # #ver 1
         # global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
         # global_PVs['Cam1_Acquire'].put(DetectorIdle)
         #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False: # adjust wait time
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
     if (variableDict['SampleMoveEnabled']):
@@ -553,7 +553,6 @@ def checkclose_hdf(global_PVs, variableDict):
 
 def pgAcquireDark(global_PVs, variableDict):
     print("      *** Dark Fields") 
-    wait_time_sec = int(variableDict['ExposureTime']) + 5
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
@@ -565,6 +564,7 @@ def pgAcquireDark(global_PVs, variableDict):
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
 
+	    wait_time_sec = int(variableDict['ExposureTime']) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
         for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
@@ -579,10 +579,11 @@ def pgAcquireDark(global_PVs, variableDict):
         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
+	    wait_time_sec = (int(variableDict['NumDarkImages']) * int(variableDict['ExposureTime'])) + 5
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumDarkImages']))
         #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False: # adjust wait time
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
     print('      *** Dark Fields: Done!')

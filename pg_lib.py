@@ -501,7 +501,7 @@ def pgAcquireFlat(global_PVs, variableDict):
         
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
-	    wait_time_sec = int(variableDict['ExposureTime']) + 5
+        wait_time_sec = int(variableDict['ExposureTime']) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
         for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
@@ -515,16 +515,20 @@ def pgAcquireFlat(global_PVs, variableDict):
             time.sleep(0.1)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
-	    wait_time_sec = (int(variableDict['NumWhiteImages']) * int(variableDict['ExposureTime'])) + 5
+        wait_time_sec = int((float(variableDict['NumWhiteImages']) * float(variableDict['ExposureTime'])) + 10)
+        print("YYYYYYY", variableDict['ExposureTime'])
+        print("XXXXXXXXX", wait_time_sec, int(variableDict['NumWhiteImages']), float(variableDict['ExposureTime']))
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumWhiteImages']))
         # #ver 1
         # global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
         # global_PVs['Cam1_Acquire'].put(DetectorIdle)
         #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+        # if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 40) == False: # adjust wait time
         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
-
+    #### FIX ME !!!!!!!
+    time.sleep(10)
     if (variableDict['SampleMoveEnabled']):
         print('      *** *** Move Sample In')
         if (variableDict['SampleInOutVertical']):
@@ -564,7 +568,7 @@ def pgAcquireDark(global_PVs, variableDict):
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
 
-	    wait_time_sec = int(variableDict['ExposureTime']) + 5
+        wait_time_sec = int(variableDict['ExposureTime']) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
         for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
@@ -579,7 +583,7 @@ def pgAcquireDark(global_PVs, variableDict):
         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
-	    wait_time_sec = (int(variableDict['NumDarkImages']) * int(variableDict['ExposureTime'])) + 5
+        wait_time_sec = (int(variableDict['NumDarkImages']) * int(variableDict['ExposureTime'])) + 5
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumDarkImages']))
         #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)

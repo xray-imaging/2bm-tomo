@@ -19,12 +19,12 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'StartY': 19,
-        'EndY': 22,
-        'StepSizeY': 1,
-        'StartX': -2,
-        'EndX': 2,
-        'StepSizeX': 2,
+        'StartY': 15,
+        'EndY': 19.5,
+        'StepSizeY': 1.5,
+        'StartX': -4.2,
+        'EndX': 0.3,
+        'StepSizeX': 1.5,
         'SampleXIn': 0.0, 
         'SampleXOut': -5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -146,7 +146,7 @@ def main():
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 for j in np.arange(start_x, end_x, step_size_x):
                     print ('*** The sample horizontal position is at %s mm' % (i))
-                    global_PVs['Motor_Sample_Top_0'].put(j, wait=True)
+                    global_PVs['Motor_Sample_Top_90'].put(j, wait=True)
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                     start_scan(variableDict, fname)
                 print(' ')

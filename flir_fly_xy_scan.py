@@ -19,12 +19,12 @@ from pg_lib import *
 global variableDict
 
 variableDict = {
-        'StartY': 23.5,
-        'EndY': 26.5,
-        'StepSizeY': 1.5,
-        'StartX': -3.0,
-        'EndX': 0.0,
-        'StepSizeX': 1.5,
+        'StartY': 19.746750,
+        'EndY': 17.946750,
+        'StepSizeY': -1.8,
+        #'StartX': -3.0,
+        #'EndX': 0.0,
+        #'StepSizeX': 1.5,
         'SampleXIn': 0.0, 
         'SampleXOut': -5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True

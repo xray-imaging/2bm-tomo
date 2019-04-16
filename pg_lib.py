@@ -253,8 +253,9 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
-        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
-        global_PVs['Cam1_ImageMode'].put('Single', wait=True)
+        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True)
+        time.sleep(5) 
+        global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with ValueError: invalid literal for int() with base 0: 'Single' Added 3 s delay before
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 

@@ -18,7 +18,7 @@ import signal
 
 import numpy as np
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -252,10 +252,11 @@ def pgInit(global_PVs, variableDict):
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+        # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
+        time.sleep(2) 
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
-        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True)
-        time.sleep(5) 
-        global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with ValueError: invalid literal for int() with base 0: 'Single' Added 3 s delay before
+        time.sleep(7) 
+        global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with (ValueError: invalid literal for int() with base 0: 'Single') Added 7 s delay before
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
@@ -401,7 +402,7 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
             global_PVs['HDF1_FileName'].put(fname)
         global_PVs['HDF1_Capture'].put(1)
         wait_pv(global_PVs['HDF1_Capture'], 1)
-        print('  *** setup Point Grey hdf_writer: Done!')
+        print('  *** setup hdf_writer: Done!')
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
@@ -463,6 +464,7 @@ def pgAcquisition(global_PVs, variableDict):
 #    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
     if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
+        #  got error here once when missing 100s of frames: wait_pv( 2bmbSP1:cam1:Acquire 0 5 ) reached max timeout. Return False
     
     print('  *** Fly Scan: Done!')
     # Set trigger mode to internal for post dark and white
@@ -539,7 +541,8 @@ def pgAcquireFlat(global_PVs, variableDict):
 def checkclose_hdf(global_PVs, variableDict):
 
     wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
-    print('  *** Wait HDD (s): ', wait_on_hdd)
+    print('  *** Wait HDD (s): ', wait_on_hdd, (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()))
+    # print('  *** Wait HDD (s): ', wait_on_hdd)
     if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
         global_PVs["HDF1_Capture"].put(0)
         print('  *** File was not closed => forced to close')

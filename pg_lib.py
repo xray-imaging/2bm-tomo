@@ -112,6 +112,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
 
         global_PVs['Fast_Shutter'] = PV('2bma:m23.VAL')
+        global_PVs['Motor_Focus'] = PV('2bma:m54.VAL')
+        global_PVs['Motor_Focus_Name'] = PV('2bma:m54.DESC')
         
     elif variableDict['Station'] == '2-BM-B':   
         print('*** Running in station B:')
@@ -139,6 +141,10 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Fly_ScanControl'] = PV('2bmb:PSOFly:scanControl')
         global_PVs['Fly_Calc_Projections'] = PV('2bmb:PSOFly:numTriggers')
         global_PVs['Theta_Array'] = PV('2bmb:PSOFly:motorPos.AVAL')
+
+        global_PVs['Motor_Focus'] = PV('2bmb:m78.VAL')
+        global_PVs['Motor_Focus_Name'] = PV('2bmb:m78.DESC')
+
     else:
         print('*** %s is not a valid station' % variableDict['Station'])
 

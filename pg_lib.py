@@ -68,7 +68,9 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
                 curTime = time.time()
                 diffTime = curTime - startTime
                 if diffTime >= max_timeout_sec:
-                    print('wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
+                    print('  *** ERROR: DROPPED IMAGES ***')
+                    print('  *** wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
+                    print('  *** ERROR: DROPPED IMAGES ***')
                     return False
             time.sleep(.01)
         else:

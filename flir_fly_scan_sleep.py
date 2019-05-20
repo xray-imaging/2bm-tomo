@@ -20,7 +20,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 100,
+        'EndY': 50,
         'StepSize': 1,
         'StartSleep_s': 0,              # wait time (s) between each data collection
         'SampleXIn': 0.0,
@@ -35,7 +35,7 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.01,               # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line

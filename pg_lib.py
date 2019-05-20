@@ -548,15 +548,20 @@ def pgAcquireFlat(global_PVs, variableDict):
 
 def checkclose_hdf(global_PVs, variableDict):
 
-    wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
-    print('  *** Wait HDD (s): ', wait_on_hdd, (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()))
-    # print('  *** Wait HDD (s): ', wait_on_hdd)
+    buffer_queue = global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()
+    wait_on_hdd = 10
+    # wait_on_hdd = buffer_queue / 55.0 + 10
+    # wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
+    print('  *** Buffer Queue (frames): ', buffer_queue)
+    print('  *** Wait HDD (s): ', wait_on_hdd)
     if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
         global_PVs["HDF1_Capture"].put(0)
         print('  *** File was not closed => forced to close')
         print('      *** before ', global_PVs["HDF1_Capture_RBV"].get())
-        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 2) 
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
         print('      *** after ', global_PVs["HDF1_Capture_RBV"].get())
+        if (global_PVs["HDF1_Capture_RBV"].get() == 1):
+            print ('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
 
 
 def pgAcquireDark(global_PVs, variableDict):

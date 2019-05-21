@@ -68,10 +68,8 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
                 curTime = time.time()
                 diffTime = curTime - startTime
                 if diffTime >= max_timeout_sec:
-                    print('\x1b[2;30;41m' + 'ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR' + '\x1b[0m')
-                    print('  *** ERROR: DROPPED IMAGES ***')
-                    print('  *** wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
-                    print('  *** ERROR: DROPPED IMAGES ***')
+                    print('\x1b[2;30;41m' + '  *** ERROR: DROPPED IMAGES ***' + '\x1b[0m')
+                    print('\x1b[2;30;41m' + '  *** wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False' + '\x1b[0m')
                     return False
             time.sleep(.01)
         else:
@@ -569,8 +567,7 @@ def checkclose_hdf(global_PVs, variableDict):
         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
         print('      *** after ', global_PVs["HDF1_Capture_RBV"].get())
         if (global_PVs["HDF1_Capture_RBV"].get() == 1):
-            print('\x1b[2;30;41m' + 'ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR' + '\x1b[0m')
-            print ('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
+            print ('\x1b[2;30;41m' + '  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail' + '\x1b[0m')
 
 
 def pgAcquireDark(global_PVs, variableDict):
@@ -639,7 +636,7 @@ def open_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** open_shutters')
     if TESTING:
-        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivted during the scans !!!!' + '\x1b[0m')
     else:
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
@@ -665,7 +662,7 @@ def close_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** close_shutters')
     if TESTING:
-        print('  *** WARNING: testing mode - shutters are deactivted during the scans !!!!')
+        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivted during the scans !!!!' + '\x1b[0m')
     else:
         if variableDict['Station'] == '2-BM-A':
             if ShutterAisFast:

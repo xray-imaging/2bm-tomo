@@ -68,6 +68,7 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
                 curTime = time.time()
                 diffTime = curTime - startTime
                 if diffTime >= max_timeout_sec:
+                    print('\x1b[2;30;41m' + 'ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR' + '\x1b[0m')
                     print('  *** ERROR: DROPPED IMAGES ***')
                     print('  *** wait_pv(', pv.pvname, wait_val, max_timeout_sec, ') reached max timeout. Return False')
                     print('  *** ERROR: DROPPED IMAGES ***')
@@ -568,6 +569,7 @@ def checkclose_hdf(global_PVs, variableDict):
         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
         print('      *** after ', global_PVs["HDF1_Capture_RBV"].get())
         if (global_PVs["HDF1_Capture_RBV"].get() == 1):
+            print('\x1b[2;30;41m' + 'ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR *** ERROR' + '\x1b[0m')
             print ('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
 
 

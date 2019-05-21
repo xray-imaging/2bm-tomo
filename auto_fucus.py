@@ -13,7 +13,7 @@ import imp
 import traceback
 import numpy
 
-from tomo_scan_lib import *
+from pg_lib import *
 
 global variableDict
 
@@ -22,92 +22,107 @@ variableDict = {
         'nSteps': 5,
         'StartSleep_min': 0,
         'StabilizeSleep_ms': 250,
-        'ExposureTime': 0.005,
+        # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
+        'CCD_Readout': 0.006,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'Station': '2-BM-A',
+        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'IOC_Prefix': '2bmbSP1:',           # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
-        'Display_live': 1
         }
 
 global_PVs = {}
+
 
 def getVariableDict():
     global variableDict
     return variableDict
 
-def getVariableDict():
-    return variableDict
 
-print('#######################################')
-print('############ Starting Scan ############')
-print('#######################################')
+def focus_scan(variableDict):
+    print(' ')
 
-def lens_scan():
-    print 'lens_scan()'
+    def cleanup(signal, frame):
+        stop_scan(global_PVs, variableDict)
+        sys.exit(0)
+    signal.signal(signal.SIGINT, cleanup)
 
+    if variableDict.has_key('StopTheScan'):
+        stop_scan(global_PVs, variableDict)
+        return
+
+    pgInit(global_PVs, variableDict)
+    pgSet(global_PVs, variableDict) 
+    open_shutters(global_PVs, variableDict)
+
+    print('  *** start focus scan')
     # Get the CCD parameters:
-    nRow = global_PVs['nRow'].get()
-    nCol = global_PVs['nCol'].get()
+    nRow = global_PVs['Cam1_SizeY_RBV'].get()
+    nCol = global_PVs['Cam1_SizeX_RBV'].get()
     image_size = nRow * nCol
 
-    Motor_Name = global_PVs[Motor_Focus_Name].get()
-    print('*** Scanning ' + Motor_Name)
+    Motor_Name = global_PVs['Motor_Focus_Name'].get()
+    print('  *** Scanning ' + Motor_Name)
 
-    Motor_Start_Pos = global_PVs[Motor_Focus].get() - float(variableDict['rscan_range']/2)
-    Motor_End_Pos = global_PVs[Motor_Focus].get() + float(variableDict['rscan_range']/2)
+    Motor_Start_Pos = global_PVs['Motor_Focus'].get() - float(variableDict['rscan_range']/2)
+    Motor_End_Pos = global_PVs['Motor_Focus'].get() + float(variableDict['rscan_range']/2)
     vector_pos = numpy.linspace(Motor_Start_Pos, Motor_End_Pos, int(variableDict['nSteps']))
     vector_std = numpy.copy(vector_pos)
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     global_PVs['Cam1_NumImages'].put(1, wait=True)
-    
+    global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+    wait_time_sec = int(variableDict['ExposureTime']) + 5
+
     cnt = 0
     for sample_pos in vector_pos:
-        print('  '); print('  ### Motor position:', sample_pos); print('  ')
-        global_PVs[Motor_Focus].put(sample_pos, wait=True)
-        time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
-
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 60)
+        print('  *** Motor position: %s' % sample_pos)
+        # for testing with out beam: comment focus motor motion
+        # global_PVs[Motor_Focus].put(sample_pos, wait=True)
+        # time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
+        time.sleep(1)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
+        time.sleep(0.1)
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+            global_PVs['Cam1_Acquire'].put(DetectorIdle)
         
         # Get the image loaded in memory
         img_vect = global_PVs['Cam1_Image'].get(count=image_size)
         #img = np.reshape(img_vect,[nRow, nCol])
         vector_std[cnt] = numpy.std(img_vect)
-        print(' --> Standard deviation: ', str(vector_std[cnt]))
+        print('  ***   *** Standard deviation: %s ' % str(vector_std[cnt]))
         cnt = cnt + 1
 
-    # move the lens to the focal position:
-    max_std = numpy.max(vector_std)
-    focal_pos = vector_pos[numpy.where(vector_std == max_std)]
-    print(' *** Highest standard deviation: ', str(max_std))
-    print(' *** Move piezo to ', str(focal_pos))
-    global_PVs[Motor_Focus].put(focal_pos, wait=True)
+    # # move the lens to the focal position:
+    # max_std = numpy.max(vector_std)
+    # focal_pos = vector_pos[numpy.where(vector_std == max_std)]
+    # print('  *** Highest standard deviation: ', str(max_std))
+    # print('  *** Move piezo to ', str(focal_pos))
+    # global_PVs[Motor_Focus].put(focal_pos, wait=True)
+
+    # # Post scan:
+    # close_shutters(global_PVs, variableDict)
+    # time.sleep(2)
+    # pgInit(global_PVs, variableDict)
     
     return
 
-
-def start_scan():
-    print 'start_scan()'
-    init_general_PVs(global_PVs, variableDict)
-        if variableDict.has_key('StopTheScan'): # stopping the scan in a clean way
-        stop_scan(global_PVs, variableDict)
-        return
-    setup_detector(global_PVs, variableDict)
-    open_shutters(global_PVs, variableDict)
-    
-    # Main scan:
-    ####################################################
-    lens_scan()
-    ####################################################
-
-    # Post scan:
-    close_shutters(global_PVs, variableDict)
-    reset_CCD(global_PVs, variableDict)
-
 def main():
+
     update_variable_dict(variableDict)
-    start_scan()
+    init_general_PVs(global_PVs, variableDict)
+    try:
+        detector_sn = global_PVs['Cam1_SerialNumber'].get()
+        if detector_sn == None:
+            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            print('  *** Failed!')
+        else:
+            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                % (variableDict['IOC_Prefix'], detector_sn))
+            focus_scan(variableDict)
+    except  KeyError:
+        print('  *** Some PV assignment failed!')
+        pass
+
 
 if __name__ == '__main__':
     main()

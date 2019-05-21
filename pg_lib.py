@@ -178,7 +178,9 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_MaxSizeX_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeX_RBV')
         global_PVs['Cam1_MaxSizeY_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:MaxSizeY_RBV')
         global_PVs['Cam1PixelFormat_RBV'] = PV(variableDict['IOC_Prefix'] + 'cam1:PixelFormat_RBV')
-    
+
+        global_PVs['Cam1_Image'] = PV(variableDict['IOC_Prefix'] + 'image1:ArrayData')
+
         # hdf5 writer PV's
         global_PVs['HDF1_AutoSave'] = PV(variableDict['IOC_Prefix'] + 'HDF1:AutoSave')
         global_PVs['HDF1_DeleteDriverFile'] = PV(variableDict['IOC_Prefix'] + 'HDF1:DeleteDriverFile')
@@ -246,6 +248,7 @@ def stop_scan(global_PVs, variableDict):
 
 def pgInit(global_PVs, variableDict):
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
+        print('  *** init Point Grey camera')
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
@@ -257,7 +260,9 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Proc1_Callbacks'].put('Disable')
         global_PVs['Proc1_Filter_Enable'].put('Disable')
         global_PVs['HDF1_ArrayPort'].put('PG3')
+        print('  *** init Point Grey camera: Done!')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
+        print('  *** init FLIR camera')
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
@@ -274,9 +279,10 @@ def pgInit(global_PVs, variableDict):
         else: # Mona (B-station)
             global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
             global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
+        print('  *** init FLIR camera: Done!')
 
 
-def pgSet(global_PVs, variableDict, fname):
+def pgSet(global_PVs, variableDict, fname=None):
 
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
@@ -352,7 +358,8 @@ def pgSet(global_PVs, variableDict, fname):
     else:
         print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
-    setup_hdf_writer(global_PVs, variableDict, fname)
+    if fname is not None:
+        setup_hdf_writer(global_PVs, variableDict, fname)
 
 def setup_frame_type(global_PVs, variableDict):
     global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')

@@ -1,5 +1,5 @@
 '''
-    TomoScan for Sector 32 ID C
+    Auto focus for 2-BM
 
 '''
 import sys

@@ -20,7 +20,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 50,
+        'EndY': 300,
         'StepSize': 1,
         'StartSleep_s': 0,              # wait time (s) between each data collection
         'SampleXIn': 0.0,
@@ -35,7 +35,7 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.01,               # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.006,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
@@ -77,7 +77,9 @@ def start_scan(variableDict, fname):
         stop_scan(global_PVs, variableDict)
         return
 
-    pgInit(global_PVs, variableDict)
+    # moved to outer loop in main()
+    # pgInit(global_PVs, variableDict)
+
     setPSO(global_PVs, variableDict)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
@@ -89,7 +91,11 @@ def start_scan(variableDict, fname):
 
     # # run fly scan
     theta = pgAcquisition(global_PVs, variableDict)
-    # print(theta)
+
+    theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
+    if (theta_end < 180.0):
+        print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
+
     pgAcquireFlat(global_PVs, variableDict)
     close_shutters(global_PVs, variableDict)
     time.sleep(2)
@@ -130,8 +136,12 @@ def main():
             step_size = variableDict['StepSize']
 
             print("Sleep Scan: ", np.arange(start, end, step_size))
+
+            # moved pgInit() here from start_scan() 
+            pgInit(global_PVs, variableDict)
             
             for i in np.arange(start, end, step_size):
+                tic_01 =  time.time()
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                 print('  *** Moving rotary stage to start position')
                 global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
@@ -144,8 +154,9 @@ def main():
                     time.sleep(variableDict['StartSleep_s']) 
 
                 print(' ')
-                print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                print('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
                 print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            print('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
             global_PVs['Cam1_ImageMode'].put('Continuous')
             print('  *** Done!')
 

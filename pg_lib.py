@@ -94,6 +94,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
         global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
         global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
+        global_PVs['Motor_SampleRot_RBV'] = PV('2bma:m82.RBV') # Aerotech ABR-250
         global_PVs['Motor_SampleRot_Cnen'] = PV('2bma:m82.CNEN') 
         global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m82.ACCL') 
         global_PVs['Motor_SampleRot_Stop'] = PV('2bma:m82.STOP') 
@@ -636,7 +637,7 @@ def open_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** open_shutters')
     if TESTING:
-        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivted during the scans !!!!' + '\x1b[0m')
+        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
     else:
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
@@ -662,7 +663,7 @@ def close_shutters(global_PVs, variableDict):
     print(' ')
     print('  *** close_shutters')
     if TESTING:
-        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivted during the scans !!!!' + '\x1b[0m')
+        print('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
     else:
         if variableDict['Station'] == '2-BM-A':
             if ShutterAisFast:

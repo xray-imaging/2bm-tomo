@@ -43,12 +43,12 @@ LOG = logging.getLogger(__name__)
 class Logger(object):
     __GREEN = "\033[92m"
     __RED = '\033[91m'
+    __YELLOW = '\033[33m'
     __ENDC = '\033[0m'
 
     def __init__(self, name):
         self.logger = logging.getLogger(name)
         self.extra={'logger_name': name, 'endColor': self.__ENDC, 'color': self.__GREEN}
-
 
     def info(self, msg):
         self.extra['color'] = self.__GREEN
@@ -57,6 +57,10 @@ class Logger(object):
     def error(self, msg):
         self.extra['color'] = self.__RED
         self.logger.error(msg, extra=self.extra)
+
+    def warning(self, msg):
+        self.extra['color'] = self.__YELLOW
+        self.logger.warning(msg, extra=self.extra)
 
 def update_variable_dict(variableDict):
     argDic = {}
@@ -262,11 +266,12 @@ def init_general_PVs(global_PVs, variableDict):
 
 def stop_scan(global_PVs, variableDict):
         Logger("log").info(' ')
-        Logger("log").error('  *** Stop scan called!')
+        Logger("log").error('  *** Stop scan')
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
         wait_pv(global_PVs['HDF1_Capture'], 0)
         pgInit(global_PVs, variableDict)
+        Logger("log").error('  *** Stop scan: Done!')
         ##pgInit(global_PVs, variableDict)
 
 
@@ -663,7 +668,7 @@ def open_shutters(global_PVs, variableDict):
     Logger("log").info('  *** open_shutters')
     if TESTING:
         # Logger("log").info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        Logger("log").error('  *** WARNING: testing mode - shutters are deactivated during the scans !!!!')
+        Logger("log").warning('  *** testing mode - shutters are deactivated during the scans !!!!')
     else:
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
@@ -690,7 +695,7 @@ def close_shutters(global_PVs, variableDict):
     Logger("log").info('  *** close_shutters')
     if TESTING:
         # Logger("log").info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        Logger("log").error('  *** WARNING: testing mode - shutters are deactivated during the scans !!!!')
+        Logger("log").warning('  *** testing mode - shutters are deactivated during the scans !!!!')
     else:
         if variableDict['Station'] == '2-BM-A':
             if ShutterAisFast:

@@ -60,6 +60,9 @@ variableDict = {
 global_PVs = {}
 
 LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
+# LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", \
+#                           handlers=[logging.FileHandler("{0}/{1}.log".format('.', 'tomo'), mode='a',encoding=None, delay=False), 
+#                           logging.StreamHandler()], level=logging.INFO)
 
 
 def getVariableDict():

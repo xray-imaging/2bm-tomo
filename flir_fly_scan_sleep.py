@@ -70,7 +70,7 @@ def getVariableDict():
     return variableDict
 
 
-def start_scan(variableDict, fname):
+def tomo_fly_scan(variableDict, fname):
     Logger("log").info(' ')
     Logger("log").info('  *** start_scan')
 
@@ -141,7 +141,7 @@ def main():
             end = variableDict['EndY']
             step_size = variableDict['StepSize']
 
-            # moved pgInit() here from start_scan() 
+            # moved pgInit() here from tomo_fly_scan() 
             pgInit(global_PVs, variableDict)
             
             Logger("log").info(' ')
@@ -152,7 +152,7 @@ def main():
                 Logger("log").info(' ')
                 Logger("log").info('  *** Start scan %d' % i)
 
-                start_scan(variableDict, fname)
+                tomo_fly_scan(variableDict, fname)
 
                 if ((i+1)!=end):
                     Logger("log").info('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))

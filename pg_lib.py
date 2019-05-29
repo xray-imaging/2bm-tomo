@@ -742,7 +742,7 @@ def setPSO(global_PVs, variableDict):
     global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
     time.sleep(3.0)
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-
+    
     if calc_num_proj == None:
         Logger("log").error('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()

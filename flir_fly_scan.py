@@ -61,7 +61,7 @@ def getVariableDict():
     return variableDict
 
 
-def start_scan(variableDict, fname):
+def tomo_fly_scan(variableDict, fname):
     Logger("log").info(' ')
     Logger("log").info('  *** start_scan')
 
@@ -125,13 +125,13 @@ def main():
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
-            # moved pgInit() here from start_scan() 
+            # moved pgInit() here from tomo_fly_scan() 
             pgInit(global_PVs, variableDict)
             # get sample file name
             # fname = global_PVs['HDF1_FileName'].get(as_string=True)
             fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
 
-            start_scan(variableDict, fname)
+            tomo_fly_scan(variableDict, fname)
 
             Logger("log").info(' ')
             Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))

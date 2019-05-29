@@ -51,7 +51,7 @@ def getVariableDict():
     return variableDict
 
 
-def start_scan(variableDict, fname):
+def dummy_tomo_fly_scan(variableDict, fname):
     Logger("log").info(' ')
     Logger("log").info('  *** start_scan')
 
@@ -93,7 +93,7 @@ def main():
             Logger("log").info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             Logger("log").info('  *** Moving rotary stage to start position: Done!')
-            start_scan(variableDict, fname)
+            dummy_tomo_fly_scan(variableDict, fname)
             Logger("log").info(' ')
             Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

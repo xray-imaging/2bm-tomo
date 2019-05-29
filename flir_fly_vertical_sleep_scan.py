@@ -65,7 +65,7 @@ def getVariableDict():
     return variableDict
 
 
-def start_scan(variableDict, fname):
+def tomo_fly_scan(variableDict, fname):
     Logger("log").info(' ')
     Logger("log").info('  *** start_scan')
 
@@ -137,7 +137,7 @@ def main():
             end = variableDict['EndY']
             step_size = variableDict['StepSize']
 
-            # moved pgInit() here from start_scan() 
+            # moved pgInit() here from tomo_fly_scan() 
             pgInit(global_PVs, variableDict)
 
             Logger("log").info(' ')
@@ -154,7 +154,7 @@ def main():
                     Logger("log").info('*** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True)
 
-                    start_scan(variableDict, fname)
+                    tomo_fly_scan(variableDict, fname)
                     Logger("log").info(' ')
                     Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                     Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

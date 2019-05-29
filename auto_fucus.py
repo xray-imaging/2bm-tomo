@@ -32,6 +32,7 @@ variableDict = {
 
 global_PVs = {}
 
+LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
 
 def getVariableDict():
     global variableDict
@@ -39,7 +40,7 @@ def getVariableDict():
 
 
 def focus_scan(variableDict):
-    print(' ')
+    Logger("log").info(' ')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -54,14 +55,14 @@ def focus_scan(variableDict):
     pgSet(global_PVs, variableDict) 
     open_shutters(global_PVs, variableDict)
 
-    print('  *** start focus scan')
+    Logger("log").info('  *** start focus scan')
     # Get the CCD parameters:
     nRow = global_PVs['Cam1_SizeY_RBV'].get()
     nCol = global_PVs['Cam1_SizeX_RBV'].get()
     image_size = nRow * nCol
 
     Motor_Name = global_PVs['Motor_Focus_Name'].get()
-    print('  *** Scanning ' + Motor_Name)
+    Logger("log").info('  *** Scanning ' + Motor_Name)
 
     Motor_Start_Pos = global_PVs['Motor_Focus'].get() - float(variableDict['rscan_range']/2)
     Motor_End_Pos = global_PVs['Motor_Focus'].get() + float(variableDict['rscan_range']/2)
@@ -75,7 +76,7 @@ def focus_scan(variableDict):
 
     cnt = 0
     for sample_pos in vector_pos:
-        print('  *** Motor position: %s' % sample_pos)
+        Logger("log").info('  *** Motor position: %s' % sample_pos)
         # for testing with out beam: comment focus motor motion
         # global_PVs[Motor_Focus].put(sample_pos, wait=True)
         # time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
@@ -89,14 +90,14 @@ def focus_scan(variableDict):
         img_vect = global_PVs['Cam1_Image'].get(count=image_size)
         #img = np.reshape(img_vect,[nRow, nCol])
         vector_std[cnt] = numpy.std(img_vect)
-        print('  ***   *** Standard deviation: %s ' % str(vector_std[cnt]))
+        Logger("log").info('  ***   *** Standard deviation: %s ' % str(vector_std[cnt]))
         cnt = cnt + 1
 
     # # move the lens to the focal position:
     # max_std = numpy.max(vector_std)
     # focal_pos = vector_pos[numpy.where(vector_std == max_std)]
-    # print('  *** Highest standard deviation: ', str(max_std))
-    # print('  *** Move piezo to ', str(focal_pos))
+    # Logger("log").info('  *** Highest standard deviation: ', str(max_std))
+    # Logger("log").info('  *** Move piezo to ', str(focal_pos))
     # global_PVs[Motor_Focus].put(focal_pos, wait=True)
 
     # # Post scan:
@@ -112,15 +113,15 @@ def main():
     init_general_PVs(global_PVs, variableDict)
     try:
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
-        if detector_sn == None:
-            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            print('  *** Failed!')
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            Logger("log").error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger("log").error('  *** Failed!')
         else:
-            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                 % (variableDict['IOC_Prefix'], detector_sn))
             focus_scan(variableDict)
     except  KeyError:
-        print('  *** Some PV assignment failed!')
+        Logger("log").error('  *** Some PV assignment failed!')
         pass
 
 

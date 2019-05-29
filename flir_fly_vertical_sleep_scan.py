@@ -58,6 +58,7 @@ variableDict = {
 
 global_PVs = {}
 
+LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
 
 def getVariableDict():
     global variableDict
@@ -65,8 +66,8 @@ def getVariableDict():
 
 
 def start_scan(variableDict, fname):
-    print(' ')
-    print('  *** start_scan')
+    Logger("log").info(' ')
+    Logger("log").info('  *** start_scan')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -77,11 +78,13 @@ def start_scan(variableDict, fname):
         stop_scan(global_PVs, variableDict)
         return
 
-    pgInit(global_PVs, variableDict)
+    # moved to outer loop in main()
+    # pgInit(global_PVs, variableDict)
+
     setPSO(global_PVs, variableDict)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    print('  *** File name prefix: %s' % fname)
+    Logger("log").info('  *** File name prefix: %s' % fname)
 
     pgSet(global_PVs, variableDict, fname) 
 
@@ -89,7 +92,12 @@ def start_scan(variableDict, fname):
 
     # # run fly scan
     theta = pgAcquisition(global_PVs, variableDict)
-    # print(theta)
+
+    theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
+    if (theta_end < 180.0):
+        # print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
+        Logger("log").error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
+
     pgAcquireFlat(global_PVs, variableDict)
     close_shutters(global_PVs, variableDict)
     time.sleep(2)
@@ -109,11 +117,11 @@ def main():
     
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
-        if detector_sn == None:
-            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            print('  *** Failed!')
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger("log").info('  *** Failed!')
         else:
-            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -129,29 +137,40 @@ def main():
             end = variableDict['EndY']
             step_size = variableDict['StepSize']
 
-            print("Vertical Positions (mm): ", np.arange(start, end, step_size))
+            # moved pgInit() here from start_scan() 
+            pgInit(global_PVs, variableDict)
+
+            Logger("log").info(' ')
+            Logger("log").info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            Logger("log").info(' ')
+            Logger("log").info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
             for ii in range(200):
                 for i in np.arange(start, end, step_size):
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
-                    print('  *** Moving rotary stage to start position')
-                    global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-                    print('  *** Moving rotary stage to start position: Done!')
+                    # Logger("log").info('  *** Moving rotary stage to start position')
+                    # global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                    # Logger("log").info('  *** Moving rotary stage to start position: Done!')
 
-                    print ('*** The sample vertical position is at %s mm' % (i))
+                    Logger("log").info('*** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True)
 
                     start_scan(variableDict, fname)
-                    print(' ')
-                    print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-                    print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                print('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+                    Logger("log").info(' ')
+                    Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                    Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                Logger("log").info('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                 time.sleep(variableDict['StartSleep_s']) 
 
+            Logger("log").info('  *** Moving rotary stage to start position')
+            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+            Logger("log").info('  *** Moving rotary stage to start position: Done!')
+
             global_PVs['Cam1_ImageMode'].put('Continuous')
-            print('  *** Done!')
+
+            Logger("log").info('  *** Done!')
 
     except  KeyError:
-        print('  *** Some PV assignment failed!')
+        Logger("log").error('  *** Some PV assignment failed!')
         pass
         
         

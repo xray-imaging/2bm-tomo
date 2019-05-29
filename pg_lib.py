@@ -266,12 +266,12 @@ def init_general_PVs(global_PVs, variableDict):
 
 def stop_scan(global_PVs, variableDict):
         Logger("log").info(' ')
-        Logger("log").error('  *** Stop scan')
+        Logger("log").error('  *** Stopping the scan: PLEASE WAIT')
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
         wait_pv(global_PVs['HDF1_Capture'], 0)
         pgInit(global_PVs, variableDict)
-        Logger("log").error('  *** Stop scan: Done!')
+        Logger("log").error('  *** Stopping scan: Done!')
         ##pgInit(global_PVs, variableDict)
 
 

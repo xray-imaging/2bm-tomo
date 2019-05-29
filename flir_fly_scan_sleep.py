@@ -121,7 +121,7 @@ def main():
     
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
-        if detector_sn == None:
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
             Logger("log").error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
             Logger("log").error('  *** Failed!')
         else:
@@ -167,7 +167,7 @@ def main():
             Logger("log").info('  *** Done!')
 
     except  KeyError:
-        Logger("log").info('  *** Some PV assignment failed!')
+        Logger("log").error('  *** Some PV assignment failed!')
         pass
         
         

@@ -121,8 +121,9 @@ def main():
                 % (variableDict['IOC_Prefix'], detector_sn))
             focus_scan(variableDict)
     except  KeyError:
-        Logger("log").error('  *** Some PV assignment failed!')
-        pass
+        Logger("log").error('  *** Some PV assignment failed!')_
+        # Logger("log").error('  *** Some PV assignment failed!', KeyError)
+1        pass
 
 
 if __name__ == '__main__':

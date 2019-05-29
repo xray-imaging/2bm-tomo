@@ -44,6 +44,7 @@ variableDict = {
 
 global_PVs = {}
 
+LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
 
 def getVariableDict():
     global variableDict
@@ -51,8 +52,8 @@ def getVariableDict():
 
 
 def start_scan(variableDict, fname):
-    print(' ')
-    print('  *** start_scan')
+    Logger("log").info(' ')
+    Logger("log").info('  *** start_scan')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -74,9 +75,9 @@ def main():
     if (0==0):
     # try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
-        if detector_sn == None:
-            print('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            print('  *** Failed!')
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger("log").info('  *** Failed!')
         else:
             print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
@@ -89,17 +90,17 @@ def main():
 
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            print('  *** Moving rotary stage to start position')
+            Logger("log").info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            print('  *** Moving rotary stage to start position: Done!')
+            Logger("log").info('  *** Moving rotary stage to start position: Done!')
             start_scan(variableDict, fname)
-            print(' ')
-            print('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            print('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-            print('  *** Done!')
+            Logger("log").info(' ')
+            Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            Logger("log").info('  *** Done!')
 
     # except  KeyError:
-    #     print('  *** Some PV assignment failed!')
+    #     Logger("log").error('  *** Some PV assignment failed!')
     #     pass
         
         

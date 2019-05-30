@@ -13,20 +13,20 @@ import imp
 import traceback
 import numpy
 
-from pg_lib import *
+from flir_lib import *
 
 global variableDict
 
 variableDict = {
-        'rscan_range': 0.2,                 # relative motion in mm
-        'nSteps': 5,
+        'rscan_range': 2,                 # relative motion in mm
+        'nSteps': 20,
         'StartSleep_min': 0,
         'StabilizeSleep_ms': 250,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'CCD_Readout': 0.006,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
-        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        'ExposureTime': 0.1,                # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         'IOC_Prefix': '2bmbSP1:',           # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
         }
 
@@ -78,8 +78,8 @@ def focus_scan(variableDict):
     for sample_pos in vector_pos:
         Logger("log").info('  *** Motor position: %s' % sample_pos)
         # for testing with out beam: comment focus motor motion
-        # global_PVs[Motor_Focus].put(sample_pos, wait=True)
-        # time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
+        global_PVs['Motor_Focus'].put(sample_pos, wait=True)
+        time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
         time.sleep(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
         time.sleep(0.1)
@@ -121,9 +121,9 @@ def main():
                 % (variableDict['IOC_Prefix'], detector_sn))
             focus_scan(variableDict)
     except  KeyError:
-        Logger("log").error('  *** Some PV assignment failed!')_
+        Logger("log").error('  *** Some PV assignment failed!')
         # Logger("log").error('  *** Some PV assignment failed!', KeyError)
-1        pass
+        pass
 
 
 if __name__ == '__main__':

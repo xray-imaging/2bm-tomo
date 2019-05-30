@@ -15,6 +15,7 @@ import imp
 import traceback
 
 from pg_lib import *
+from pg_scan_lib import *
 
 global variableDict
 
@@ -51,19 +52,19 @@ def getVariableDict():
     return variableDict
 
 
-def dummy_tomo_fly_scan(variableDict, fname):
-    Logger("log").info(' ')
-    Logger("log").info('  *** start_scan')
+# def dummy_tomo_fly_scan(variableDict, fname):
+#     Logger("log").info(' ')
+#     Logger("log").info('  *** start_scan')
 
-    def cleanup(signal, frame):
-        stop_scan(global_PVs, variableDict)
-        sys.exit(0)
-    signal.signal(signal.SIGINT, cleanup)
+#     def cleanup(signal, frame):
+#         stop_scan(global_PVs, variableDict)
+#         sys.exit(0)
+#     signal.signal(signal.SIGINT, cleanup)
 
 
-    pgInit(global_PVs, variableDict)
+#     pgInit(global_PVs, variableDict)
 
-    # pgSet(global_PVs, variableDict, fname) 
+#     # pgSet(global_PVs, variableDict, fname) 
 
 
 
@@ -93,7 +94,7 @@ def main():
             Logger("log").info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             Logger("log").info('  *** Moving rotary stage to start position: Done!')
-            dummy_tomo_fly_scan(variableDict, fname)
+            dummy_tomo_fly_scan(global_PVs, variableDict, fname)
             Logger("log").info(' ')
             Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
             Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

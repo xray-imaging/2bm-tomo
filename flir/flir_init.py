@@ -13,6 +13,7 @@ import shutil
 import os
 import imp
 import traceback
+from datetime import datetime
 
 from flir_lib import *
 from flir_scan_lib import *
@@ -45,27 +46,13 @@ variableDict = {
 
 global_PVs = {}
 
-LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
+log_name = 'Tomo_' + datetime.strftime(datetime.now(), "%y_%m_%d_%H_%M_%S") + '.log'
+LOG, fHandler = setup_logger(log_name)
+
 
 def getVariableDict():
     global variableDict
     return variableDict
-
-
-# def dummy_tomo_fly_scan(variableDict, fname):
-#     Logger("log").info(' ')
-#     Logger("log").info('  *** start_scan')
-
-#     def cleanup(signal, frame):
-#         stop_scan(global_PVs, variableDict)
-#         sys.exit(0)
-#     signal.signal(signal.SIGINT, cleanup)
-
-
-#     pgInit(global_PVs, variableDict)
-
-#     # pgSet(global_PVs, variableDict, fname) 
-
 
 
 def main():
@@ -73,14 +60,13 @@ def main():
     update_variable_dict(variableDict)
     init_general_PVs(global_PVs, variableDict)
     
-    if (0==0):
-    # try: 
+    try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            Logger("log").info('  *** Failed!')
+            Logger(log_name).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger(log_name).info('  *** Failed!')
         else:
-            print ('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            Logger(log_name).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -91,18 +77,18 @@ def main():
 
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            Logger("log").info('  *** Moving rotary stage to start position')
+            Logger(log_name).info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            Logger("log").info('  *** Moving rotary stage to start position: Done!')
+            Logger(log_name).info('  *** Moving rotary stage to start position: Done!')
             dummy_tomo_fly_scan(global_PVs, variableDict, fname)
-            Logger("log").info(' ')
-            Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-            Logger("log").info('  *** Done!')
+            Logger(log_name).info(' ')
+            Logger(log_name).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            Logger(log_name).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            Logger(log_name).info('  *** Done!')
 
-    # except  KeyError:
-    #     Logger("log").error('  *** Some PV assignment failed!')
-    #     pass
+    except  KeyError:
+        Logger(log_name).error('  *** Some PV assignment failed!')
+        pass
         
         
 

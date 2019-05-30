@@ -62,6 +62,24 @@ class Logger(object):
         self.extra['color'] = self.__YELLOW
         self.logger.warning(msg, extra=self.extra)
 
+
+def setup_logger(log_name, stream_to_console=True):
+    logger = logging.getLogger(log_name)
+    fHandler = logging.FileHandler(log_name)
+    logger.setLevel(logging.DEBUG)
+    formatter = logging.Formatter("%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s")
+    fHandler.setFormatter(formatter)
+    logger.addHandler(fHandler)
+    if stream_to_console:
+        ch = logging.StreamHandler()
+        formatter = logging.Formatter("%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s")
+        ch.setFormatter(formatter)
+        ch.setLevel(logging.WARNING)
+        logger.addHandler(ch)
+    
+    return logger, fHandler
+
+
 def update_variable_dict(variableDict):
     argDic = {}
     if len(sys.argv) > 1:

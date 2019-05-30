@@ -14,6 +14,7 @@ import os
 import imp
 import traceback
 import logging
+from datetime import datetime
 
 from flir_lib import *
 from flir_scan_lib import *
@@ -55,15 +56,15 @@ variableDict = {
                                           #           1. SampleMoveEnabled = True
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
-        'FurnaceYOut': 48.0
+        'FurnaceYOut': 48.0,
+        'LogFileName': 'log.log'
         }
 
 global_PVs = {}
 
-LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", level=logging.INFO)
-# LOG = logging.basicConfig(format = "%(asctime)s %(logger_name)s %(color)s  %(message)s %(endColor)s", \
-#                           handlers=[logging.FileHandler("{0}/{1}.log".format('.', 'tomo'), mode='a',encoding=None, delay=False), 
-#                           logging.StreamHandler()], level=logging.INFO)
+lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+LOG, fHandler = setup_logger(lfname)
+variableDict['LogFileName'] = lfname
 
 
 def getVariableDict():
@@ -79,10 +80,10 @@ def main():
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            Logger("log").error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            Logger("log").error('  *** Failed!')
+            Logger(lfname).error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger(lfname).error('  *** Failed!')
         else:
-            Logger("log").info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -101,36 +102,36 @@ def main():
             # moved pgInit() here from tomo_fly_scan() 
             pgInit(global_PVs, variableDict)
             
-            Logger("log").info(' ')
-            Logger("log").info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            Logger(lfname).info(' ')
+            Logger(lfname).info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
             for i in np.arange(start, end, step_size):
                 tic_01 =  time.time()
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
-                Logger("log").info(' ')
-                Logger("log").info('  *** Start scan %d' % i)
+                Logger(lfname).info(' ')
+                Logger(lfname).info('  *** Start scan %d' % i)
 
                 tomo_fly_scan(global_PVs, variableDict, fname)
 
                 if ((i+1)!=end):
-                    Logger("log").info('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+                    Logger(lfname).info('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                     time.sleep(variableDict['StartSleep_s']) 
 
-                Logger("log").info(' ')
-                Logger("log").info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                Logger("log").info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
-                Logger("log").info('  *** Scan Done!')
-            Logger("log").info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
+                Logger(lfname).info(' ')
+                Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
+                Logger(lfname).info('  *** Scan Done!')
+            Logger(lfname).info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  
-            Logger("log").info('  *** Moving rotary stage to start position')
+            Logger(lfname).info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            Logger("log").info('  *** Moving rotary stage to start position: Done!')
+            Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
  
-            Logger("log").info('  *** Done!')
+            Logger(lfname).info('  *** Done!')
 
     except  KeyError:
-        Logger("log").error('  *** Some PV assignment failed!')
+        Logger(lfname).error('  *** Some PV assignment failed!')
         pass
         
         

@@ -25,8 +25,8 @@ LOG = logging.getLogger(__name__)
 
 
 def dummy_tomo_fly_scan(global_PVs, variableDict, fname):
-    Logger("log").info(' ')
-    Logger("log").info('  *** start_scan')
+    Logger(variableDict['LogFileName']).info(' ')
+    Logger(variableDict['LogFileName']).info('  *** start_scan')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -40,8 +40,8 @@ def dummy_tomo_fly_scan(global_PVs, variableDict, fname):
 
     
 def tomo_fly_scan(global_PVs, variableDict, fname):
-    Logger("log").info(' ')
-    Logger("log").info('  *** start_scan')
+    Logger(variableDict['LogFileName']).info(' ')
+    Logger(variableDict['LogFileName']).info('  *** start_scan')
 
     def cleanup(signal, frame):
         stop_scan(global_PVs, variableDict)
@@ -58,7 +58,7 @@ def tomo_fly_scan(global_PVs, variableDict, fname):
     setPSO(global_PVs, variableDict)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    Logger("log").info('  *** File name prefix: %s' % fname)
+    Logger(variableDict['LogFileName']).info('  *** File name prefix: %s' % fname)
 
     pgSet(global_PVs, variableDict, fname) 
 
@@ -70,7 +70,7 @@ def tomo_fly_scan(global_PVs, variableDict, fname):
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
     if (theta_end < 180.0):
         # print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
-        Logger("log").error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
+        Logger(variableDict['LogFileName']).error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
 
     pgAcquireFlat(global_PVs, variableDict)
     close_shutters(global_PVs, variableDict)

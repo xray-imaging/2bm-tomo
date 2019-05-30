@@ -40,15 +40,16 @@ variableDict = {
         'CCD_Readout': 0.005,             # options: 1. 8bit: 0.005, 2. 16-bit: 0.01
         'ShutterOpenDelay': 0.00,
         'Recursive_Filter_Enabled': False,
-        'Recursive_Filter_N_Images': 4
+        'Recursive_Filter_N_Images': 4,
+        'LogFileName': 'log.log'
         }
 
 
 global_PVs = {}
 
-log_name = 'Tomo_' + datetime.strftime(datetime.now(), "%y_%m_%d_%H_%M_%S") + '.log'
-LOG, fHandler = setup_logger(log_name)
-
+lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+LOG, fHandler = setup_logger(lfname)
+variableDict['LogFileName'] = lfname
 
 def getVariableDict():
     global variableDict
@@ -63,10 +64,10 @@ def main():
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            Logger(log_name).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            Logger(log_name).info('  *** Failed!')
+            Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            Logger(lfname).info('  *** Failed!')
         else:
-            Logger(log_name).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -77,17 +78,17 @@ def main():
 
             # get sample file name
             fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            Logger(log_name).info('  *** Moving rotary stage to start position')
+            Logger(lfname).info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            Logger(log_name).info('  *** Moving rotary stage to start position: Done!')
+            Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
             dummy_tomo_fly_scan(global_PVs, variableDict, fname)
-            Logger(log_name).info(' ')
-            Logger(log_name).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            Logger(log_name).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-            Logger(log_name).info('  *** Done!')
+            Logger(lfname).info(' ')
+            Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            Logger(lfname).info('  *** Done!')
 
     except  KeyError:
-        Logger(log_name).error('  *** Some PV assignment failed!')
+        Logger(lfname).error('  *** Some PV assignment failed!')
         pass
         
         

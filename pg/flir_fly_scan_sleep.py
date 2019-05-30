@@ -15,8 +15,8 @@ import imp
 import traceback
 import logging
 
-from pg_lib import *
-from pg_scan_lib import *
+from flir_lib import *
+from flir_scan_lib import *
 
 global variableDict
 

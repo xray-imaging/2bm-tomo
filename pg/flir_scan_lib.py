@@ -18,7 +18,7 @@ import signal
 import logging
 import numpy as np
 
-from pg_lib import *
+from flir_lib import *
 
 
 LOG = logging.getLogger(__name__)

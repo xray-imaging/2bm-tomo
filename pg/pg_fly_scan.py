@@ -14,7 +14,7 @@ import os
 import imp
 import traceback
 
-from pg_lib import *
+from flir_lib import *
 
 global variableDict
 

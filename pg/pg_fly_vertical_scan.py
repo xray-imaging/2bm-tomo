@@ -15,7 +15,7 @@ import imp
 import traceback
 import numpy as np
 
-from pg_lib import *
+from flir_lib import *
 
 global variableDict
 

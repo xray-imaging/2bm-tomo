@@ -142,8 +142,8 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Theta_Array'] = PV('2bma:PSOFly2:motorPos.AVAL')
 
         global_PVs['Fast_Shutter'] = PV('2bma:m23.VAL')
-        global_PVs['Motor_Focus'] = PV('2bma:m54.VAL')
-        global_PVs['Motor_Focus_Name'] = PV('2bma:m54.DESC')
+        global_PVs['Motor_Focus'] = PV('2bma:m41.VAL')
+        global_PVs['Motor_Focus_Name'] = PV('2bma:m41.DESC')
         
     elif variableDict['Station'] == '2-BM-B':   
         Logger("log").info('*** Running in station B:')

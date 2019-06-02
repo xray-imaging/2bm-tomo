@@ -135,7 +135,7 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Sample_Name'] = PV('2bmb:caputRecorderGbl_4')
 
     if variableDict['Station'] == '2-BM-A':
-        print(variableDict['LogFileName'])
+        # print(variableDict['LogFileName'])
         Logger(variableDict['LogFileName']).info('*** Running in station A:')
         # Set sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
@@ -279,7 +279,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_TriggerActivation'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerActivation')
     
     else:
-        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return            
 
 
@@ -404,7 +404,7 @@ def pgSet(global_PVs, variableDict, fname=None):
         Logger(variableDict['LogFileName']).info('  *** setup FLIR camera: Done!')
     
     else:
-        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
     if fname is not None:
         setup_hdf_writer(global_PVs, variableDict, fname)
@@ -467,7 +467,7 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         wait_pv(variableDict['LogFileName'], global_PVs['HDF1_Capture'], 1)
         Logger(variableDict['LogFileName']).info('  *** setup hdf_writer: Done!')
     else:
-        print ('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
 
 
@@ -665,9 +665,8 @@ def move_sample_in(global_PVs, variableDict):
     Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_in')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXIn']), wait=True)
     if wait_pv(variableDict['LogFileName'], global_PVs['Motor_SampleX'], float(variableDict['SampleXIn']), 60) == False:
-        Logger(variableDict['LogFileName']).info('Motor_SampleX did not move in properly')
-        print (global_PVs['Motor_SampleX'].get())
-        Logger(variableDict['LogFileName']).info('\r\n\r\n')
+        Logger(variableDict['LogFileName']).error('Motor_SampleX did not move in properly')
+        Logger(variableDict['LogFileName']).error(global_PVs['Motor_SampleX'].get())
     Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_in: Done!')
 
 
@@ -676,9 +675,8 @@ def move_sample_out(global_PVs, variableDict):
     Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_out')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXOut']), wait=True)
     if False == wait_pv(variableDict['LogFileName'], global_PVs['Motor_SampleX'], float(variableDict['SampleXOut']), 60):
-        Logger(variableDict['LogFileName']).info('Motor_SampleX did not move out properly')
-        print (global_PVs['Motor_SampleX'].get())
-        Logger(variableDict['LogFileName']).info('\r\n\r\n')
+        Logger(variableDict['LogFileName']).error('Motor_SampleX did not move out properly')
+        Logger(variableDict['LogFileName']).error(global_PVs['Motor_SampleX'].get())
     Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_out: Done!')
 
 
@@ -765,7 +763,7 @@ def setPSO(global_PVs, variableDict):
     if calc_num_proj == None:
         Logger(variableDict['LogFileName']).error('  *** ***   *** *** Error getting fly calculated number of proj/APSshare/anaconda/x86_64/binections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-        print ("##############", calc_num_proj, variableDict['Projections'])
+        Logger(variableDict['LogFileName']).error("  *** ***   *** *** ", calc_num_proj, variableDict['Projections'])
     if calc_num_proj != int(variableDict['Projections']):
         Logger(variableDict['LogFileName']).info('  *** ***  *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', int(calc_num_proj))
         variableDict['Projections'] = int(calc_num_proj)

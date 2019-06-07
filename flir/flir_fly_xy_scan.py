@@ -18,10 +18,10 @@ import traceback
 from datetime import datetime
 import numpy as np
 
-import flir_lib
-import flir_scan_lib
-import log_lib 
-import dm_lib 
+import libs.flir_lib as flir_lib
+import libs.flir_scan_lib as flir_scan_lib
+import libs.log_lib as log_lib
+import libs.dm_lib as dm_lib
 
 global variableDict
 

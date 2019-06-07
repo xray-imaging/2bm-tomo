@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 '''
     FlyScan for Sector 2-BM
 
@@ -14,16 +16,19 @@ import os
 import imp
 import traceback
 from datetime import datetime
+import numpy as np
 
-from flir_lib import *
-from flir_scan_lib import *
+import flir_lib
+import flir_scan_lib
+import log_lib 
+import dm_lib 
 
 global variableDict
 
 variableDict = {
-        'StartY': 21.0,
-        'EndY': 23.0,
-        'StepSize': 1.0,
+        'StartY': 27.0,
+        'EndY': 28.0,
+        'StepSize': 0.5,
         'SampleXIn': 0.0,
         'SampleXOut': -1.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -61,7 +66,7 @@ variableDict = {
 global_PVs = {}
 
 lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
-LOG, fHandler = setup_logger(lfname)
+LOG, fHandler = log_lib.setup_logger(lfname)
 variableDict['LogFileName'] = lfname
 
 
@@ -72,22 +77,22 @@ def getVariableDict():
 
 def main():
     tic =  time.time()
-    update_variable_dict(variableDict)
-    init_general_PVs(global_PVs, variableDict)
+    flir_lib.update_variable_dict(variableDict)
+    flir_lib.init_general_PVs(global_PVs, variableDict)
     
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            Logger(lfname).info('  *** Failed!')
+            log_lib.Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            log_lib.Logger(lfname).info('  *** Failed!')
         else:
-            Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            log_lib.Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, variableDict)
+            blur_pixel, rot_speed, scan_time = flir_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
             # get sample file name
@@ -98,37 +103,37 @@ def main():
             step_size = variableDict['StepSize']
 
             # moved pgInit() here from tomo_fly_scan() 
-            pgInit(global_PVs, variableDict)
+            flir_lib.pgInit(global_PVs, variableDict)
 
-            Logger(lfname).info(' ')
-            Logger(lfname).info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
-            Logger(lfname).info(' ')
-            Logger(lfname).info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
+            log_lib.Logger(lfname).info(' ')
+            log_lib.Logger(lfname).info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            log_lib.Logger(lfname).info(' ')
+            log_lib.Logger(lfname).info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
             for i in np.arange(start, end, step_size):
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
-                # Logger(lfname).info('  *** Moving rotary stage to start position')
+                # log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
                 # global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-                # Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
+                # log_lib.Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
 
-                Logger(lfname).info('  *** The sample vertical position is at %s mm' % (i))
+                log_lib.Logger(lfname).info('  *** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)
 
-                tomo_fly_scan(global_PVs, variableDict, fname)
+                flir_scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
-                Logger(lfname).info(' ')
-                Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-                Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                log_lib.Logger(lfname).info(' ')
+                log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
 
-            Logger(lfname).info('  *** Moving rotary stage to start position')
+            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
+            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
 
-            Logger(lfname).info('  *** Done!')
+            log_lib.Logger(lfname).info('  *** Done!')
 
     except  KeyError:
-        Logger(lfname).error('  *** Some PV assignment failed!')
+        log_lib.Logger(lfname).error('  *** Some PV assignment failed!')
         pass
         
         

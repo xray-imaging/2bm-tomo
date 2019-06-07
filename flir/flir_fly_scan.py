@@ -17,8 +17,8 @@ from datetime import datetime
 
 import flir_lib
 import flir_scan_lib
-import dm_lib 
 import log_lib 
+import dm_lib 
 
 
 global variableDict

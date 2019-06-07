@@ -45,18 +45,14 @@ def update_variable_dict(variableDict):
     if len(sys.argv) > 1:
         strArgv = sys.argv[1]
         argDic = json.loads(strArgv)
-    # Logger(variableDict['LogFileName']).info('orig variable dict', variableDict)
     # for k,v in argDic.items(): # python 3
     for k,v in argDic.iteritems():
         variableDict[k] = v
-    # Logger(variableDict['LogFileName']).info('new variable dict', variableDict)
 
 
 def wait_pv(lfname, pv, wait_val, max_timeout_sec=-1):
-    # wait on a pv to be a value until max_timeout (default forever)
 
-    # Logger(variableDict['LogFileName']).info('wait_pv(variableDict['LogFileName'], ', pv.pvname, wait_val, max_timeout_sec, ')')
-    
+    # wait on a pv to be a value until max_timeout (default forever)   
     # delay for pv to change
     time.sleep(.01)
     startTime = time.time()

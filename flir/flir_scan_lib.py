@@ -31,8 +31,8 @@ def dummy_tomo_fly_scan(global_PVs, variableDict, fname):
         sys.exit(0)
     signal.signal(signal.SIGINT, cleanup)
 
-
-    pgInit(global_PVs, variableDict)
+    # moved to outer loop in main()
+    # pgInit(global_PVs, variableDict)
 
     # pgSet(global_PVs, variableDict, fname) 
 

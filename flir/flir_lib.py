@@ -1,5 +1,5 @@
 '''
-    Tomo Scan Lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
+    Tomo Lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
     
 '''
 from __future__ import print_function
@@ -263,6 +263,7 @@ def pgInit(global_PVs, variableDict):
         global_PVs['HDF1_ArrayPort'].put('PG3')
         log_lib.Logger(variableDict['LogFileName']).info('  *** init Point Grey camera: Done!')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
+        log_lib.Logger(variableDict['LogFileName']).info(' ')                
         log_lib.Logger(variableDict['LogFileName']).info('  *** init FLIR camera')
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, 2)
@@ -713,11 +714,11 @@ def setPSO(global_PVs, variableDict):
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
     
     if calc_num_proj == None:
-        log_lib.Logger(variableDict['LogFileName']).error('  *** ***   *** *** Error getting fly calculated number of projections!')
+        log_lib.Logger(variableDict['LogFileName']).error('  *** *** Error getting fly calculated number of projections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-        log_lib.Logger(variableDict['LogFileName']).error('  *** ***   *** *** Using %s instead of %s' % (calc_num_proj, variableDict['Projections']))
+        log_lib.Logger(variableDict['LogFileName']).error('  *** *** Using %s instead of %s' % (calc_num_proj, variableDict['Projections']))
     if calc_num_proj != int(variableDict['Projections']):
-        log_lib.Logger(variableDict['LogFileName']).info('  *** ***  *** *** Updating number of projections from:', variableDict['Projections'], ' to: ', int(calc_num_proj))
+        log_lib.Logger(variableDict['LogFileName']).warning('  *** *** Changing number of projections from: %s to: %s' % (variableDict['Projections'], int(calc_num_proj)))
         variableDict['Projections'] = int(calc_num_proj)
     log_lib.Logger(variableDict['LogFileName']).info('  *** *** Number of projections: %d' % int(variableDict['Projections']))
     log_lib.Logger(variableDict['LogFileName']).info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))

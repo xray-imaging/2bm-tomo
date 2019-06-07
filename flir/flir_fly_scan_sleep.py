@@ -27,9 +27,9 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 100,
+        'EndY': 300,
         'StepSize': 1,
-        'StartSleep_s': 0,              # wait time (s) between each data collection
+        'StartSleep_s': 1,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
         'SampleXOut': 1,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -117,7 +117,7 @@ def main():
                 flir_scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
                 if ((i+1)!=end):
-                    log_lib.Logger(lfname).info('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+                    log_lib.Logger(lfname).warning('  *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                     time.sleep(variableDict['StartSleep_s']) 
 
                 log_lib.Logger(lfname).info(' ')

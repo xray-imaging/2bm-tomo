@@ -16,18 +16,24 @@ import os
 import imp
 import traceback
 from datetime import datetime
+import numpy as np
 
-import libs.flir_lib as flir_lib
-import libs.flir_scan_lib as flir_scan_lib
+import libs.aps2bm_lib as aps2bm_lib
+import libs.scan_lib as scan_lib
 import libs.log_lib as log_lib
 import libs.dm_lib as dm_lib
-
 
 global variableDict
 
 variableDict = {
-        'SampleXIn': 0, 
-        'SampleXOut': 3,
+        'StartY': 27.0,
+        'EndY': 28.0,
+        'StepSizeY': 0.5,
+        'StartX': -3.0,
+        'EndX': 0.0,
+        'StepSizeX': 1.5,
+        'SampleXIn': 0.0, 
+        'SampleXOut': -5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -38,8 +44,8 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        # 'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         # 'roiSizeX': 2448, 
@@ -66,7 +72,6 @@ lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.lo
 LOG, fHandler = log_lib.setup_logger(lfname)
 variableDict['LogFileName'] = lfname
 
-
 def getVariableDict():
     global variableDict
     return variableDict
@@ -74,8 +79,8 @@ def getVariableDict():
 
 def main():
     tic =  time.time()
-    flir_lib.update_variable_dict(variableDict)
-    flir_lib.init_general_PVs(global_PVs, variableDict)
+    aps2bm_lib.update_variable_dict(variableDict)
+    aps2bm_lib.init_general_PVs(global_PVs, variableDict)
     
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -89,28 +94,50 @@ def main():
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = flir_lib.calc_blur_pixel(global_PVs, variableDict)
+            blur_pixel, rot_speed, scan_time = aps2bm_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
-            # moved pgInit() here from tomo_fly_scan() 
-            flir_lib.pgInit(global_PVs, variableDict)
             # get sample file name
             # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-            fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
 
-            flir_scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
+            start_y = variableDict['StartY']
+            end_y = variableDict['EndY']
+            step_size_y = variableDict['StepSizeY']
+
+
+            start_x = variableDict['StartX']
+            end_x = variableDict['EndX']
+            step_size_x = variableDict['StepSizeX']
+
+            # moved pgInit() here from tomo_fly_scan() 
+            aps2bm_lib.pgInit(global_PVs, variableDict)
 
             log_lib.Logger(lfname).info(' ')
-            log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            log_lib.Logger(lfname).info("  *** Running %d scans" % (len(np.arange(start_x, end_x, step_size_x)) * len(np.arange(start_y, end_y, step_size_y))))
+            log_lib.Logger(lfname).info(' ')
+            log_lib.Logger(lfname).info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, end_x, step_size_x))
+            log_lib.Logger(lfname).info('  *** Vertical Positions (mm): %s' % np.arange(start_y, end_y, step_size_y))
+            for i in np.arange(start_y, end_y, step_size_y):
+                # log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
+                # global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                # log_lib.Logger(lfname).info('  *** Moving rotary stage to start Y position: Done!')
+                log_lib.Logger(lfname).info(' ')
+                log_lib.Logger(lfname).info('  *** The sample vertical position is at %s mm' % (i))
+                global_PVs['Motor_SampleY'].put(i, wait=True)
+                for j in np.arange(start_x, end_x, step_size_x):
+                    log_lib.Logger(lfname).info('  *** The sample horizontal position is at %s mm' % (j))
+                    global_PVs['Motor_Sample_Top_90'].put(j, wait=True)
+                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
+                    scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
+                log_lib.Logger(lfname).info(' ')
+                log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
 
             log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             log_lib.Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
-
-            dm_lib.scp(global_PVs, variableDict)
 
             log_lib.Logger(lfname).info('  *** Done!')
 

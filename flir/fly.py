@@ -57,7 +57,8 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'LogFileName': 'log.log'
+        'LogFileName': 'log.log',
+        'RemoteAnalyisDir' : 'tomo@handyn:/local/data/'
         }
 
 global_PVs = {}

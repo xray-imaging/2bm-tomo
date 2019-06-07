@@ -1,3 +1,7 @@
+'''
+    Log Lib for Sector 2-BM 
+    
+'''
 import logging
 
 class Logger(object):

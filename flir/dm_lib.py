@@ -1,5 +1,5 @@
 '''
-    TData Management Lib for Sector 2-BM internal data transfer
+    Data Management Lib for Sector 2-BM internal data transfer
     
 '''
 from __future__ import print_function

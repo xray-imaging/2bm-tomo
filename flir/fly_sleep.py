@@ -61,7 +61,8 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'LogFileName': 'log.log'
+        'LogFileName': 'log.log',
+        'RemoteAnalyisDir' : 'tomo@handyn:/local/data/'
         }
 
 global_PVs = {}
@@ -124,6 +125,9 @@ def main():
                 log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
                 log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
                 log_lib.Logger(lfname).info('  *** Scan Done!')
+    
+                dm_lib.scp(global_PVs, variableDict)
+
             log_lib.Logger(lfname).info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  
             log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')

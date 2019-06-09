@@ -104,9 +104,9 @@ def main(args):
                     notifier.read_events()
         except Reload:
             pass
-        except KeyboardInterrupt:
-            notifier.stop()
-            break
+        # except KeyboardInterrupt:
+        #     notifier.stop()
+        #     break
             
 if __name__ == "__main__":
     main(sys.argv[1:])

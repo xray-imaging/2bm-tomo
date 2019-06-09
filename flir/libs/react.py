@@ -97,13 +97,13 @@ def main(args):
         notifier = Notifier(wm, process)
         mask = IN_DELETE | IN_CREATE | IN_CLOSE_WRITE
         wdd = wm.add_watch(options.directory, mask, rec=True)
-        try:
-            while True:
-                notifier.process_events()
-                if notifier.check_events():
-                    notifier.read_events()
-        except Reload:
-            pass
+        # try:
+        while True:
+              notifier.process_events()
+              if notifier.check_events():
+                 notifier.read_events()
+        # except Reload:
+        #     pass
         # except KeyboardInterrupt:
         #     notifier.stop()
         #     break

@@ -86,13 +86,11 @@ def main(args):
     parser.add_argument("script", help="the script that is executed upon reaction")
     options = Options()
 
-    print(options)
     args = parser.parse_args(namespace=options)
 
-    # print (args)
-    # print (args[0])
     #print sys.argv
-    while True:
+    # while True:
+    if 1==1:
         wm = WatchManager()
         process = Process(options)
 

@@ -88,6 +88,7 @@ def main(args):
 
     args = parser.parse_args(namespace=options)
 
+    print (args)
     #print sys.argv
     while True:
         wm = WatchManager()

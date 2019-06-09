@@ -89,24 +89,23 @@ def main(args):
     args = parser.parse_args(namespace=options)
 
     #print sys.argv
-    # while True:
-    if 1==1:
+    while True:
         wm = WatchManager()
         process = Process(options)
 
         notifier = Notifier(wm, process)
         mask = IN_DELETE | IN_CREATE | IN_CLOSE_WRITE
         wdd = wm.add_watch(options.directory, mask, rec=True)
-        # try:
-        while True:
-              notifier.process_events()
-              if notifier.check_events():
-                 notifier.read_events()
-        # except Reload:
-        #     pass
-        # except KeyboardInterrupt:
-        #     notifier.stop()
-        #     break
+        try:
+            while True:
+                notifier.process_events()
+                if notifier.check_events():
+                    notifier.read_events()
+        except Reload:
+            pass
+        except KeyboardInterrupt:
+            notifier.stop()
+            break
             
 if __name__ == "__main__":
     main(sys.argv[1:])

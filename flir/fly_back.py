@@ -27,7 +27,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 2,
+        'EndY': 4,
         'StepSize': 1,
         'StartSleep_s': 1,                # wait time (s) between each data collection
         'SampleXIn': 0.0,

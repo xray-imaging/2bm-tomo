@@ -66,7 +66,7 @@ def tomo_fly_scan(global_PVs, variableDict, fname):
     theta = aps2bm_lib.pgAcquisition(global_PVs, variableDict)
 
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
-    if (theta_end < 180.0):
+    if (0 < theta_end < 180.0):
         # print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
         log_lib.Logger(variableDict['LogFileName']).error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
 

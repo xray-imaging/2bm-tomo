@@ -702,7 +702,7 @@ def add_theta(global_PVs, variableDict, theta_arr):
 def setPSO(global_PVs, variableDict):
 
     acclTime = 1.0 * variableDict['SlewSpeed']/variableDict['AcclRot']
-    scanDelta = ((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict)))
+    scanDelta = abs(((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict))))
 
     log_lib.Logger(variableDict['LogFileName']).info('  *** *** start_pos %f' % float(variableDict['SampleRotStart']))
     log_lib.Logger(variableDict['LogFileName']).info('  *** *** end pos %f' % float(variableDict['SampleRotEnd']))
@@ -712,6 +712,7 @@ def setPSO(global_PVs, variableDict):
     global_PVs['Fly_SlewSpeed'].put(variableDict['SlewSpeed'], wait=True)
     global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
     time.sleep(3.0)
+
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
     
     if calc_num_proj == None:

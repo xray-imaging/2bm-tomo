@@ -27,11 +27,11 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 300,
+        'EndY': 1,
         'StepSize': 1,
-        'StartSleep_s': 1,                # wait time (s) between each data collection
+        'StartSleep_s': 0,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
-        'SampleXOut': 6.0,
+        'SampleXOut': -12.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -117,6 +117,9 @@ def main():
 
                 variableDict['SampleRotStart'] = 0.0
                 variableDict['SampleRotEnd'] = 180.0
+                
+                variableDict['SampleXIn'] = 0
+                variableDict['SampleXOut'] = -12
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
@@ -129,7 +132,7 @@ def main():
                 log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
                 log_lib.Logger(lfname).info('  *** Scan Done!')
 
-                # dm_lib.scp(global_PVs, variableDict)
+                dm_lib.scp(global_PVs, variableDict)
 
                 tic_02 =  time.time()
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
@@ -138,6 +141,9 @@ def main():
 
                 variableDict['SampleRotStart'] = 180.0
                 variableDict['SampleRotEnd'] = 0.0
+
+                variableDict['SampleXIn'] = 0
+                variableDict['SampleXOut'] = 12
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
@@ -150,7 +156,7 @@ def main():
                 log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_02)/60.))
                 log_lib.Logger(lfname).info('  *** Scan Done!')
     
-                # dm_lib.scp(global_PVs, variableDict)
+                dm_lib.scp(global_PVs, variableDict)
 
             log_lib.Logger(lfname).info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  

@@ -27,7 +27,7 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0, 
-        'SampleXOut': 6,
+        'SampleXOut': -12,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field

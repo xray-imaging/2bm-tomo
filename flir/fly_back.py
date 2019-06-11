@@ -129,6 +129,8 @@ def main():
                 log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
                 log_lib.Logger(lfname).info('  *** Scan Done!')
 
+                # dm_lib.scp(global_PVs, variableDict)
+
                 tic_02 =  time.time()
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                 log_lib.Logger(lfname).info(' ')

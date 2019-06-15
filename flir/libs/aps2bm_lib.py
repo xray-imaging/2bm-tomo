@@ -538,8 +538,9 @@ def pgAcquireFlat(global_PVs, variableDict):
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         wait_time_sec = float(variableDict['NumWhiteImages']) * float(variableDict['ExposureTime']) + 60.0
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumWhiteImages']))
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
-        time.sleep(0.1)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
+
+        # time.sleep(0.1)
         if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
     if (variableDict['SampleMoveEnabled']):
@@ -605,8 +606,8 @@ def pgAcquireDark(global_PVs, variableDict):
         wait_time_sec = float(variableDict['NumDarkImages']) * float(variableDict['ExposureTime']) + 60.0
         global_PVs['Cam1_NumImages'].put(int(variableDict['NumDarkImages']))
         #ver 2
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
-        time.sleep(0.1)
+        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
+        # time.sleep(0.1)
         if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 

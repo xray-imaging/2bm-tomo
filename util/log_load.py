@@ -6,12 +6,14 @@
 '''
 from __future__ import print_function
 
-import datetime
+import os
 import time
 import numpy as np
 
-
 from epics import PV
+from datetime import datetime
+
+import log_lib
 
 variableDict = {
         'IOC_Prefix': '2bmbSP1:',         # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
@@ -31,20 +33,26 @@ def init_general_PVs(global_PVs, variableDict):
 
 def main():
 
-    logfile = 'load'
-    fname = logfile + '.txt'
+    # create logger
+    # # python 3.5+ 
+    # home = str(pathlib.Path.home())
+    home = os.path.expanduser("~")
+    logs_home = home + '/logs/'
+
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = logs_home + 'load_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+    log_lib.setup_logger(lfname)
    
     init_general_PVs(global_PVs, variableDict)
     try:
-        with open(fname, 'a+') as f:
-            while True:
-                h5fname = global_PVs['HDF1_FullFileName_RBV'].get()
-                h5fname_str = "".join([chr(item) for item in h5fname])
-                f.write('%s; Load: %4.4f N (%4.4f V): %s\n' % (datetime.datetime.now().isoformat(), \
-                        global_PVs['LoadNewton'].get(), global_PVs['LoadVoltage'].get(), h5fname_str))
-                print('%s %s; Load: %4.4f N (%4.4f V)' % (h5fname_str, datetime.datetime.now().isoformat(), \
-                        global_PVs['LoadNewton'].get(), global_PVs['LoadVoltage'].get()))
-                time.sleep(2)   
+        while True:
+            h5fname = global_PVs['HDF1_FullFileName_RBV'].get()
+            h5fname_str = "".join([chr(item) for item in h5fname])
+            log_lib.info('Load: %4.4f N (%4.4f V): %s' % (global_PVs['LoadNewton'].get(), global_PVs['LoadVoltage'].get(), h5fname_str))
+            time.sleep(2)   
     except KeyboardInterrupt:
     
         print('interrupted!')

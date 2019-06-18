@@ -23,8 +23,8 @@ import log_lib
 
 
 def dummy_tomo_fly_scan(global_PVs, variableDict, fname):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** start_scan')
+    log_lib.info(' ')
+    log_lib.info('  *** start_scan')
 
     def cleanup(signal, frame):
         aps2bm_lib.stop_scan(global_PVs, variableDict)
@@ -38,8 +38,8 @@ def dummy_tomo_fly_scan(global_PVs, variableDict, fname):
 
     
 def tomo_fly_scan(global_PVs, variableDict, fname):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** start_scan')
+    log_lib.info(' ')
+    log_lib.info('  *** start_scan')
 
     def cleanup(signal, frame):
         aps2bm_lib.stop_scan(global_PVs, variableDict)
@@ -56,7 +56,7 @@ def tomo_fly_scan(global_PVs, variableDict, fname):
     aps2bm_lib.setPSO(global_PVs, variableDict)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    log_lib.Logger(variableDict['LogFileName']).info('  *** File name prefix: %s' % fname)
+    log_lib.info('  *** File name prefix: %s' % fname)
 
     aps2bm_lib.pgSet(global_PVs, variableDict, fname) 
 
@@ -68,7 +68,7 @@ def tomo_fly_scan(global_PVs, variableDict, fname):
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
     if (0 < theta_end < 180.0):
         # print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
-        log_lib.Logger(variableDict['LogFileName']).error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
+        log_lib.error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
 
     aps2bm_lib.pgAcquireFlat(global_PVs, variableDict)
     aps2bm_lib.close_shutters(global_PVs, variableDict)

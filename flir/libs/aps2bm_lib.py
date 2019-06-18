@@ -20,7 +20,7 @@ import numpy as np
 
 import log_lib
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -51,7 +51,7 @@ def update_variable_dict(variableDict):
         variableDict[k] = v
 
 
-def wait_pv(lfname, pv, wait_val, max_timeout_sec=-1):
+def wait_pv(pv, wait_val, max_timeout_sec=-1):
 
     # wait on a pv to be a value until max_timeout (default forever)   
     # delay for pv to change
@@ -67,8 +67,8 @@ def wait_pv(lfname, pv, wait_val, max_timeout_sec=-1):
                 curTime = time.time()
                 diffTime = curTime - startTime
                 if diffTime >= max_timeout_sec:
-                    log_lib.Logger(lfname).error('  *** ERROR: DROPPED IMAGES ***')
-                    log_lib.Logger(lfname).error('  *** wait_pv(%s, %d, %5.2f reached max timeout. Return False' % (pv.pvname, wait_val, max_timeout_sec))
+                    log_lib.error('  *** ERROR: DROPPED IMAGES ***')
+                    log_lib.error('  *** wait_pv(%s, %d, %5.2f reached max timeout. Return False' % (pv.pvname, wait_val, max_timeout_sec))
 
 
                     return False
@@ -90,7 +90,7 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['Sample_Name'] = PV('2bmb:caputRecorderGbl_4')
 
     if variableDict['Station'] == '2-BM-A':
-        log_lib.Logger(variableDict['LogFileName']).info('*** Running in station A:')
+        log_lib.info('*** Running in station A:')
         # Set sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
         global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
@@ -119,7 +119,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_Focus_Name'] = PV('2bma:m41.DESC')
         
     elif variableDict['Station'] == '2-BM-B':   
-        log_lib.Logger(variableDict['LogFileName']).info('*** Running in station B:')
+        log_lib.info('*** Running in station B:')
         # Sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
         global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
@@ -149,7 +149,7 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Motor_Focus_Name'] = PV('2bmb:m78.DESC')
 
     else:
-        log_lib.Logger(variableDict['LogFileName']).error('*** %s is not a valid station' % variableDict['Station'])
+        log_lib.error('*** %s is not a valid station' % variableDict['Station'])
 
     # detector pv's
     if ((variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbSP1:')): 
@@ -233,24 +233,24 @@ def init_general_PVs(global_PVs, variableDict):
         global_PVs['Cam1_TriggerActivation'] = PV(variableDict['IOC_Prefix'] + 'cam1:TriggerActivation')
     
     else:
-        log_lib.Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        log_lib.error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return            
 
 
 def stop_scan(global_PVs, variableDict):
-        log_lib.Logger(variableDict['LogFileName']).info(' ')
-        log_lib.Logger(variableDict['LogFileName']).error('  *** Stopping the scan: PLEASE WAIT')
+        log_lib.info(' ')
+        log_lib.error('  *** Stopping the scan: PLEASE WAIT')
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
-        wait_pv(variableDict['LogFileName'], global_PVs['HDF1_Capture'], 0)
+        wait_pv(global_PVs['HDF1_Capture'], 0)
         pgInit(global_PVs, variableDict)
-        log_lib.Logger(variableDict['LogFileName']).error('  *** Stopping scan: Done!')
+        log_lib.error('  *** Stopping scan: Done!')
         ##pgInit(global_PVs, variableDict)
 
 
 def pgInit(global_PVs, variableDict):
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
-        log_lib.Logger(variableDict['LogFileName']).info('  *** init Point Grey camera')
+        log_lib.info('  *** init Point Grey camera')
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
@@ -258,16 +258,16 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
         global_PVs['Proc1_Callbacks'].put('Disable')
         global_PVs['Proc1_Filter_Enable'].put('Disable')
         global_PVs['HDF1_ArrayPort'].put('PG3')
-        log_lib.Logger(variableDict['LogFileName']).info('  *** init Point Grey camera: Done!')
+        log_lib.info('  *** init Point Grey camera: Done!')
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
-        log_lib.Logger(variableDict['LogFileName']).info(' ')                
-        log_lib.Logger(variableDict['LogFileName']).info('  *** init FLIR camera')
+        log_lib.info(' ')                
+        log_lib.info('  *** init FLIR camera')
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
         # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
         time.sleep(2) 
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
@@ -275,14 +275,14 @@ def pgInit(global_PVs, variableDict):
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with (ValueError: invalid literal for int() with base 0: 'Single') Added 7 s delay before
         global_PVs['Cam1_Display'].put(1)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
         if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
             global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
         else: # Mona (B-station)
             global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
             global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
-        log_lib.Logger(variableDict['LogFileName']).info('  *** init FLIR camera: Done!')
+        log_lib.info('  *** init FLIR camera: Done!')
 
 
 def pgSet(global_PVs, variableDict, fname=None):
@@ -290,8 +290,8 @@ def pgSet(global_PVs, variableDict, fname=None):
     # Set detectors
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
         # setup Point Grey PV's
-        log_lib.Logger(variableDict['LogFileName']).info(' ')
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup Point Grey')
+        log_lib.info(' ')
+        log_lib.info('  *** setup Point Grey')
 
         # mona runf always in B with PG camera
         global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
@@ -309,19 +309,19 @@ def pgSet(global_PVs, variableDict, fname=None):
         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
         global_PVs['Cam1_NumImages'].put(1, wait=True)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
         global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
         global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup Point Grey: Done!')
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+        log_lib.info('  *** setup Point Grey: Done!')
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         # setup Point Grey PV's
-        log_lib.Logger(variableDict['LogFileName']).info(' ')
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup FLIR camera')
+        log_lib.info(' ')
+        log_lib.info('  *** setup FLIR camera')
 
         if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
@@ -331,7 +331,7 @@ def pgSet(global_PVs, variableDict, fname=None):
             global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
 
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
 
         # #########################################################################
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
@@ -356,10 +356,10 @@ def pgSet(global_PVs, variableDict, fname=None):
         wait_time_sec = int(variableDict['ExposureTime']) + 5
 
         global_PVs['Cam1_TriggerMode'].put('On', wait=True)
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup FLIR camera: Done!')
+        log_lib.info('  *** setup FLIR camera: Done!')
     
     else:
-        log_lib.Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        log_lib.error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
     if fname is not None:
         setup_hdf_writer(global_PVs, variableDict, fname)
@@ -374,12 +374,12 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
 
     if (variableDict['IOC_Prefix'] == '2bmbPG3:') or (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
         # setup Point Grey hdf writer PV's
-        log_lib.Logger(variableDict['LogFileName']).info('  ')
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup hdf_writer')
+        log_lib.info('  ')
+        log_lib.info('  *** setup hdf_writer')
         setup_frame_type(global_PVs, variableDict)
         if variableDict.has_key('Recursive_Filter_Enabled'):
             if variableDict['Recursive_Filter_Enabled'] == True:
-                log_lib.Logger(variableDict['LogFileName']).info('    *** Recursive Filter Enabled')
+                log_lib.info('    *** Recursive Filter Enabled')
                 global_PVs['Proc1_Enable_Background'].put('Disable', wait=True)
                 global_PVs['Proc1_Enable_FlatField'].put('Disable', wait=True)
                 global_PVs['Proc1_Enable_Offset_Scale'].put('Disable', wait=True)
@@ -394,15 +394,15 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
                 global_PVs['Proc1_Reset_Filter'].put(1, wait=True)
                 global_PVs['Proc1_AutoReset_Filter'].put('Yes', wait=True)
                 global_PVs['Proc1_Filter_Callbacks'].put('Array N only', wait=True)
-                log_lib.Logger(variableDict['LogFileName']).info('    *** Recursive Filter Enabled: Done!')
+                log_lib.info('    *** Recursive Filter Enabled: Done!')
             else:
                 global_PVs['Proc1_Filter_Enable'].put('Disable')
                 global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
         else:
             global_PVs['Proc1_Filter_Enable'].put('Disable')
-            log_lib.Logger(variableDict['LogFileName']).info("1:done")
+            log_lib.info("1:done")
             global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
-            log_lib.Logger(variableDict['LogFileName']).info("2:Done")
+            log_lib.info("2:Done")
         global_PVs['HDF1_AutoSave'].put('Yes')
         global_PVs['HDF1_DeleteDriverFile'].put('No')
         global_PVs['HDF1_EnableCallbacks'].put('Enable')
@@ -419,10 +419,10 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         if fname is not None:
             global_PVs['HDF1_FileName'].put(fname)
         global_PVs['HDF1_Capture'].put(1)
-        wait_pv(variableDict['LogFileName'], global_PVs['HDF1_Capture'], 1)
-        log_lib.Logger(variableDict['LogFileName']).info('  *** setup hdf_writer: Done!')
+        wait_pv(global_PVs['HDF1_Capture'], 1)
+        log_lib.info('  *** setup hdf_writer: Done!')
     else:
-        log_lib.Logger(variableDict['LogFileName']).error('Detector %s is not defined' % variableDict['IOC_Prefix'])
+        log_lib.error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
 
 
@@ -440,8 +440,8 @@ def pgAcquisition(global_PVs, variableDict):
     # Estimate the time needed for the flyscan
     flyscan_time_estimate = (float(variableDict['Projections']) * (float(variableDict['ExposureTime']) + \
                       float(variableDict['CCD_Readout'])) ) + 30
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
+    log_lib.info(' ')
+    log_lib.info('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     time.sleep(2)    
@@ -470,21 +470,21 @@ def pgAcquisition(global_PVs, variableDict):
 
     # start acquiring
     global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-    wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], 1)
+    wait_pv(global_PVs['Cam1_Acquire'], 1)
 
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Fly Scan: Start!')
+    log_lib.info(' ')
+    log_lib.info('  *** Fly Scan: Start!')
     global_PVs['Fly_Run'].put(1, wait=True)
     # wait for acquire to finish 
-    wait_pv(variableDict['LogFileName'], global_PVs['Fly_Run'], 0)
+    wait_pv(global_PVs['Fly_Run'], 0)
 
     # if the fly scan wait times out we should call done on the detector
-#    if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
-    if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
+#    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        #  got error here once when missing 100s of frames: wait_pv(variableDict['LogFileName'],  2bmbSP1:cam1:Acquire 0 5 ) reached max timeout. Return False
+        #  got error here once when missing 100s of frames: wait_pv( 2bmbSP1:cam1:Acquire 0 5 ) reached max timeout. Return False
     
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Fly Scan: Done!')
+    log_lib.info('  *** Fly Scan: Done!')
     # Set trigger mode to internal for post dark and white
     if (variableDict['IOC_Prefix'] == '2bmbPG3:'):   
         global_PVs['Cam1_TriggerMode'].put('Internal')
@@ -500,9 +500,9 @@ def pgAcquisition(global_PVs, variableDict):
             
 
 def pgAcquireFlat(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info('      *** White Fields')
+    log_lib.info('      *** White Fields')
     if (variableDict['SampleMoveEnabled']):
-        log_lib.Logger(variableDict['LogFileName']).info('      *** *** Move Sample Out')
+        log_lib.info('      *** *** Move Sample Out')
         if (variableDict['SampleInOutVertical']):
             global_PVs['Motor_SampleY'].put(str(variableDict['SampleYOut']), wait=True, timeout=1000.0)                
         else:
@@ -510,7 +510,7 @@ def pgAcquireFlat(global_PVs, variableDict):
                 global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYOut']), wait=True, timeout=1000.0)
             global_PVs['Motor_SampleX'].put(str(variableDict['SampleXOut']), wait=True, timeout=1000.0)
     else:
-        log_lib.Logger(variableDict['LogFileName']).info('      *** *** Sample Stack is Frozen')
+        log_lib.info('      *** *** Sample Stack is Frozen')
 
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
@@ -528,11 +528,11 @@ def pgAcquireFlat(global_PVs, variableDict):
         for i in range(int(variableDict['NumWhiteImages']) * image_factor(global_PVs, variableDict)):
             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
             time.sleep(0.1)
-            wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
             time.sleep(0.1)
             global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
             time.sleep(0.1)
-            wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
             time.sleep(0.1)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
@@ -541,10 +541,10 @@ def pgAcquireFlat(global_PVs, variableDict):
         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
 
         # time.sleep(0.1)
-        if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
     if (variableDict['SampleMoveEnabled']):
-        log_lib.Logger(variableDict['LogFileName']).info('      *** *** Move Sample In')
+        log_lib.info('      *** *** Move Sample In')
         if (variableDict['SampleInOutVertical']):
             global_PVs['Motor_SampleY'].put(str(variableDict['SampleYIn']), wait=True, timeout=1000.0)                
         else:
@@ -552,9 +552,9 @@ def pgAcquireFlat(global_PVs, variableDict):
                 global_PVs['Motor_FurnaceY'].put(str(variableDict['FurnaceYIn']), wait=True, timeout=1000.0)
             global_PVs['Motor_SampleX'].put(str(variableDict['SampleXIn']), wait=True, timeout=1000.0)
     else:
-        log_lib.Logger(variableDict['LogFileName']).info('      *** *** Sample Stack is Frozen')
+        log_lib.info('      *** *** Sample Stack is Frozen')
 
-    log_lib.Logger(variableDict['LogFileName']).info('      *** White Fields: Done!')
+    log_lib.info('      *** White Fields: Done!')
 
 
 def checkclose_hdf(global_PVs, variableDict):
@@ -563,20 +563,20 @@ def checkclose_hdf(global_PVs, variableDict):
     wait_on_hdd = 10
     # wait_on_hdd = buffer_queue / 55.0 + 10
     # wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Buffer Queue (frames): %d ' % buffer_queue)
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Wait HDD (s): %f' % wait_on_hdd)
-    if wait_pv(variableDict['LogFileName'], global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
+    log_lib.info('  *** Buffer Queue (frames): %d ' % buffer_queue)
+    log_lib.info('  *** Wait HDD (s): %f' % wait_on_hdd)
+    if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
         global_PVs["HDF1_Capture"].put(0)
-        log_lib.Logger(variableDict['LogFileName']).info('  *** File was not closed => forced to close')
-        log_lib.Logger(variableDict['LogFileName']).info('      *** before %d' % global_PVs["HDF1_Capture_RBV"].get())
-        wait_pv(variableDict['LogFileName'], global_PVs["HDF1_Capture_RBV"], 0, 5) 
-        log_lib.Logger(variableDict['LogFileName']).info('      *** after %d' % global_PVs["HDF1_Capture_RBV"].get())
+        log_lib.info('  *** File was not closed => forced to close')
+        log_lib.info('      *** before %d' % global_PVs["HDF1_Capture_RBV"].get())
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
+        log_lib.info('      *** after %d' % global_PVs["HDF1_Capture_RBV"].get())
         if (global_PVs["HDF1_Capture_RBV"].get() == 1):
-            log_lib.Logger(variableDict['LogFileName']).error('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
+            log_lib.error('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
 
 
 def pgAcquireDark(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info("      *** Dark Fields") 
+    log_lib.info("      *** Dark Fields") 
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
@@ -594,13 +594,13 @@ def pgAcquireDark(global_PVs, variableDict):
         for i in range(int(variableDict['NumDarkImages']) * image_factor(global_PVs, variableDict)):
             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
             time.sleep(0.1)
-            wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
             time.sleep(0.1)
             global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
             time.sleep(0.1)
-            wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
             time.sleep(0.1)
-        wait_pv(variableDict['LogFileName'], global_PVs["HDF1_Capture_RBV"], 0, 600)
+        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
 
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):
         wait_time_sec = float(variableDict['NumDarkImages']) * float(variableDict['ExposureTime']) + 60.0
@@ -608,85 +608,85 @@ def pgAcquireDark(global_PVs, variableDict):
         #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
         # time.sleep(0.1)
-        if wait_pv(variableDict['LogFileName'], global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
-    log_lib.Logger(variableDict['LogFileName']).info('      *** Dark Fields: Done!')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Acquisition: Done!')        
+    log_lib.info('      *** Dark Fields: Done!')
+    log_lib.info('  *** Acquisition: Done!')        
 
 
 def move_sample_in(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_in')
+    log_lib.info(' ')
+    log_lib.info('  *** horizontal move_sample_in')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXIn']), wait=True)
-    if wait_pv(variableDict['LogFileName'], global_PVs['Motor_SampleX'], float(variableDict['SampleXIn']), 60) == False:
-        log_lib.Logger(variableDict['LogFileName']).error('Motor_SampleX did not move in properly')
-        log_lib.Logger(variableDict['LogFileName']).error(global_PVs['Motor_SampleX'].get())
-    log_lib.Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_in: Done!')
+    if wait_pv(global_PVs['Motor_SampleX'], float(variableDict['SampleXIn']), 60) == False:
+        log_lib.error('Motor_SampleX did not move in properly')
+        log_lib.error(global_PVs['Motor_SampleX'].get())
+    log_lib.info('  *** horizontal move_sample_in: Done!')
 
 
 def move_sample_out(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_out')
+    log_lib.info(' ')
+    log_lib.info('  *** horizontal move_sample_out')
     global_PVs['Motor_SampleX'].put(float(variableDict['SampleXOut']), wait=True)
-    if False == wait_pv(variableDict['LogFileName'], global_PVs['Motor_SampleX'], float(variableDict['SampleXOut']), 60):
-        log_lib.Logger(variableDict['LogFileName']).error('Motor_SampleX did not move out properly')
-        log_lib.Logger(variableDict['LogFileName']).error(global_PVs['Motor_SampleX'].get())
-    log_lib.Logger(variableDict['LogFileName']).info('  *** horizontal move_sample_out: Done!')
+    if False == wait_pv(global_PVs['Motor_SampleX'], float(variableDict['SampleXOut']), 60):
+        log_lib.error('Motor_SampleX did not move out properly')
+        log_lib.error(global_PVs['Motor_SampleX'].get())
+    log_lib.info('  *** horizontal move_sample_out: Done!')
 
 
 def open_shutters(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** open_shutters')
+    log_lib.info(' ')
+    log_lib.info('  *** open_shutters')
     if TESTING:
         # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        log_lib.Logger(variableDict['LogFileName']).warning('  *** testing mode - shutters are deactivated during the scans !!!!')
+        log_lib.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
     else:
         if variableDict['Station'] == '2-BM-A':
         # Use Shutter A
             if ShutterAisFast:
                 global_PVs['ShutterA_Open'].put(1, wait=True)
-                wait_pv(variableDict['LogFileName'], global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
                 time.sleep(3)                
                 global_PVs['Fast_Shutter'].put(1, wait=True)
                 time.sleep(1)
-                log_lib.Logger(variableDict['LogFileName']).info('  *** open_shutter fast: Done!')
+                log_lib.info('  *** open_shutter fast: Done!')
             else:
                 global_PVs['ShutterA_Open'].put(1, wait=True)
-                wait_pv(variableDict['LogFileName'], global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
                 time.sleep(3)
-                log_lib.Logger(variableDict['LogFileName']).info('  *** open_shutter A: Done!')
+                log_lib.info('  *** open_shutter A: Done!')
         elif variableDict['Station'] == '2-BM-B':
             global_PVs['ShutterB_Open'].put(1, wait=True)
-            wait_pv(variableDict['LogFileName'], global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
-            log_lib.Logger(variableDict['LogFileName']).info('  *** open_shutter B: Done!')
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
+            log_lib.info('  *** open_shutter B: Done!')
  
 
 def close_shutters(global_PVs, variableDict):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** close_shutters')
+    log_lib.info(' ')
+    log_lib.info('  *** close_shutters')
     if TESTING:
         # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        log_lib.Logger(variableDict['LogFileName']).warning('  *** testing mode - shutters are deactivated during the scans !!!!')
+        log_lib.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
     else:
         if variableDict['Station'] == '2-BM-A':
             if ShutterAisFast:
                 global_PVs['Fast_Shutter'].put(0, wait=True)
                 time.sleep(1)
-                log_lib.Logger(variableDict['LogFileName']).info('  *** close_shutter fast: Done!')
+                log_lib.info('  *** close_shutter fast: Done!')
             else:
                 global_PVs['ShutterA_Close'].put(1, wait=True)
-                wait_pv(variableDict['LogFileName'], global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
-                log_lib.Logger(variableDict['LogFileName']).info('  *** close_shutter A: Done!')
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+                log_lib.info('  *** close_shutter A: Done!')
         elif variableDict['Station'] == '2-BM-B':
             global_PVs['ShutterB_Close'].put(1, wait=True)
-            wait_pv(variableDict['LogFileName'], global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
-            log_lib.Logger(variableDict['LogFileName']).info('  *** close_shutter B: Done!')
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
+            log_lib.info('  *** close_shutter B: Done!')
 
 
 def add_theta(global_PVs, variableDict, theta_arr):
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** add_theta')
+    log_lib.info(' ')
+    log_lib.info('  *** add_theta')
     
     fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
     try:
@@ -695,18 +695,18 @@ def add_theta(global_PVs, variableDict, theta_arr):
             theta_ds = hdf_f.create_dataset('/exchange/theta', (len(theta_arr),))
             theta_ds[:] = theta_arr[:]
         hdf_f.close()
-        log_lib.Logger(variableDict['LogFileName']).info('  *** add_theta: Done!')
+        log_lib.info('  *** add_theta: Done!')
     except:
         traceback.print_exc(file=sys.stdout)
-        log_lib.Logger(variableDict['LogFileName']).info('  *** add_theta: Failed accessing:', fullname)
+        log_lib.info('  *** add_theta: Failed accessing:', fullname)
 
 def setPSO(global_PVs, variableDict):
 
     acclTime = 1.0 * variableDict['SlewSpeed']/variableDict['AcclRot']
     scanDelta = abs(((float(variableDict['SampleRotEnd']) - float(variableDict['SampleRotStart']))) / ((float(variableDict['Projections'])) * float(image_factor(global_PVs, variableDict))))
 
-    log_lib.Logger(variableDict['LogFileName']).info('  *** *** start_pos %f' % float(variableDict['SampleRotStart']))
-    log_lib.Logger(variableDict['LogFileName']).info('  *** *** end pos %f' % float(variableDict['SampleRotEnd']))
+    log_lib.info('  *** *** start_pos %f' % float(variableDict['SampleRotStart']))
+    log_lib.info('  *** *** end pos %f' % float(variableDict['SampleRotEnd']))
 
     global_PVs['Fly_StartPos'].put(float(variableDict['SampleRotStart']), wait=True)
     global_PVs['Fly_EndPos'].put(float(variableDict['SampleRotEnd']), wait=True)
@@ -717,21 +717,21 @@ def setPSO(global_PVs, variableDict):
     calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
     
     if calc_num_proj == None:
-        log_lib.Logger(variableDict['LogFileName']).error('  *** *** Error getting fly calculated number of projections!')
+        log_lib.error('  *** *** Error getting fly calculated number of projections!')
         calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-        log_lib.Logger(variableDict['LogFileName']).error('  *** *** Using %s instead of %s' % (calc_num_proj, variableDict['Projections']))
+        log_lib.error('  *** *** Using %s instead of %s' % (calc_num_proj, variableDict['Projections']))
     if calc_num_proj != int(variableDict['Projections']):
-        log_lib.Logger(variableDict['LogFileName']).warning('  *** *** Changing number of projections from: %s to: %s' % (variableDict['Projections'], int(calc_num_proj)))
+        log_lib.warning('  *** *** Changing number of projections from: %s to: %s' % (variableDict['Projections'], int(calc_num_proj)))
         variableDict['Projections'] = int(calc_num_proj)
-    log_lib.Logger(variableDict['LogFileName']).info('  *** *** Number of projections: %d' % int(variableDict['Projections']))
-    log_lib.Logger(variableDict['LogFileName']).info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
+    log_lib.info('  *** *** Number of projections: %d' % int(variableDict['Projections']))
+    log_lib.info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
     global_PVs['Fly_ScanControl'].put('Standard')
 
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Taxi before starting capture')
+    log_lib.info(' ')
+    log_lib.info('  *** Taxi before starting capture')
     global_PVs['Fly_Taxi'].put(1, wait=True)
-    wait_pv(variableDict['LogFileName'], global_PVs['Fly_Taxi'], 0)
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Taxi before starting capture: Done!')
+    wait_pv(global_PVs['Fly_Taxi'], 0)
+    log_lib.info('  *** Taxi before starting capture: Done!')
 
 
 def calc_blur_pixel(global_PVs, variableDict):
@@ -770,19 +770,19 @@ def calc_blur_pixel(global_PVs, variableDict):
     mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
     blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Calc blur pixel')
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** Total # of proj: %s " % variableDict['Projections'])
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** Exposure Time: %s s" % variableDict['ExposureTime'])
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** Readout Time: %s s" % variableDict['CCD_Readout'])
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** Angular Range: %s degrees" % angular_range)
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
-    log_lib.Logger(variableDict['LogFileName']).info(' ')
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** *** *** Scan Time: %f s" % scan_time) 
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** *** *** Rot Speed: %f degrees/s" % rot_speed)
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
-    log_lib.Logger(variableDict['LogFileName']).info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
-    log_lib.Logger(variableDict['LogFileName']).info('  *** Calc blur pixel: Done!')
+    log_lib.info(' ')
+    log_lib.info('  *** Calc blur pixel')
+    log_lib.info("  *** *** Total # of proj: %s " % variableDict['Projections'])
+    log_lib.info("  *** *** Exposure Time: %s s" % variableDict['ExposureTime'])
+    log_lib.info("  *** *** Readout Time: %s s" % variableDict['CCD_Readout'])
+    log_lib.info("  *** *** Angular Range: %s degrees" % angular_range)
+    log_lib.info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
+    log_lib.info(' ')
+    log_lib.info("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
+    log_lib.info("  *** *** *** *** Scan Time: %f s" % scan_time) 
+    log_lib.info("  *** *** *** *** Rot Speed: %f degrees/s" % rot_speed)
+    log_lib.info("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
+    log_lib.info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
+    log_lib.info('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time

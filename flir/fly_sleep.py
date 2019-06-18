@@ -17,6 +17,7 @@ import imp
 import traceback
 from datetime import datetime
 import numpy as np
+import pathlib
 
 import libs.aps2bm_lib as aps2bm_lib
 import libs.scan_lib as scan_lib
@@ -27,7 +28,7 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 300,
+        'EndY': 10,
         'StepSize': 1,
         'StartSleep_s': 1,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
@@ -42,7 +43,7 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.006,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.010,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
@@ -61,15 +62,10 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'LogFileName': 'log.log',
         'RemoteAnalyisDir' : 'tomo@handyn:/local/data/'
         }
 
 global_PVs = {}
-
-lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
-LOG, fHandler = log_lib.setup_logger(lfname)
-variableDict['LogFileName'] = lfname
 
 
 def getVariableDict():
@@ -78,6 +74,19 @@ def getVariableDict():
 
 
 def main():
+    # create logger
+    # # python 3.5+ 
+    # home = str(pathlib.Path.home())
+    home = os.path.expanduser("~")
+    logs_home = home + '/logs/'
+
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+    log_lib.setup_logger(lfname)
+
     tic =  time.time()
     aps2bm_lib.update_variable_dict(variableDict)
     aps2bm_lib.init_general_PVs(global_PVs, variableDict)
@@ -85,10 +94,10 @@ def main():
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            log_lib.Logger(lfname).error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            log_lib.Logger(lfname).error('  *** Failed!')
+            log_lib.error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            log_lib.error('  *** Failed!')
         else:
-            log_lib.Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            log_lib.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -107,39 +116,39 @@ def main():
             # moved pgInit() here from tomo_fly_scan() 
             aps2bm_lib.pgInit(global_PVs, variableDict)
             
-            log_lib.Logger(lfname).info(' ')
-            log_lib.Logger(lfname).info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            log_lib.info(' ')
+            log_lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
             for i in np.arange(start, end, step_size):
                 tic_01 =  time.time()
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
-                log_lib.Logger(lfname).info(' ')
-                log_lib.Logger(lfname).info('  *** Start scan %d' % i)
+                log_lib.info(' ')
+                log_lib.info('  *** Start scan %d' % i)
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
                 if ((i+1)!=end):
-                    log_lib.Logger(lfname).warning('  *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
+                    log_lib.warning('  *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                     time.sleep(variableDict['StartSleep_s']) 
 
-                log_lib.Logger(lfname).info(' ')
-                log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
-                log_lib.Logger(lfname).info('  *** Scan Done!')
+                log_lib.info(' ')
+                log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
+                log_lib.info('  *** Scan Done!')
     
-                dm_lib.scp(global_PVs, variableDict)
+                # dm_lib.scp(global_PVs, variableDict)
 
-            log_lib.Logger(lfname).info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
+            log_lib.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  
-            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
+            log_lib.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
+            log_lib.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
  
-            log_lib.Logger(lfname).info('  *** Done!')
+            log_lib.info('  *** Done!')
 
     except  KeyError:
-        log_lib.Logger(lfname).error('  *** Some PV assignment failed!')
+        log_lib.error('  *** Some PV assignment failed!')
         pass
         
         

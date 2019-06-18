@@ -16,6 +16,7 @@ import os
 import imp
 import traceback
 from datetime import datetime
+import pathlib
 
 import libs.aps2bm_lib as aps2bm_lib
 import libs.scan_lib as scan_lib
@@ -57,15 +58,10 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'LogFileName': 'log.log',
         'RemoteAnalyisDir' : 'tomo@handyn:/local/data/'
         }
 
 global_PVs = {}
-
-lfname = 'logs/' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
-LOG, fHandler = log_lib.setup_logger(lfname)
-variableDict['LogFileName'] = lfname
 
 
 def getVariableDict():
@@ -74,17 +70,29 @@ def getVariableDict():
 
 
 def main():
+    # create logger
+    # # python 3.5+ 
+    # home = str(pathlib.Path.home())
+    home = os.path.expanduser("~")
+    logs_home = home + '/logs/'
+
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+    log_lib.setup_logger(lfname)
+
     tic =  time.time()
     aps2bm_lib.update_variable_dict(variableDict)
     aps2bm_lib.init_general_PVs(global_PVs, variableDict)
-    
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            log_lib.Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-            log_lib.Logger(lfname).info('  *** Failed!')
+            log_lib.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
+            log_lib.info('  *** Failed!')
         else:
-            log_lib.Logger(lfname).info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+            log_lib.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
                         % (variableDict['IOC_Prefix'], detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
@@ -101,22 +109,22 @@ def main():
 
             scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
-            log_lib.Logger(lfname).info(' ')
-            log_lib.Logger(lfname).info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            log_lib.Logger(lfname).info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+            log_lib.info(' ')
+            log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+            log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
 
-            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position')
+            log_lib.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            log_lib.Logger(lfname).info('  *** Moving rotary stage to start position: Done!')
+            log_lib.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
 
             dm_lib.scp(global_PVs, variableDict)
 
-            log_lib.Logger(lfname).info('  *** Done!')
+            log_lib.info('  *** Done!')
 
     except  KeyError:
-        log_lib.Logger(lfname).error('  *** Some PV assignment failed!')
+        log_lib.error('  *** Some PV assignment failed!')
         pass
         
         

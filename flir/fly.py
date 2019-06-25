@@ -59,7 +59,7 @@ variableDict = {
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
         'RemoteAnalysisDir' : 'tomo@handyn:/local/data/'
-        }
+           }
 
 global_PVs = {}
 

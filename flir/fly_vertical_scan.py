@@ -27,11 +27,11 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 26.3,
-        'EndY': 31.1,
-        'StepSize': 1.6,
+        'StartY': 22.2,
+        'EndY': 35.2,
+        'StepSize': 1.3,
         'SampleXIn': 0.0,
-        'SampleXOut': -9,
+        'SampleXOut': 19,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -126,7 +126,7 @@ def main():
                 # log_lib.info('  *** Moving rotary stage to start position: Done!')
 
                 log_lib.info('  *** The sample vertical position is at %s mm' % (i))
-                global_PVs['Motor_SampleY'].put(i, wait=True)
+                global_PVs['Motor_SampleY'].put(i, wait=True, timeout=600)
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
@@ -139,6 +139,8 @@ def main():
             log_lib.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
+
+            dm_lib.scp(global_PVs, variableDict)
 
             log_lib.info('  *** Done!')
 

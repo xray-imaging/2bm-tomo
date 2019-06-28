@@ -20,7 +20,7 @@ import numpy as np
 
 import log_lib
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -87,7 +87,48 @@ def init_general_PVs(global_PVs, variableDict):
     global_PVs['ShutterB_Close'] = PV('2bma:B_shutter:close.VAL')
     global_PVs['ShutterB_Move_Status'] = PV('PA:02BM:STA_B_SBS_OPEN_PL')
 
-    global_PVs['Sample_Name'] = PV('2bmb:caputRecorderGbl_4')
+
+    # Experimment Info
+    global_PVs['Sample_Name'] = PV('2bmS1:ExpInfo:SampleName')
+
+    global_PVs['User_Badge'] = PV('2bmS1:ExpInfo:UserBadge.VAL')
+    global_PVs['User_Email'] = PV('2bmS1:ExpInfo:UserEmail.VAL')
+    global_PVs['User_Institution'] = PV('2bmS1:ExpInfo:UserInstitution.VAL')
+    global_PVs['Proposal_Number'] = PV('2bmS1:ExpInfo:ProposalNumber.VAL')
+    global_PVs['Proposal_Title'] = PV('2bmS1:ExpInfo:ProposalTitle.VAL')
+    global_PVs['Sample_Description'] = PV('2bmS1:ExpInfo:SampleDescription.VAL')
+    global_PVs['User_Info_Update'] = PV('2bmS1:ExpInfo:UserInfoUpdate.VAL')
+    global_PVs['Lens_Magnification'] = PV('2bmS1:ExpInfo:LensMagnification.VAL')
+    global_PVs['Scintillator_Type'] = PV('2bmS1:ExpInfo:ScintillatorType.VAL')
+    global_PVs['Filters'] = PV('2bmS1:ExpInfo:Filters.VAL')
+    global_PVs['File_Name'] = PV('2bmS1:ExpInfo:FileName.VAL')
+    global_PVs['Station'] = PV('2bmS1:ExpInfo:Station.VAL')
+    global_PVs['Camera_IOC_Prefix'] = PV('2bmS1:ExpInfo:CameraIOCPrefix.VAL')
+    global_PVs['Remote_Analysis_Dir'] = PV('2bmS1:ExpInfo:RemoteAnalysisDir.VAL')
+    global_PVs['User_Last_Name'] = PV('2bmS1:ExpInfo:UserLastName.VAL')
+    global_PVs['Experiment_Year_Month'] = PV('2bmS1:ExpInfo:ExperimentYearMonth.VAL')
+    global_PVs['Use_Furnace'] = PV('2bmS1:ExpInfo:UseFurnace.VAL')
+    global_PVs['White_Field_Motion'] = PV('2bmS1:ExpInfo:WhiteFieldMotion.VAL')
+    global_PVs['Remote_Data_Trasfer'] = PV('2bmS1:ExpInfo:RemoteDataTrasfer.VAL')
+    global_PVs['Scan_Type'] = PV('2bmS1:ExpInfo:ScanType.VAL')
+    global_PVs['Num_Projections'] = PV('2bmS1:ExpInfo:NumProjections.VAL')
+    global_PVs['Num_White_Images'] = PV('2bmS1:ExpInfo:NumWhiteImages.VAL')
+    global_PVs['Num_Dark_Images'] = PV('2bmS1:ExpInfo:NumDarkImages.VAL')
+    global_PVs['Scintillator_Thickness'] = PV('2bmS1:ExpInfo:ScintillatorThickness.VAL')
+    global_PVs['Sample_Detector_Distance'] = PV('2bmS1:ExpInfo:SampleDetectorDistance.VAL')
+    global_PVs['Sample_In_Position'] = PV('2bmS1:ExpInfo:SampleInPosition.VAL')
+    global_PVs['Sample_Out_Position'] = PV('2bmS1:ExpInfo:SampleOutPosition.VAL')
+    global_PVs['Sample_Rotation_Start'] = PV('2bmS1:ExpInfo:SampleRotationStart.VAL')
+    global_PVs['Sample_Rotation_End'] = PV('2bmS1:ExpInfo:SampleRotationEnd.VAL')
+    global_PVs['Furnace_In_Position'] = PV('2bmS1:ExpInfo:FurnaceInPosition.VAL')
+    global_PVs['Furnace_Out_Position'] = PV('2bmS1:ExpInfo:FurnaceOutPosition.VAL')
+    global_PVs['Sleep_Time'] = PV('2bmS1:ExpInfo:SleepTime.VAL')
+    global_PVs['Vertical_Scan_Start'] = PV('2bmS1:ExpInfo:VerticalScanStart.VAL')
+    global_PVs['Vertical_Scan_End'] = PV('2bmS1:ExpInfo:VerticalScanEnd.VAL')
+    global_PVs['Vertical_Scan_Step_Size'] = PV('2bmS1:ExpInfo:VerticalScanStepSize.VAL')
+    global_PVs['Horizontal_Scan_Start'] = PV('2bmS1:ExpInfo:HorizontalScanStart.VAL')
+    global_PVs['Horizontal_Scan_End'] = PV('2bmS1:ExpInfo:HorizontalScanEnd.VAL')
+    global_PVs['Horizontal_Scan_Step_Size'] = PV('2bmS1:ExpInfo:HorizontalScanStepSize.VAL')
 
     if variableDict['Station'] == '2-BM-A':
         log_lib.info('*** Running in station A:')

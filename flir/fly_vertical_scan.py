@@ -27,9 +27,9 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 22.2,
-        'EndY': 35.2,
-        'StepSize': 1.3,
+        'StartY': 23.9,
+        'EndY': 24.1,
+        'StepSize': 1.6,
         'SampleXIn': 0.0,
         'SampleXOut': 19,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -133,6 +133,8 @@ def main():
                 log_lib.info(' ')
                 log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                
+                dm_lib.scp(global_PVs, variableDict)
 
             log_lib.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)

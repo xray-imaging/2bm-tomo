@@ -31,7 +31,8 @@ import numexpr as ne
 
 global variableDict
 
-mag = 1.740139211
+mag = 1.77809
+# under mag = 1.740139211
 
 variableDict = {
         'SampleXIn': 0, 

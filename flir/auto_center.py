@@ -213,6 +213,10 @@ def find_rotation_axis(global_PVs, variableDict):
     cmass_180 = center_of_mass(sphere_180)
 
     center = (cmass_180[1] + cmass_0[1]) / 2.0
+    log_lib.info('  *** difference vertical center of mass %f' % (cmass_180[0] - cmass_0[0]))
+    log_lib.info('  *** difference horizontal center of mass %f' % (cmass_180[1] - cmass_0[1]))
+    log_lib.info('  *** ratio %f' % ((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
+
     roll = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
 
     return center, roll
@@ -243,12 +247,14 @@ def center_rotation_axis(global_PVs, variableDict):
 
 def main():
     home = os.path.expanduser("~")
-    logs_home = home + '/logs/'
+    logs_home = home + '/logs/center'
+    # logs_home = home + '/logs/'
     # make sure logs directory exists
     if not os.path.exists(logs_home):
         os.makedirs(logs_home)
 
-    lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
+    lfname = logs_home + '.log'
+    # lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
     log_lib.setup_logger(lfname)
 
     aps2bm_lib.update_variable_dict(variableDict)

@@ -247,13 +247,12 @@ def center_rotation_axis(global_PVs, variableDict):
 
 def main():
     home = os.path.expanduser("~")
-    logs_home = home + '/logs/center'
-    # logs_home = home + '/logs/'
+    logs_home = home + '/logs/'
     # make sure logs directory exists
     if not os.path.exists(logs_home):
         os.makedirs(logs_home)
 
-    lfname = logs_home + '.log'
+    lfname = logs_home + 'center.log'
     # lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
     log_lib.setup_logger(lfname)
 

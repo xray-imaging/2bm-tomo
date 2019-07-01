@@ -31,7 +31,7 @@ import numexpr as ne
 
 global variableDict
 
-mag = 1.77809
+mag = 1.740139211
 
 variableDict = {
         'SampleXIn': 0, 
@@ -92,7 +92,7 @@ def as_float32(arr):
     return as_dtype(arr, np.float32)
 
 
-def normalize(arr, flat, dark, cutoff=None, ncore=None, out=None):
+def normalize(arr, flat, dark, cutoff=None, out=None):
     """
     Normalize raw projection data using the flat and dark field projections.
 
@@ -106,8 +106,6 @@ def normalize(arr, flat, dark, cutoff=None, ncore=None, out=None):
         2D dark field data.
     cutoff : float, optional
         Permitted maximum vaue for the normalized data.
-    ncore : int, optional
-        Number of cores that will be assigned to jobs.
     out : ndarray, optional
         Output array for result. If same as arr,
         process will be done in-place.
@@ -267,8 +265,8 @@ def main():
             center_rotation_axis(global_PVs, variableDict) 
         
         log_lib.info('  *** Moving rotary stage to 0 deg position')
-        log_lib.info('  *** Done!')
         global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+        log_lib.info('  *** Done!')
 
     except  KeyError:
         Logger("log").error('  *** Some PV assignment failed!')

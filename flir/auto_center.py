@@ -263,6 +263,7 @@ def main():
                 % (variableDict['IOC_Prefix'], detector_sn))
             variableDict['center'], variableDict['roll'] = find_rotation_axis(global_PVs, variableDict)
             center_rotation_axis(global_PVs, variableDict) 
+            log_lib.info('  *** rotary roll angle %f deg' % variableDict['roll'])
         
         log_lib.info('  *** moving rotary stage to 0 deg position')
         global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)

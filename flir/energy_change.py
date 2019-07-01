@@ -5,7 +5,8 @@ import os
 import Tkinter
 import tkMessageBox as mbox
 
-from pco_lib import *
+import libs.aps2bm_lib as aps2bm_lib
+import libs.log_lib as log_lib
 
 
 global variableDict
@@ -35,12 +36,29 @@ variableDict = {
 
 global_PVs = {}
 
+
+def getVariableDict():
+    global variableDict
+    return variableDict
+
     
 def main():
+    # create logger
+    # # python 3.5+ 
+    # home = str(pathlib.Path.home())
+    home = os.path.expanduser("~")
+    logs_home = home + '/logs/'
 
-    init_general_PVs(global_PVs, variableDict)
-    angle_calibrated = change2Pink()
-    energy_calibrated = setEnergy()
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = logs_home + 'energy.log'
+    log_lib.setup_logger(lfname)
+
+    aps2bm_lib.init_general_PVs(global_PVs, variableDict)
+    angle_calibrated = aps2bm_lib.change2Pink()
+    energy_calibrated = aps2bm_lib.setEnergy()
  
     
 if __name__ == '__main__':

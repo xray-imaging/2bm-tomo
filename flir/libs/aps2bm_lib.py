@@ -829,3 +829,258 @@ def calc_blur_pixel(global_PVs, variableDict):
     log_lib.info('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time
+
+
+def find_nearest(array, value):
+    array = np.asarray(array)
+    idx = (np.abs(array - value)).argmin()
+    return array[idx]
+
+
+def change2White():
+    log_lib.info(' ')
+    log_lib.info('  *** change2white')
+    log_lib.info('    *** closing A shutter')
+    global_PVs['ShutterA_Close'].put(1, wait=True)
+    wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+# #    epics.caput(BL+":m33.VAL",107.8, wait=False, timeout=1000.0)                
+    # log_lib.info('    *** closing A shutter: Done!')
+
+    log_lib.info('    *** moving Filters')
+    global_PVs['Filters'].put(0, wait=True)
+    log_lib.info('    *** moving Mirror')
+    global_PVs['Mirr_Ang'].put(0, wait=True)
+    time.sleep(1) 
+    global_PVs['Mirr_YAvg'].put(-4, wait=True)
+    time.sleep(1) 
+    log_lib.info('    *** moving DMM X')                                          
+    global_PVs['DMM_USX'].put(50, wait=False)
+    global_PVs['DMM_DSX'].put(50, wait=True)
+    time.sleep(3)                
+    log_lib.info('    *** moving DMM Y')
+    global_PVs['DMM_USY_OB'].put(-16, wait=False)
+    global_PVs['DMM_USY_IB'].put(-16, wait=False)
+    global_PVs['DMM_DSY'].put(-16, wait=True)
+    time.sleep(3) 
+                                 
+#     epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+    log_lib.info('    *** moving XIA Slits')
+    global_PVs['XIASlit'].put(-1.65, wait=True)
+    log_lib.info('  *** change2white: Done!')
+                    
+
+def change2Mono():
+    log_lib.info(' ')
+    log_lib.info('  *** change2mono')
+    log_lib.info('    *** closing shutter')
+    global_PVs['ShutterA_Close'].put(1, wait=True)
+    wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+
+# #    epics.caput(BL+":m33.VAL",121, wait=False, timeout=1000.0)                    
+    log_lib.info('    *** moving Filters')
+    global_PVs['Filters'].put(0, wait=True)
+    log_lib.info('    *** moving Mirror')
+    global_PVs['Mirr_YAvg'].put(0, wait=True)
+    time.sleep(1) 
+    global_PVs['Mirr_Ang'].put(2.657, wait=True)
+    time.sleep(1) 
+
+    log_lib.info('    *** moving DMM Y')
+    global_PVs['DMM_USY_OB'].put(-0.1, wait=False)
+    global_PVs['DMM_USY_IB'].put(-0.1, wait=False)
+    global_PVs['DMM_DSY'].put(-0.1, wait=True)
+    time.sleep(3) 
+                                 
+    log_lib.info('    *** moving DMM X')                                          
+    global_PVs['DMM_USX'].put(81.5, wait=False)
+    global_PVs['DMM_DSX'].put(81.5, wait=True)
+    time.sleep(3)                
+#     epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+    log_lib.info('    *** moving XIA Slits')
+    global_PVs['XIASlit'].put(30.35, wait=True)
+    log_lib.info('  *** change2mono: Done!')
+               
+
+def change2Pink(ang=2.657):
+
+    Mirr_Ang_list = np.array([1.500,1.800,2.000,2.100,2.657])
+
+    angle_calibrated = find_nearest(Mirr_Ang_list, ang)
+    log_lib.info(' ')
+    log_lib.info('   *** Angle entered is %s rad, the closest calibrate angle is %s' % (ang, angle_calibrated))
+
+    Mirr_YAvg_list = np.array([-0.1,0.0,0.0,0.0,0.0])
+
+    DMM_USY_OB_list = np.array([-10,-10,-10,-10,-10])
+    DMM_USY_IB_list = np.array([-10,-10,-10,-10,-10])
+    DMM_DSY_list = np.array([-10,-10,-10,-10,-10])
+
+    DMM_USX_list = np.array([50,50,50,50,50])
+    DMM_DSX_list = np.array([50,50,50,50,50])
+
+    XIASlit_list = np.array([8.75,11.75,13.75,14.75,18.75])    
+
+    Slit1Hcenter_list = np.array([4.85,4.85,7.5,7.5,7.2])
+
+    Filter_list = np.array([0,0,0,0,0])
+
+    idx = np.where(Mirr_Ang_list==angle_calibrated)                
+    if idx[0].size == 0:
+        log_lib.info('     *** ERROR: there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.')
+        return    0                            
+
+    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+
+    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+    DMM_DSY = DMM_DSY_list[idx[0][0]]
+
+    DMM_USX = DMM_USX_list[idx[0][0]]
+    DMM_DSX = DMM_DSX_list[idx[0][0]]
+
+    XIASlit = XIASlit_list[idx[0][0]]          
+    Slit1Hcenter = Slit1Hcenter_list[idx[0][0]] 
+
+    Filter = Filter_list[idx[0][0]]
+
+    log_lib.info('   *** Angle is set at %s rad' % angle_calibrated)                
+    log_lib.info('     *** Moving Stages ...')                
+
+    log_lib.info('     *** Filter %s ' % Filter)
+    log_lib.info('     *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    log_lib.info('     *** Mirr_Ang %s rad' % Mirr_Ang)
+    
+    log_lib.info('     *** DMM_USX %s mm' % DMM_USX)
+    log_lib.info('     *** DMM_DSX %s mm' % DMM_DSX)
+
+    log_lib.info('     *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    log_lib.info('     *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    log_lib.info('     *** DMM_DSY %s mm' % DMM_DSY)
+
+    log_lib.info('     *** Slit1Hcenter %s mm' % Slit1Hcenter)          
+    log_lib.info('     *** XIASlit %s mm' % XIASlit)          
+
+    log_lib.info(' ')
+    log_lib.info('  *** change2pink')
+#    log_lib.info('    *** closing shutter')
+#    global_PVs['ShutterA_Close'].put(1, wait=True)
+#    wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+#    log_lib.info('    *** moving Filters')
+#    global_PVs['Filters'].put(Filter, wait=True)
+#    log_lib.info('    *** moving Mirror')
+#    global_PVs['Mirr_YAvg'].put(Mirr_YAvg, wait=True)
+#    time.sleep(1) 
+#    global_PVs['Mirr_Ang'].put(Mirr_YAvg, wait=True)
+#    time.sleep(1) 
+#    log_lib.info('    *** moving DMM X')                                          
+#    global_PVs['DMM_USX'].put(DMM_USX, wait=False)
+#    global_PVs['DMM_DSX'].put(DMM_DSX, wait=True)
+#    time.sleep(3)                
+#    log_lib.info('    *** moving DMM Y')
+#    global_PVs['DMM_USY_OB'].put(DMM_USY_OB, wait=False)
+#    global_PVs['DMM_USY_IB'].put(DMM_USY_IB, wait=False)
+#    global_PVs['DMM_DSY'].put(DMM_DSY, wait=True)
+#    time.sleep(3) 
+#         epics.caput(BL+":Slit1Hcenter.VAL",7.2, wait=True, timeout=1000.0)    
+#    log_lib.info('    *** moving XIA Slits')
+#    global_PVs['XIASlit'].put(XIASlit, wait=True)
+    log_lib.info('  *** change2pink: Done!')
+
+
+def setEnergy(energy = 24.9):
+
+    caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
+
+    energy_calibrated = find_nearest(caliEng_list, energy)
+    log_lib.info(' ')
+    log_lib.info('   *** Energy entered is %s keV, the closest calibrate energy is %s' % (energy, energy_calibrated))
+
+    Mirr_Ang_list = np.array([1.200,1.500,1.500,1.500,2.000,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657,2.657])
+    Mirr_YAvg_list = np.array([-0.2,-0.2,-0.2,-0.2,-0.2,0.0,0.0,-0.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0])
+
+    DMM_USY_OB_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.8,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1])
+    DMM_USY_IB_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.8,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1])  
+    DMM_DSY_list = np.array([-5.1,-5.1,-5.1,-5.1,-3.7,-0.1,-0.1,-0.2,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1,-0.1]) 
+
+    USArm_list =   np.array([0.95,  1.00,  1.05,  1.10,  1.25,  1.10,  1.15,  1.20,  1.25,  1.30,  1.35,  1.40,  1.45,  1.50,  1.55,  1.60,  1.65])    
+    DSArm_list =  np.array([ 0.973, 1.022, 1.072, 1.124, 1.2745,1.121, 1.169, 1.2235,1.271, 1.3225,1.373, 1.4165,1.472, 1.5165,1.568, 1.6195,1.67])
+
+    M2Y_list =     np.array([11.63, 12.58, 13.38, 13.93, 15.57, 12.07, 13.71, 14.37, 15.57, 15.67, 17.04, 17.67, 18.89, 19.47, 20.57, 21.27, 22.27]) 
+    DMM_USX_list = np.array([27.5,27.5,27.5,27.5,27.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5])
+    DMM_DSX_list = np.array([27.5,27.5,27.5,27.5,27.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5,82.5])
+    XIASlit_list = np.array([21.45, 24.05, 25.05, 23.35, 26.35, 28.35, 29.35, 30.35, 31.35, 32.35, 33.35, 34.35, 34.35, 52.35, 53.35, 54.35, 51.35])    
+    
+    idx = np.where(caliEng_list==energy_calibrated)                
+    if idx[0].size == 0:
+        log_lib.info('     *** ERROR: there is no specified energy_calibrated in the energy_calibrated lookup table. please choose a calibrated energy_calibrated.')
+        return    0                            
+
+    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+
+    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+    DMM_DSY = DMM_DSY_list[idx[0][0]]
+
+    USArm = USArm_list[idx[0][0]]                
+    DSArm = DSArm_list[idx[0][0]]
+
+    M2Y = M2Y_list[idx[0][0]]
+    DMM_USX = DMM_USX_list[idx[0][0]]
+    DMM_DSX = DMM_DSX_list[idx[0][0]]
+    XIASlit = XIASlit_list[idx[0][0]]          
+
+    log_lib.info('   *** Energy is set at %s keV' % energy_calibrated)                
+    log_lib.info('      *** Moving Stages ...')                
+
+
+    log_lib.info('      *** Mirr_Ang %s rad' % Mirr_Ang)
+    log_lib.info('      *** Mirr_YAvg %s mm' % Mirr_YAvg)
+    
+    log_lib.info('      *** DMM_USY_OB %s mm' % DMM_USY_OB) 
+    log_lib.info('      *** DMM_USY_IB %s mm' % DMM_USY_IB)
+    log_lib.info('      *** DMM_DSY %s mm' % DMM_DSY)
+
+    log_lib.info('      *** USArm %s deg' % USArm)              
+    log_lib.info('      *** DSArm %s deg' % DSArm)
+
+    log_lib.info('      *** M2Y %s mm' % M2Y)
+    log_lib.info('      *** DMM_USX %s mm' % DMM_USX)
+    log_lib.info('      *** DMM_DSX %s mm' % DMM_DSX)
+    log_lib.info('      *** XIASlit %s mm' % XIASlit)          
+
+    log_lib.info(' ')
+    log_lib.info('  *** setEnergy')
+    # log_lib.info('    *** closing shutter')
+    # global_PVs['ShutterA_Close'].put(1, wait=True)
+    # wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+    # change2Mono()                
+    # log_lib.info('    *** moving filter)
+    # if energy < 20.0:
+    #     global_PVs['Filters'].put(4, wait=True, timeout=1000.0)
+    # else:                                
+    #     global_PVs['Filters'].put(0, wait=True, timeout=1000.0)
+
+    # log_lib.info('    *** moving Mirror')
+    # global_PVs['Mirr_Ang'].put(Mirr_Ang, wait=False, timeout=1000.0) 
+    # global_PVs['Mirr_YAvg'].put(Mirr_YAvg, wait=False, timeout=1000.0) 
+    # log_lib.info('    *** moving DMM Y')
+    # global_PVs['DMM_USY_OB'].put(DMM_USY_OB, wait=False, timeout=1000.0) 
+    # global_PVs['DMM_USY_IB'].put(DMM_USY_IB, wait=False, timeout=1000.0) 
+    # global_PVs['DMM_DSY'].put(DMM_DSY, wait=False, timeout=1000.0) 
+
+    # log_lib.info('    *** moving DMM US/DS Arms')
+    # global_PVs['USArm'].put(USArm, wait=False, timeout=1000.0)
+    # global_PVs['DSArm'].put(DSArm, wait=True, timeout=1000.0)
+    # time.sleep(3)
+    # log_lib.info('    *** moving DMM M2Y')
+    # global_PVs['M2Y'].put(M2Y, wait=True, timeout=1000.0)
+    # log_lib.info('    *** moving DMM X')
+    # global_PVs['DMM_USX'].put(DMM_USX, wait=False, timeout=1000.0)
+    # global_PVs['DMM_DSX'].put(DMM_DSX, wait=True, timeout=1000.0)
+    # global_PVs['XIASlit'].put(XIASlit, wait=True, timeout=1000.0)             
+    log_lib.info('  *** setEnergy: Done!')
+    return energy_calibrated
+ 
+

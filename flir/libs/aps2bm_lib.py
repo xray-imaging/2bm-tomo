@@ -20,7 +20,7 @@ import numpy as np
 
 import log_lib
 
-TESTING = True
+TESTING = False
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -134,6 +134,7 @@ def init_general_PVs(global_PVs, variableDict):
         log_lib.info('*** Running in station A:')
         # Set sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bma:m49.VAL')
+        global_PVs['Motor_SampleX_SET'] = PV('2bma:m49.SET')
         global_PVs['Motor_SampleY'] = PV('2bma:m20.VAL')
         global_PVs['Motor_SampleRot'] = PV('2bma:m82.VAL') # Aerotech ABR-250
         global_PVs['Motor_SampleRot_RBV'] = PV('2bma:m82.RBV') # Aerotech ABR-250
@@ -163,6 +164,7 @@ def init_general_PVs(global_PVs, variableDict):
         log_lib.info('*** Running in station B:')
         # Sample stack motor pv's:
         global_PVs['Motor_SampleX'] = PV('2bmb:m63.VAL')
+        global_PVs['Motor_SampleX_SET'] = PV('2bmb:m63.SET')
         global_PVs['Motor_SampleY'] = PV('2bmb:m57.VAL') 
         global_PVs['Motor_SampleRot'] = PV('2bmb:m100.VAL') # Aerotech ABR-150
         global_PVs['Motor_SampleRot_Accl'] = PV('2bma:m100.ACCL') 

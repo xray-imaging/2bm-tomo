@@ -31,8 +31,7 @@ import numexpr as ne
 
 global variableDict
 
-mag = 1.77809
-# under mag = 1.740139211
+detector_resolution = 1.80 # micron/pixel
 
 variableDict = {
         'SampleXIn': 0, 
@@ -228,7 +227,7 @@ def center_rotation_axis(global_PVs, variableDict):
     current_axis_position = global_PVs["Motor_SampleX"].get()
     log_lib.info('  *** current axis position: %f' % current_axis_position)
     time.sleep(.5)
-    correction = (((nCol / 2.0) - variableDict['center']) * mag / 1000.0) + current_axis_position
+    correction = (((nCol / 2.0) - variableDict['center']) * detector_resolution / 1000.0) + current_axis_position
     log_lib.info('  *** correction: %f' % correction)
 
     log_lib.info('  *** moving to: %f (mm)' % correction)
@@ -265,7 +264,7 @@ def main():
             variableDict['center'], variableDict['roll'] = find_rotation_axis(global_PVs, variableDict)
             center_rotation_axis(global_PVs, variableDict) 
         
-        log_lib.info('  *** Moving rotary stage to 0 deg position')
+        log_lib.info('  *** moving rotary stage to 0 deg position')
         global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
         log_lib.info('  *** Done!')
 

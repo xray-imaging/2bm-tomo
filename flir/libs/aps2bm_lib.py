@@ -603,8 +603,9 @@ def pgAcquireFlat(global_PVs, variableDict):
 def checkclose_hdf(global_PVs, variableDict):
 
     buffer_queue = global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()
-    wait_on_hdd = 10
-    # wait_on_hdd = buffer_queue / 55.0 + 10
+    # wait_on_hdd = 10
+    frate = 55.0
+    wait_on_hdd = buffer_queue / frate + 10
     # wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
     log_lib.info('  *** Buffer Queue (frames): %d ' % buffer_queue)
     log_lib.info('  *** Wait HDD (s): %f' % wait_on_hdd)

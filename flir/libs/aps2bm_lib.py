@@ -309,16 +309,26 @@ def pgInit(global_PVs, variableDict):
     elif (variableDict['IOC_Prefix'] == '2bmbSP1:'):   
         log_lib.info(' ')                
         log_lib.info('  *** init FLIR camera')
+        log_lib.info('  *** *** set detector to idle')
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+        log_lib.info('  *** *** set detector to idle:  Done')
         # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
         time.sleep(2) 
+        log_lib.info('  *** *** set trigger mode to Off')
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
+        log_lib.info('  *** *** set trigger mode to Off: done')
         time.sleep(7) 
+        log_lib.info('  *** *** set image mode to single')
         global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with (ValueError: invalid literal for int() with base 0: 'Single') Added 7 s delay before
+        log_lib.info('  *** *** set image mode to single: done')
+        log_lib.info('  *** *** set cam display to 1')
         global_PVs['Cam1_Display'].put(1)
+        log_lib.info('  *** *** set cam display to 1: done')
+        log_lib.info('  *** *** set cam acquire')
         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
+        log_lib.info('  *** *** set cam acquire: done')
         if variableDict['Station'] == '2-BM-A':
             global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
             global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           

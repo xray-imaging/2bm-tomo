@@ -101,6 +101,9 @@ def main():
             blur_pixel, rot_speed, scan_time = aps2bm_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
+            # ####### temporary fix:
+            aps2bm_lib.pgSet(global_PVs, variableDict, fname=None)
+
             # moved pgInit() here from tomo_fly_scan() 
             aps2bm_lib.pgInit(global_PVs, variableDict)
             # get sample file name

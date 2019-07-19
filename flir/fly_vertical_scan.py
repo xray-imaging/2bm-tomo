@@ -27,9 +27,9 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 35.18,
-        'EndY': 35.88,
-        'StepSize': 0.7,
+        'StartY': 22.12,
+        'EndY': 23.12,
+        'StepSize': 0.9,
         'SampleXIn': 0,
         'SampleXOut': 5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True

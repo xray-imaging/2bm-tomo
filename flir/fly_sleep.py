@@ -43,7 +43,7 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.010,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.0065,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
         'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line

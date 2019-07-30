@@ -22,7 +22,7 @@ import log_lib
 
 TESTING = False
 
-ShutterAisFast = False           # True: use m7 as shutter; False: use Front End Shutter
+ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
 ShutterA_Open_Value = 1
 ShutterA_Close_Value = 0

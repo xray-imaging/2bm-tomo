@@ -27,11 +27,11 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 1.0,
-        'EndY': 31.0,
-        'StepSize': 1.2,
+        'StartY': 0,
+        'EndY': 25.2,
+        'StepSize': 1.4,
         'SampleXIn': 0,
-        'SampleXOut': 22,
+        'SampleXOut': 4,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field

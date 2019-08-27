@@ -27,12 +27,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 27.0,
-        'EndY': 28.0,
-        'StepSize': 0.5,
+        'StartY': 1.5949,
+        'EndY': 3.0,
+        'StepSize': 1.5939,
         'SampleXIn': 0.0,
-        'SampleXOut': 3,
-        'StartSleep_s': 10,               # wait time (s) between each data collection
+        'SampleXOut': 11.5,
+        'StartSleep_s': 30,               # wait time (s) between each data collection
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -120,7 +120,7 @@ def main():
             log_lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
             log_lib.info(' ')
             log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
-            for ii in range(200):
+            for ii in range(400):
                 for i in np.arange(start, end, step_size):
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
                     # log_lib.info('  *** Moving rotary stage to start position')
@@ -134,6 +134,7 @@ def main():
                     log_lib.info(' ')
                     log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                     log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                global_PVs['Motor_SampleY'].put(start, wait=True)
                 log_lib.warning('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                 time.sleep(variableDict['StartSleep_s']) 
 

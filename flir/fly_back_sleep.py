@@ -28,20 +28,20 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 720,
+        'EndY': 1,
         'StepSize': 1,
         'StartSleep_s': 0,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
-        'SampleXOut': -12.0,
+        'SampleXOut': 11.5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
-        'Projections': 1500,
-        'NumWhiteImages': 20,
-        'NumDarkImages': 20,
+        'Projections': 540,
+        'NumWhiteImages': 100,
+        'NumDarkImages': 50,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         'CCD_Readout': 0.006,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
@@ -128,7 +128,7 @@ def main():
                 variableDict['SampleRotEnd'] = 180.0
                 
                 variableDict['SampleXIn'] = 0
-                variableDict['SampleXOut'] = -12
+                variableDict['SampleXOut'] = 11.5
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
@@ -152,7 +152,7 @@ def main():
                 variableDict['SampleRotEnd'] = 0.0
 
                 variableDict['SampleXIn'] = 0
-                variableDict['SampleXOut'] = 12
+                variableDict['SampleXOut'] = -11.5
 
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 

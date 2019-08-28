@@ -51,8 +51,10 @@ def main():
         while True:
             h5fname = global_PVs['HDF1_FullFileName_RBV'].get()
             h5fname_str = "".join([chr(item) for item in h5fname])
-            log_lib.info('Temperature: %4.4f C;  Voltage: %4.4f V: %s' % (global_PVs['Temperature'].get(), global_PVs['Voltage'].get(), h5fname_str))
-            time.sleep(2)   
+            temp = global_PVs['Temperature'].get()
+            pressure = global_PVs['Voltage'].get()*1500/4.8434 # to calibrate 
+            log_lib.warning('Temperature: %4.4f C;  Pressure: %4.4f psi: %s' % (temp, pressure, h5fname_str))            
+            time.sleep(5)   
     except KeyboardInterrupt:
     
         print('interrupted!')

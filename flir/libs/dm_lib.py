@@ -8,7 +8,6 @@ import os
 import subprocess
 import pathlib
 from paramiko import SSHClient
-from scp import SCPClient
 
 import libs.log_lib as log_lib
 
@@ -18,7 +17,7 @@ def check_remote_directory(remote_server, remote_dir):
         rcmd = 'ls ' + remote_dir
         # rcmd is the command used to check if the remote directory exists
         subprocess.check_call(['ssh', remote_server, rcmd], stderr=open(os.devnull, 'wb'), stdout=open(os.devnull, 'wb'))
-        log_lib.info('      *** remote directory %s exists' % (remote_dir))
+        log_lib.warning('      *** remote directory %s exists' % (remote_dir))
         return 0
 
     except subprocess.CalledProcessError, e: 

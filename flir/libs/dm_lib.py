@@ -78,3 +78,11 @@ def scp(global_PVs, variableDict):
     else:
         log_lib.error('  *** Quitting the copy operation')
         return -1
+
+
+def mkdir(remote_server, remote_dir):
+
+    log_lib.info('Creating directory on server %s:%s' % (remote_server, remote_dir))
+    ret = dm_lib.check_remote_directory(remote_server , remote_dir)
+    if ret == 2:
+        iret = dm_lib.create_remote_directory(remote_server, remote_dir)

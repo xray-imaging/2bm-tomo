@@ -27,9 +27,9 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 1.5939,
-        'EndY': 3,
-        'StepSize': 1.5939,
+        'StartY': 0,
+        'EndY': 100,
+        'StepSize': 1,
         'StartSleep_s': 0,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
         'SampleXOut': 5,

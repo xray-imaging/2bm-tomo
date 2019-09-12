@@ -204,7 +204,7 @@ def find_nearest(array, value):
 def change2white(energy_change_PVs):
 
     log_lib.info(' ')
-    log_lib.info('  *** change to white')
+    log_lib.info('  *** change to white  *** ')
     
     close_shutters(energy_change_PVs)
     move_filter(0, energy_change_PVs)
@@ -214,13 +214,13 @@ def change2white(energy_change_PVs):
     move_xia_slits_Y(-1.65, energy_change_PVs)
 
     log_lib.info(' ')
-    log_lib.info('  *** change to white: Done!')
+    log_lib.info('  *** change to white: Done!  *** ')
                     
 
 def change2mono(energy_change_PVs):
 
     log_lib.info(' ')
-    log_lib.info('  *** change to mono')
+    log_lib.info('  *** change to mono  *** ')
 
     close_shutters(energy_change_PVs)
 
@@ -230,13 +230,14 @@ def change2mono(energy_change_PVs):
     move_DMM_X(81.5, 81.5, energy_change_PVs)
     move_xia_slits_Y(30.35, energy_change_PVs)
 
-    log_lib.info('  *** change to mono: Done!')
+    log_lib.info(' ')
+    log_lib.info('  *** change to mono: Done!  *** ')
                
 
 def change2pink(energy_change_PVs, ang=2.657):
 
     log_lib.info(' ')
-    log_lib.info('  *** change to pink')
+    log_lib.info('  *** change to pink  *** ')
 
     Mirr_Ang_list = np.array([1.500,1.800,2.000,2.100,2.657])
 
@@ -292,13 +293,13 @@ def change2pink(energy_change_PVs, ang=2.657):
     move_xia_slits_Y(XIASlitY, energy_change_PVs)
         
     log_lib.info(' ')
-    log_lib.info('  *** change to pink: Done!')
+    log_lib.info('  *** change to pink: Done!  *** ')
 
 
 def change_energy(energy_change_PVs, energy = 24.9):
 
     log_lib.info(' ')
-    log_lib.info(' *** Change Energy')
+    log_lib.info(' *** Change Energy  *** ')
 
     caliEng_list = np.array([55.00, 50.00, 45.00, 40.00, 35.00, 31.00, 27.40, 24.90, 22.70, 21.10, 20.20, 18.90, 17.60, 16.80, 16.00, 15.00, 14.40])
     energy_calibrated = find_nearest(caliEng_list, energy)
@@ -344,16 +345,14 @@ def change_energy(energy_change_PVs, energy = 24.9):
         log_lib.info('   *** Energy is set at %s keV' % energy_calibrated)   
 
     log_lib.info('   *** Move to %s keV?' % energy_calibrated)   
-
     if yes_or_no('Yes or No'):
-            close_shutters(energy_change_PVs)
             change2mono(energy_change_PVs)                
 
             if energy < 20.0:
                 Filter = 4
             else:                                
                 Filter = 0
-
+                
             move_filter(Filter, energy_change_PVs)
             move_mirror(Mirr_YAvg, Mirr_Ang, energy_change_PVs)
             move_DMM_Y(DMM_USY_OB, DMM_USY_IB, DMM_DSY, energy_change_PVs)    
@@ -363,7 +362,7 @@ def change_energy(energy_change_PVs, energy = 24.9):
             move_xia_slits_Y(XIASlitY, energy_change_PVs)
 
             log_lib.info(' ')
-            log_lib.info('  *** Change Energy: Done!')
+            log_lib.info('  *** Change Energy: Done!  *** ')
 
             return energy_calibrated
     else:

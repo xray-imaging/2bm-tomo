@@ -234,66 +234,78 @@ def change2mono(energy_change_PVs):
     log_lib.info('  *** change to mono: Done!  *** ')
                
 
-def change2pink(energy_change_PVs, ang=2.657):
+def change2pink(energy_change_PVs, angle=2.657):
 
     log_lib.info(' ')
     log_lib.info('  *** change to pink  *** ')
 
     Mirr_Ang_list = np.array([1.500,1.800,2.000,2.100,2.657])
 
-    angle_calibrated = find_nearest(Mirr_Ang_list, ang)
-    log_lib.info(' ')
-    log_lib.info('  *** Angle entered is %s rad, the closest calibrate angle is %s' % (ang, angle_calibrated))
+    angle_calibrated = find_nearest(Mirr_Ang_list, angle)
 
-    Mirr_YAvg_list = np.array([-0.1,0.0,0.0,0.0,0.0])
+    if angle is not angle_calibrated:
+        log_lib.info('  *** Mirror angle entered is %s mrad, the closest tested angle is %s mrad' % (angle, angle_calibrated))
+        log_lib.info('  *** Options are %s mrad' % (Mirr_Ang_list))
+    else:
+        log_lib.info('   *** Mirror angle is set at %s mrad' % angle_calibrated)   
 
-    DMM_USY_OB_list = np.array([-10,-10,-10,-10,-10])
-    DMM_USY_IB_list = np.array([-10,-10,-10,-10,-10])
-    DMM_DSY_list = np.array([-10,-10,-10,-10,-10])
+    log_lib.info('   *** Move mirror to %s mrad ?' % angle_calibrated)   
+    if yes_or_no('Yes or No'):
 
-    DMM_USX_list = np.array([50,50,50,50,50])
-    DMM_DSX_list = np.array([50,50,50,50,50])
+        Mirr_YAvg_list = np.array([-0.1,0.0,0.0,0.0,0.0])
 
-    XIASlitY_list = np.array([8.75,11.75,13.75,14.75,18.75])    
+        DMM_USY_OB_list = np.array([-10,-10,-10,-10,-10])
+        DMM_USY_IB_list = np.array([-10,-10,-10,-10,-10])
+        DMM_DSY_list = np.array([-10,-10,-10,-10,-10])
 
-    Slit1Hcenter_list = np.array([4.85,4.85,7.5,7.5,7.2])
+        DMM_USX_list = np.array([50,50,50,50,50])
+        DMM_DSX_list = np.array([50,50,50,50,50])
 
-    Filter_list = np.array([0,0,0,0,0])
+        XIASlitY_list = np.array([8.75,11.75,13.75,14.75,18.75])    
 
-    idx = np.where(Mirr_Ang_list==angle_calibrated)                
-    if idx[0].size == 0:
-        log_lib.error('  *** ERROR: there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.')
-        return    0                            
+        Slit1Hcenter_list = np.array([4.85,4.85,7.5,7.5,7.2])
 
-    Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
-    Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
+        Filter_list = np.array([0,0,0,0,0])
 
-    DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
-    DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
-    DMM_DSY = DMM_DSY_list[idx[0][0]]
+        idx = np.where(Mirr_Ang_list==angle_calibrated)                
+        if idx[0].size == 0:
+            log_lib.error('  *** ERROR: there is no specified calibrated calibrate in the calibrated angle lookup table. please choose a calibrated angle.')
+            return    0                            
 
-    DMM_USX = DMM_USX_list[idx[0][0]]
-    DMM_DSX = DMM_DSX_list[idx[0][0]]
+        Mirr_Ang = Mirr_Ang_list[idx[0][0]] 
+        Mirr_YAvg = Mirr_YAvg_list[idx[0][0]]
 
-    XIASlitY = XIASlitY_list[idx[0][0]]          
-    Slit1Hcenter = Slit1Hcenter_list[idx[0][0]] 
+        DMM_USY_OB = DMM_USY_OB_list[idx[0][0]] 
+        DMM_USY_IB = DMM_USY_IB_list[idx[0][0]]
+        DMM_DSY = DMM_DSY_list[idx[0][0]]
 
-    Filter = Filter_list[idx[0][0]]
+        DMM_USX = DMM_USX_list[idx[0][0]]
+        DMM_DSX = DMM_DSX_list[idx[0][0]]
 
-    log_lib.info('  *** Angle is set at %s rad' % angle_calibrated)                
+        XIASlitY = XIASlitY_list[idx[0][0]]          
+        Slit1Hcenter = Slit1Hcenter_list[idx[0][0]] 
 
-    close_shutters(energy_change_PVs)
+        Filter = Filter_list[idx[0][0]]
 
-    move_filter(Filter, energy_change_PVs)
-    move_mirror(Mirr_YAvg, Mirr_Ang, energy_change_PVs)
-    move_DMM_X(DMM_USX, DMM_DSX, energy_change_PVs)
-    move_DMM_Y(DMM_USY_OB, DMM_USY_IB, DMM_DSY, energy_change_PVs)    
-    
-    move_slits_center(Slit1Hcenter, energy_change_PVs)
-    move_xia_slits_Y(XIASlitY, energy_change_PVs)
+        log_lib.info('  *** Angle is set at %s mrad' % angle_calibrated)                
+
+        close_shutters(energy_change_PVs)
+
+        move_filter(Filter, energy_change_PVs)
+        move_mirror(Mirr_YAvg, Mirr_Ang, energy_change_PVs)
+        move_DMM_X(DMM_USX, DMM_DSX, energy_change_PVs)
+        move_DMM_Y(DMM_USY_OB, DMM_USY_IB, DMM_DSY, energy_change_PVs)    
         
-    log_lib.info(' ')
-    log_lib.info('  *** change to pink: Done!  *** ')
+        move_slits_center(Slit1Hcenter, energy_change_PVs)
+        move_xia_slits_Y(XIASlitY, energy_change_PVs)
+            
+        log_lib.info(' ')
+        log_lib.info('  *** change to pink: Done!  *** ')
+        return angle_calibrated
+
+    else:
+        log_lib.info(' ')
+        log_lib.warning('   *** Mirror angle not changed')
 
 
 def change_energy(energy_change_PVs, energy = 24.9):
@@ -341,30 +353,31 @@ def change_energy(energy_change_PVs, energy = 24.9):
 
     if energy is not energy_calibrated:
         log_lib.warning('   *** Energy entered is %s keV, the closest calibrated energy is %s' % (energy, energy_calibrated))
+        log_lib.info('   *** Options are %s keV' % (caliEng_list))
     else:
         log_lib.info('   *** Energy is set at %s keV' % energy_calibrated)   
 
-    log_lib.info('   *** Move to %s keV?' % energy_calibrated)   
+    log_lib.info('   *** Move to %s keV ?' % energy_calibrated)   
     if yes_or_no('Yes or No'):
-            change2mono(energy_change_PVs)                
+        change2mono(energy_change_PVs)                
 
-            if energy < 20.0:
-                Filter = 4
-            else:                                
-                Filter = 0
-                
-            move_filter(Filter, energy_change_PVs)
-            move_mirror(Mirr_YAvg, Mirr_Ang, energy_change_PVs)
-            move_DMM_Y(DMM_USY_OB, DMM_USY_IB, DMM_DSY, energy_change_PVs)    
-            move_DMM_arms(USArm, DSArm, energy_change_PVs)
-            move_DMM_M2Y(M2Y, energy_change_PVs)
-            move_DMM_X(DMM_USX, DMM_DSX, energy_change_PVs)
-            move_xia_slits_Y(XIASlitY, energy_change_PVs)
+        if energy < 20.0:
+            Filter = 4
+        else:                                
+            Filter = 0
+            
+        move_filter(Filter, energy_change_PVs)
+        move_mirror(Mirr_YAvg, Mirr_Ang, energy_change_PVs)
+        move_DMM_Y(DMM_USY_OB, DMM_USY_IB, DMM_DSY, energy_change_PVs)    
+        move_DMM_arms(USArm, DSArm, energy_change_PVs)
+        move_DMM_M2Y(M2Y, energy_change_PVs)
+        move_DMM_X(DMM_USX, DMM_DSX, energy_change_PVs)
+        move_xia_slits_Y(XIASlitY, energy_change_PVs)
 
-            log_lib.info(' ')
-            log_lib.info('  *** Change Energy: Done!  *** ')
+        log_lib.info(' ')
+        log_lib.info('  *** Change Energy: Done!  *** ')
 
-            return energy_calibrated
+        return energy_calibrated
     else:
         log_lib.info(' ')
         log_lib.warning('   *** Energy not changed')

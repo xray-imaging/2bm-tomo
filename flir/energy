@@ -31,12 +31,12 @@ def main():
     subparsers = parser.add_subparsers(help='help for subcommand')
 
     # create the parser for the change_energy command
-    parser_a = subparsers.add_parser('set', help='set energy')
-    parser_a.add_argument('energy', type=float, help='energy in keV; energy set 24.9')
+    parser_a = subparsers.add_parser('mono', help='set monochromatic energy')
+    parser_a.add_argument('energy', type=float, help='energy in keV; ex: energy set 24.9')
 
     # create the parser for the "change2pink" command
     parser_b = subparsers.add_parser('pink', help='change to pink')
-    parser_b.add_argument('angle', type=float, help='M1 angle in mrad; example: energy pink 2.657')
+    parser_b.add_argument('angle', type=float, help='mirror angle in mrad; ex: energy pink 2.657')
 
     # create the parser for the "white" command
     parser_c = subparsers.add_parser('white', help='set to white beam')

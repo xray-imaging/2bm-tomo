@@ -1,7 +1,9 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+
 import os
 import argparse
 
-import libs.aps2bm_lib as aps2bm_lib
 import libs.log_lib as log_lib
 import libs.energy_lib as energy_lib
 
@@ -30,11 +32,11 @@ def main():
 
     # create the parser for the change_energy command
     parser_a = subparsers.add_parser('set', help='set energy')
-    parser_a.add_argument('energy', type=float, help='energy in keV; default=24.9')
+    parser_a.add_argument('energy', type=float, help='energy in keV; energy set 24.9')
 
     # create the parser for the "change2pink" command
     parser_b = subparsers.add_parser('pink', help='change to pink')
-    parser_b.add_argument('angle', type=float, help='M1 angle in mrad; , default=2.657')
+    parser_b.add_argument('angle', type=float, help='M1 angle in mrad; example: energy pink 2.657')
 
     # create the parser for the "white" command
     parser_c = subparsers.add_parser('white', help='set to white beam')
@@ -43,22 +45,17 @@ def main():
 
     try:
         angle = args.angle
-        print(angle)
+        angle_calibrated = energy_lib.change2pink(global_PVs, angle)
     except:
-        print('angle is not set')
-        angle = -1
+        angle = -1.0
     try:
         energy = args.energy
-        print(energy)
+        energy_calibrated = energy_lib.change_energy(global_PVs, energy)
     except:
-        print('energy is not set')
-        energy = -1
+        energy = -1.0
 
-    print('*****************************')
-    print(parser_c)
-    # energy_lib.change2white(global_PVs)
-    # angle_calibrated = energy_lib.change2pink(global_PVs)
-    # energy_calibrated = energy_lib.change_energy(global_PVs, 17)
+    if ((energy == -1.0) & (angle == -1.0)): # then is a white beam change request
+        energy_lib.change2white(global_PVs)
  
     
 if __name__ == '__main__':

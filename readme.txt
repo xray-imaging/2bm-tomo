@@ -4,8 +4,3 @@ Supported detectors:
 
         - pco: PCO edge and DIMAX 
         - flir: FLIR and Point Grey
-
-
-Utilities:
-        - autofocus
-        - energy change (DMM)

@@ -27,12 +27,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 0.0,
-        'EndY': 0.0,
-        'StepSizeY': 1,
-        'StartX': -7.6,
-        'EndX': 7.6,
-        'StepSizeX': 3.8,
+        'StartX': -7.6,                  # set X starting point of the mosaic scan 
+        'EndX': 7.6,                     # set X ending point of the mosaic scan; this point will be included in the scan
+        'StepSizeX': 3.8,                # set X step of the mosaic scan 
+        'StartY': 11.44,                 # same as the X above. For one scan mosaic in X only
+        'EndY': 11.44,                   # set StartY to the desided Y position, EndY to the same value and
+        'StepSizeY': 1,                  # an StepSizeY larger than (EndY - StartY)
         'SampleXIn': 0.0, 
         'SampleXOut': -14.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -153,6 +153,7 @@ def main():
                 log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
                 v = v + 1
+                h = 0
 
             log_lib.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)

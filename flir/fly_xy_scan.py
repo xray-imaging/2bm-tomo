@@ -147,7 +147,7 @@ def main():
                     log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
                     # global_PVs['Motor_SampleX'].put(j, wait=True)
                     variableDict['SampleXIn'] = j
-                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + v + 'x' + h
+                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + str(v) + 'x' + str(h)
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     h = h + 1
                 log_lib.info(' ')

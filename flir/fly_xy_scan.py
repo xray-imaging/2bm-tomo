@@ -30,8 +30,8 @@ variableDict = {
         'StartX': -7.6,                  # set X starting point of the mosaic scan 
         'EndX': 7.6,                     # set X ending point of the mosaic scan; this point will be included in the scan
         'StepSizeX': 3.8,                # set X step of the mosaic scan 
-        'StartY': 11.44,                 # same as the X above. For one scan mosaic in X only
-        'EndY': 11.44,                   # set StartY to the desided Y position, EndY to the same value and
+        'StartY': 11,                 # same as the X above. For one scan mosaic in X only
+        'EndY': 13,                   # set StartY to the desided Y position, EndY to the same value and
         'StepSizeY': 1,                  # an StepSizeY larger than (EndY - StartY)
         'SampleXIn': 0.0, 
         'SampleXOut': -14.0,

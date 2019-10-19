@@ -33,7 +33,7 @@ variableDict = {
         'StartY': 11,                 # same as the X above. For one scan mosaic in X only
         'EndY': 13,                   # set StartY to the desided Y position, EndY to the same value and
         'StepSizeY': 1,                  # an StepSizeY larger than (EndY - StartY)
-        'SampleXIn': 0.0, 
+        # 'SampleXIn': 0.0,              # not used in x-y scan
         'SampleXOut': -14.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
@@ -145,7 +145,8 @@ def main():
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 for j in np.arange(start_x, stop_x, step_size_x):
                     log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
-                    global_PVs['Motor_SampleX'].put(j, wait=True)
+                    # global_PVs['Motor_SampleX'].put(j, wait=True)
+                    variableDict['SampleXIn'] = j
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + str(v) + 'x' + str(h)
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     h = h + 1

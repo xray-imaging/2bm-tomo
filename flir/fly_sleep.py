@@ -28,11 +28,11 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 100,
+        'EndY': 12,
         'StepSize': 1,
-        'StartSleep_s': 0,                # wait time (s) between each data collection
+        'StartSleep_s': 600,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
-        'SampleXOut': 5,
+        'SampleXOut': 6,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field

@@ -150,12 +150,12 @@ def main():
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + str(v) + 'x' + str(h)
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     h = h + 1
+                    dm_lib.scp(global_PVs, variableDict)
                 log_lib.info(' ')
                 log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                 log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
                 v = v + 1
                 h = 0
-                dm_lib.scp(global_PVs, variableDict)
 
             log_lib.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)

@@ -415,9 +415,6 @@ def pgSet(global_PVs, variableDict, fname=None):
         log_lib.error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
     if fname is not None:
-        print('1: ###########################################')
-        print(fname)
-        print('1: ###########################################')
         setup_hdf_writer(global_PVs, variableDict, fname)
 
 def setup_frame_type(global_PVs, variableDict):

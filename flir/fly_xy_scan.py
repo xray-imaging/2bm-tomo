@@ -118,20 +118,21 @@ def main():
             end_x = variableDict['EndX']
             step_size_x = variableDict['StepSizeX']
 
+            # set scan stop so also ends are included
+            stop_x = end_x + step_size_x
+            stop_y = end_y + step_size_y
+
             # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
 
             log_lib.info(' ')
-            log_lib.info("  *** Running %d scans" % (len(np.arange(start_x, end_x, step_size_x)) * len(np.arange(start_y, end_y, step_size_y))))
+            log_lib.info("  *** Running %d scans" % (len(np.arange(start_x, stop_x, step_size_x)) * len(np.arange(start_y, stop_y, step_size_y))))
             log_lib.info(' ')
-            log_lib.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, end_x, step_size_x))
-            log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, end_y, step_size_y))
+            log_lib.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, stop_x, step_size_x))
+            log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, stop_y, step_size_y))
             
             h = 0
             v = 0
-            
-            stop_x = end_x + step_size_x
-            stop_y = end_y + step_size_y
             
             for i in np.arange(start_y, stop_y, step_size_y):
                 log_lib.info(' ')

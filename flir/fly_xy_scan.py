@@ -109,9 +109,6 @@ def main():
             blur_pixel, rot_speed, scan_time = aps2bm_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
-            # get sample file name
-            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-
             start_y = variableDict['StartY']
             end_y = variableDict['EndY']
             step_size_y = variableDict['StepSizeY']
@@ -121,7 +118,7 @@ def main():
             end_x = variableDict['EndX']
             step_size_x = variableDict['StepSizeX']
 
-            # moved pgInit() here from tomo_fly_scan() 
+            # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
 
             log_lib.info(' ')
@@ -137,20 +134,13 @@ def main():
             stop_y = end_y + step_size_y
             
             for i in np.arange(start_y, stop_y, step_size_y):
-                # log_lib.info('  *** Moving rotary stage to start position')
-                # global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-                # log_lib.info('  *** Moving rotary stage to start Y position: Done!')
                 log_lib.info(' ')
                 log_lib.info('  *** The sample vertical position is at %s mm' % (i))
                 global_PVs['Motor_SampleY'].put(i, wait=True)
                 for j in np.arange(start_x, stop_x, step_size_x):
                     log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
-                    # global_PVs['Motor_SampleX'].put(j, wait=True)
                     variableDict['SampleXIn'] = j
-                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + str(v) + 'x' + str(h)
-                    print('###########################################')
-                    print(fname, v, h)
-                    print('###########################################')
+                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + 'x' + str(h)
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     h = h + 1
                     dm_lib.scp(global_PVs, variableDict)

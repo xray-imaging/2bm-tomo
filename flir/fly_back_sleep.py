@@ -106,21 +106,19 @@ def main():
             blur_pixel, rot_speed, scan_time = aps2bm_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
-            # get sample file name
-            # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-
             start = variableDict['StartY']
             end = variableDict['EndY']
             step_size = variableDict['StepSize']
 
-            # moved pgInit() here from tomo_fly_scan() 
+            # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
             
             log_lib.info(' ')
             log_lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
             for i in np.arange(start, end, step_size):
                 tic_01 =  time.time()
-                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) 
+
+                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
                 log_lib.info(' ')
                 log_lib.info('  *** Start scan %d' % i)
 

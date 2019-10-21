@@ -27,12 +27,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartX': -7.6,                  # set X starting point of the mosaic scan 
-        'EndX': 7.6,                     # set X ending point of the mosaic scan; this point will be included in the scan
+        'StartX': -1.9,                  # set X starting point of the mosaic scan 
+        'EndX': 1.9,                     # set X ending point of the mosaic scan; this point will be included in the scan
         'StepSizeX': 3.8,                # set X step of the mosaic scan 
-        'StartY': 11,                 # same as the X above. For one scan mosaic in X only
-        'EndY': 13,                   # set StartY to the desided Y position, EndY to the same value and
-        'StepSizeY': 1,                  # an StepSizeY larger than (EndY - StartY)
+        'StartY': 24.8274,                 # same as the X above. For one scan mosaic in X only
+        'EndY': 24.8274,                   # set StartY to the desided Y position, EndY to the same value and
+        'StepSizeY': 1.045,                  # an StepSizeY larger than (EndY - StartY)
         # 'SampleXIn': 0.0,              # not used in x-y scan
         'SampleXOut': -14.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True

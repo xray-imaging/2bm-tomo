@@ -27,12 +27,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartX': -1.9,                  # set X starting point of the mosaic scan 
-        'EndX': 1.9,                     # set X ending point of the mosaic scan; this point will be included in the scan
-        'StepSizeX': 3.8,                # set X step of the mosaic scan 
-        'StartY': 24.8274,                 # same as the X above. For one scan mosaic in X only
-        'EndY': 24.8274,                   # set StartY to the desided Y position, EndY to the same value and
-        'StepSizeY': 1.045,                  # an StepSizeY larger than (EndY - StartY)
+        'StartX': -1.0,                  # set X starting point of the mosaic scan 
+        'EndX': 1.0,                     # set X ending point of the mosaic scan; this point will be included in the scan
+        'StepSizeX': 1.0,                # set X step of the mosaic scan 
+        'StartY': 25.0,                 # same as the X above. For one scan mosaic in X only
+        'EndY': 26.0,                 # set StartY to the desided Y position, EndY to the same value and
+        'StepSizeY': 1.0,                  # an StepSizeY larger than (EndY - StartY)
         # 'SampleXIn': 0.0,              # not used in x-y scan
         'SampleXOut': -14.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
@@ -148,6 +148,9 @@ def main():
                     # global_PVs['Motor_SampleX'].put(j, wait=True)
                     variableDict['SampleXIn'] = j
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + "".join([chr(c) for c in global_PVs['Sample_Name'].get()]) + '_y' + str(v) + 'x' + str(h)
+                    print('###########################################')
+                    print(fname, v, h)
+                    print('###########################################')
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     h = h + 1
                     dm_lib.scp(global_PVs, variableDict)

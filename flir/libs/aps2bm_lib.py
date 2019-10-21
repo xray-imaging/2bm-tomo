@@ -20,7 +20,7 @@ import numpy as np
 
 import log_lib
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 
@@ -415,6 +415,9 @@ def pgSet(global_PVs, variableDict, fname=None):
         log_lib.error('Detector %s is not defined' % variableDict['IOC_Prefix'])
         return
     if fname is not None:
+        print('1: ###########################################')
+        print(fname)
+        print('1: ###########################################')
         setup_hdf_writer(global_PVs, variableDict, fname)
 
 def setup_frame_type(global_PVs, variableDict):
@@ -470,7 +473,18 @@ def setup_hdf_writer(global_PVs, variableDict, fname=None):
         global_PVs['HDF1_NumCapture'].put(totalProj)
         global_PVs['HDF1_FileWriteMode'].put(str(variableDict['FileWriteMode']), wait=True)
         if fname is not None:
-            global_PVs['HDF1_FileName'].put(fname)
+            print('1: ###########################################')
+            print(global_PVs['HDF1_FileName'].get(as_string=True))
+            print('1: ###########################################')
+            print('2: ###########################################')
+            print(fname)
+            print( type( fname ) )
+            print('2: ###########################################')
+            global_PVs['HDF1_FileName'].put(str(fname), wait=True)
+            time.sleep(10)
+            print('3: ###########################################')
+            print(global_PVs['HDF1_FileName'].get(as_string=True))
+            print('3: ###########################################')
         global_PVs['HDF1_Capture'].put(1)
         wait_pv(global_PVs['HDF1_Capture'], 1)
         log_lib.info('  *** setup hdf_writer: Done!')
@@ -752,7 +766,7 @@ def add_theta(global_PVs, variableDict, theta_arr):
         log_lib.info('  *** add_theta: Done!')
     except:
         traceback.print_exc(file=sys.stdout)
-        log_lib.info('  *** add_theta: Failed accessing:', fullname)
+        log_lib.info('  *** add_theta: Failed accessing: %s' % fullname)
 
 def setPSO(global_PVs, variableDict):
 

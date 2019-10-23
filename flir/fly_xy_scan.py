@@ -35,7 +35,12 @@ variableDict = {
         'StepSizeY': 1.0,                # an StepSizeY larger than (EndY - StartY)
         # 'SampleXIn': 0.0,              # not used in x-y scan
         'SampleXOut': 5.0,
-        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
+
+        'SleepStart': 0,                 # sleep start
+        'SleepEnd': 20,                  # sleep end
+        'SleepStep': 1,                  # default, do not change
+        'SleepTime': 1800,                # wait time (s) between each data collection
+        # 'SampleYIn': 0,                # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
@@ -64,7 +69,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/'
         }
 
 global_PVs = {}
@@ -122,45 +127,56 @@ def main():
             stop_x = end_x + step_size_x
             stop_y = end_y + step_size_y
 
-            print(start_y, end_y, step_size_y)
-            print(start_y, stop_y, step_size_y)
             # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
 
-            log_lib.info(' ')
-            log_lib.info("  *** Running %d scans" % (len(np.arange(start_x, stop_x, step_size_x)) * len(np.arange(start_y, stop_y, step_size_y))))
-            log_lib.info(' ')
-            log_lib.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, stop_x, step_size_x))
-            log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, stop_y, step_size_y))
+            start = variableDict['SleepStart']
+            end = variableDict['SleepEnd']
+            step_size = variableDict['SleepStep']
 
-            h = 0
-            v = 0
-            
-            for i in np.arange(start_y, stop_y, step_size_y):
+            log_lib.info(' ')
+            log_lib.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
+            for ii in np.arange(start, end, step_size):
+                tic_01 =  time.time()
+
                 log_lib.info(' ')
-                log_lib.info('  *** The sample vertical position is at %s mm' % (i))
-                global_PVs['Motor_SampleY'].put(i, wait=True)
-                for j in np.arange(start_x, stop_x, step_size_x):
-                    log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
-                    variableDict['SampleXIn'] = j
-                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + 'x' + str(h)
-                    scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
-                    h = h + 1
-                    dm_lib.scp(global_PVs, variableDict)
+                log_lib.info("  *** Running %d mosaic scans" % (len(np.arange(start_x, stop_x, step_size_x)) * len(np.arange(start_y, stop_y, step_size_y))))
                 log_lib.info(' ')
-                log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-                log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                v = v + 1
+                log_lib.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, stop_x, step_size_x))
+                log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, stop_y, step_size_y))
+
                 h = 0
+                v = 0
+                
+                for i in np.arange(start_y, stop_y, step_size_y):
+                    log_lib.info(' ')
+                    log_lib.info('  *** The sample vertical position is at %s mm' % (i))
+                    global_PVs['Motor_SampleY'].put(i, wait=True)
+                    for j in np.arange(start_x, stop_x, step_size_x):
+                        log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
+                        variableDict['SampleXIn'] = j
+                        fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + 'x' + str(h)
+                        scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
+                        h = h + 1
+                        dm_lib.scp(global_PVs, variableDict)
+                    log_lib.info(' ')
+                    log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                    log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                    v = v + 1
+                    h = 0
 
-            log_lib.info('  *** Moving rotary stage to start position')
-            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-            log_lib.info('  *** Moving rotary stage to start position: Done!')
+                log_lib.info('  *** Moving rotary stage to start position')
+                global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                log_lib.info('  *** Moving rotary stage to start position: Done!')
 
-            global_PVs['Cam1_ImageMode'].put('Continuous')
+                if ((ii+1)!=end):
+                    log_lib.warning('  *** Wait (s): %s ' % str(variableDict['SleepTime']))
+                    time.sleep(variableDict['SleepTime']) 
 
-            
-            log_lib.info('  *** Done!')
+                global_PVs['Cam1_ImageMode'].put('Continuous')
+
+                
+                log_lib.info('  *** Done!')
 
     except  KeyError:
         log_lib.error('  *** Some PV assignment failed!')

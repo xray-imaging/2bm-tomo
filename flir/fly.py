@@ -26,8 +26,8 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'SampleXIn': -7.6, 
-        'SampleXOut': -14,
+        'SampleXIn': 0, 
+        'SampleXOut': 5,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -57,7 +57,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/'
            }
 
 global_PVs = {}

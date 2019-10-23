@@ -27,14 +27,14 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartX': -1.0,                  # set X starting point of the mosaic scan 
-        'EndX': 1.0,                     # set X ending point of the mosaic scan; this point will be included in the scan
-        'StepSizeX': 1.0,                # set X step of the mosaic scan 
-        'StartY': 25.0,                 # same as the X above. For one scan mosaic in X only
-        'EndY': 26.0,                 # set StartY to the desided Y position, EndY to the same value and
-        'StepSizeY': 1.0,                  # an StepSizeY larger than (EndY - StartY)
+        'StartX': -0.4,                  # set X starting point of the mosaic scan 
+        'EndX': 0.4,                     # set X ending point of the mosaic scan; this point will be included in the scan
+        'StepSizeX': 0.8,                # set X step of the mosaic scan 
+        'StartY': 15.1,                  # same as the X above. For one scan mosaic in X only
+        'EndY': 15.0,                    # set StartY to the desided Y position, EndY to a lower value and
+        'StepSizeY': 1.0,                # an StepSizeY larger than (EndY - StartY)
         # 'SampleXIn': 0.0,              # not used in x-y scan
-        'SampleXOut': -14.0,
+        'SampleXOut': 5.0,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -122,6 +122,8 @@ def main():
             stop_x = end_x + step_size_x
             stop_y = end_y + step_size_y
 
+            print(start_y, end_y, step_size_y)
+            print(start_y, stop_y, step_size_y)
             # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
 
@@ -130,7 +132,7 @@ def main():
             log_lib.info(' ')
             log_lib.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, stop_x, step_size_x))
             log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, stop_y, step_size_y))
-            
+
             h = 0
             v = 0
             

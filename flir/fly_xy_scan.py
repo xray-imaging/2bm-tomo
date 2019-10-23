@@ -30,16 +30,16 @@ variableDict = {
         'StartX': -0.4,                  # set X starting point of the mosaic scan 
         'EndX': 0.4,                     # set X ending point of the mosaic scan; this point will be included in the scan
         'StepSizeX': 0.8,                # set X step of the mosaic scan 
-        'StartY': 15.1,                  # same as the X above. For one scan mosaic in X only
-        'EndY': 15.0,                    # set StartY to the desided Y position, EndY to a lower value and
+        'StartY': 18.0,                  # same as the X above. For one scan mosaic in X only
+        'EndY': 18.0,                    # set StartY to the desided Y position, EndY to a lower value and
         'StepSizeY': 1.0,                # an StepSizeY larger than (EndY - StartY)
         # 'SampleXIn': 0.0,              # not used in x-y scan
         'SampleXOut': 5.0,
 
         'SleepStart': 0,                 # sleep start
-        'SleepEnd': 20,                  # sleep end
+        'SleepEnd': 40,                  # sleep end
         'SleepStep': 1,                  # default, do not change
-        'SleepTime': 1800,                # wait time (s) between each data collection
+        'SleepTime': 420,                # wait time (s) between each data collection
         # 'SampleYIn': 0,                # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -155,7 +155,7 @@ def main():
                     for j in np.arange(start_x, stop_x, step_size_x):
                         log_lib.info('  *** The sample horizontal position is at %s mm' % (j))
                         variableDict['SampleXIn'] = j
-                        fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + 'x' + str(h)
+                        fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
                         scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                         h = h + 1
                         dm_lib.scp(global_PVs, variableDict)

@@ -28,11 +28,11 @@ global variableDict
 
 variableDict = {
         'StartY': 0,
-        'EndY': 12,
+        'EndY': 1,
         'StepSize': 1,
-        'StartSleep_s': 600,                # wait time (s) between each data collection
+        'StartSleep_s': 0,                # wait time (s) between each data collection
         'SampleXIn': 0.0,
-        'SampleXOut': 6,
+        'SampleXOut': 3,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -43,10 +43,10 @@ variableDict = {
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.0065,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-        # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        #'CCD_Readout': 0.0065,              # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+        'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
-        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        'ExposureTime': 0.05, #0.01             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         # 'roiSizeX': 2448, 
         # 'roiSizeY': 2048,       
         'SlewSpeed': 5.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below
@@ -62,7 +62,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/' #'tomo@mona3:/local/data/'
         }
 
 global_PVs = {}

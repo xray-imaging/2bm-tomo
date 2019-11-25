@@ -27,13 +27,13 @@ global variableDict
 
 variableDict = {
         'SampleXIn': 0, 
-        'SampleXOut': 5,
+        'SampleXOut': -28,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
-        'SampleRotEnd':180.0,
+        'SampleRotEnd': 180,
         'Projections': 1500,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
@@ -41,7 +41,7 @@ variableDict = {
         'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         # 'CCD_Readout': 0.01,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
         'Station': '2-BM-A',
-        'ExposureTime': 0.01,             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+        'ExposureTime': 0.15, #0.01             # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
         # 'roiSizeX': 2448, 
         # 'roiSizeY': 2048,       
         'SlewSpeed': 5.0,                 # to use this as default value comment the calc_blur_pixel(global_PVs, variableDict) function below

@@ -27,11 +27,11 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY':34.4,
-        'EndY':35.7,
-        'StepSize': 1.2,
+        'StartY':31.80,
+        'EndY':40.0,
+        'StepSize': 0.6,
         'SampleXIn': 0,
-        'SampleXOut': 6,
+        'SampleXOut': -12,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
@@ -61,7 +61,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/'
         }
 
 global_PVs = {}

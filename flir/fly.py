@@ -26,12 +26,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'SampleXIn': 0, 
-        'SampleXOut': -28,
-        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
-        # 'SampleYOut': -4,
-        'SampleInOutVertical': False,     # False: use X to take the white field
-        'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
+        # 'SampleXIn': 0, 
+        # 'SampleXOut': -5,
+        'SampleYIn': 7.2,                 # to use Y change the sampleInOutVertical = True
+        'SampleYOut': 2.0,
+        'SampleInOutVertical': True,     # False: use X to take the white field
+        'SampleMoveEnabled': True,       # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd': 180,
         'Projections': 1500,

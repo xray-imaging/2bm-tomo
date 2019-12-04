@@ -27,15 +27,13 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 0,
-        'EndY': 1,
-        'StepSize': 1,
-        'StartSleep_s': 0,                # wait time (s) between each data collection
-        'SampleXIn': 0.0,
-        'SampleXOut': 3,
-        # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
-        # 'SampleYOut': -4,
-        'SampleInOutVertical': False,     # False: use X to take the white field
+        'SleepStep': 10,
+        'SleepTime_s': 1,                # wait time (s) between each data collection
+        # 'SampleXIn': 0.0,
+        # 'SampleXOut': 3,
+        'SampleYIn': 7.2,                 # to use Y change the sampleInOutVertical = True
+        'SampleYOut': 2.0,
+        'SampleInOutVertical': True,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
         'SampleRotEnd':180.0,
@@ -62,7 +60,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/' #'tomo@mona3:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/' #'tomo@handyn:/local/data/' #
         }
 
 global_PVs = {}
@@ -106,9 +104,13 @@ def main():
             blur_pixel, rot_speed, scan_time = aps2bm_lib.calc_blur_pixel(global_PVs, variableDict)
             variableDict['SlewSpeed'] = rot_speed
 
-            start = variableDict['StartY']
-            end = variableDict['EndY']
-            step_size = variableDict['StepSize']
+            # start = variableDict['SleepStart']
+            # end = variableDict['SleepEnd']
+            # step_size = variableDict['SleepStep']
+
+            start = 0
+            end = variableDict['SleepStep']
+            step_size = 1
 
             # init camera
             aps2bm_lib.pgInit(global_PVs, variableDict)
@@ -125,8 +127,8 @@ def main():
                 scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
 
                 if ((i+1)!=end):
-                    log_lib.warning('  *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
-                    time.sleep(variableDict['StartSleep_s']) 
+                    log_lib.warning('  *** Wait (s): %s ' % str(variableDict['SleepTime_s']))
+                    time.sleep(variableDict['SleepTime_s']) 
 
                 log_lib.info(' ')
                 log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))

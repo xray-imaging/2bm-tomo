@@ -27,20 +27,20 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY': 23.7,
-        'EndY': 27.6,
-        'StepSize': 1.3,
-        'SampleXIn': 0.0,
-        'SampleXOut': -6,
+        'StartY': 8.1,
+        'EndY': 16.6,
+        'StepSize': 1.68,
+        'SampleXIn': -2.05,
+        'SampleXOut': -12,
         'StartSleep_s': 0,               # wait time (s) between each data collection
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
-        'SampleRotEnd':180.0,
-        'Projections': 1500,
-        'NumWhiteImages': 30,
+        'SampleRotEnd':360.0,
+        'Projections': 3000,
+        'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
         # 'CCD_Readout': 0.006,             # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
@@ -62,7 +62,7 @@ variableDict = {
                                           #           2. SampleInOutVertical = False  
         'FurnaceYIn': 0.0,                
         'FurnaceYOut': 48.0,
-        'RemoteAnalysisDir' : 'tomo@handyn:/local/data/'
+        'RemoteAnalysisDir' : 'tomo@mona3:/local/data/'
         }
 
 global_PVs = {}
@@ -117,19 +117,21 @@ def main():
             log_lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
             log_lib.info(' ')
             log_lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
+
             for ii in range(400):
                 for i in np.arange(start, end, step_size):
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
                     log_lib.info(' ')
                     log_lib.info('  *** The sample vertical position is at %s mm' % (i))
-                    global_PVs['Motor_SampleY'].put(i, wait=True)
+                    global_PVs['Motor_SampleY'].put(i, wait=True, timeout=1000.0)
 
                     scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)
                     log_lib.info(' ')
                     log_lib.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
                     log_lib.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                global_PVs['Motor_SampleY'].put(start, wait=True)
+                    dm_lib.scp(global_PVs, variableDict)
+                global_PVs['Motor_SampleY'].put(start, wait=True, timeout=1000.0)
                 log_lib.warning('          *** Wait (s): %s ' % str(variableDict['StartSleep_s']))
                 time.sleep(variableDict['StartSleep_s']) 
 

@@ -27,12 +27,12 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'SleepStep': 10,
-        'SleepTime_s': 1,                # wait time (s) between each data collection
+        'SleepStep': 4,
+        'SleepTime_s': 270,                # wait time (s) between each data collection
         # 'SampleXIn': 0.0,
         # 'SampleXOut': 3,
-        'SampleYIn': 7.2,                 # to use Y change the sampleInOutVertical = True
-        'SampleYOut': 2.0,
+        'SampleYIn': 19.95,                 # to use Y change the sampleInOutVertical = True
+        'SampleYOut': 14.95,
         'SampleInOutVertical': True,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,

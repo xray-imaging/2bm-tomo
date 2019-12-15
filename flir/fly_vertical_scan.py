@@ -27,18 +27,18 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        'StartY':31.80,
-        'EndY':40.0,
-        'StepSize': 0.6,
-        'SampleXIn': 0,
+        'StartY': 8.1,
+        'EndY': 16.6,
+        'StepSize': 1.68,
+        'SampleXIn': -2.05,
         'SampleXOut': -12,
         # 'SampleYIn': 0,                 # to use Y change the sampleInOutVertical = True
         # 'SampleYOut': -4,
         'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,        # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
-        'SampleRotEnd':180.0,
-        'Projections': 1500,
+        'SampleRotEnd':360.0,
+        'Projections': 3000,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################

@@ -26,15 +26,15 @@ import libs.dm_lib as dm_lib
 global variableDict
 
 variableDict = {
-        # 'SampleXIn': 0, 
-        # 'SampleXOut': -5,
-        'SampleYIn': 7.2,                 # to use Y change the sampleInOutVertical = True
-        'SampleYOut': 2.0,
-        'SampleInOutVertical': True,     # False: use X to take the white field
+        'SampleXIn': -2.05, 
+        'SampleXOut': -12,
+        # 'SampleYIn': 19.95,                 # to use Y change the sampleInOutVertical = True
+        # 'SampleYOut': 14.95,
+        'SampleInOutVertical': False,     # False: use X to take the white field
         'SampleMoveEnabled': True,       # False to freeze sample motion during white field data collection
         'SampleRotStart': 0.0,
-        'SampleRotEnd': 180,
-        'Projections': 1500,
+        'SampleRotEnd': 360,
+        'Projections': 3000,
         'NumWhiteImages': 20,
         'NumDarkImages': 20,
         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
@@ -104,6 +104,8 @@ def main():
             aps2bm_lib.pgInit(global_PVs, variableDict)
 
             # set sample file name
+            print(global_PVs['HDF1_FileNumber'].get())
+            print(global_PVs['Sample_Name'].get(as_string=True))
             fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
             scan_lib.tomo_fly_scan(global_PVs, variableDict, fname)

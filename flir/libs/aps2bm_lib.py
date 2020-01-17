@@ -20,7 +20,7 @@ import numpy as np
 
 import log_lib
 
-TESTING = False
+TESTING = True
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 

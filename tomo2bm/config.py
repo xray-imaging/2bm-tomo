@@ -13,9 +13,11 @@ from tomo2bm import util
 from tomo2bm import __version__
 
 home = os.path.expanduser("~")
+
 LOGS_HOME = os.path.join(home, 'logs')
+CONFIG_FILE_NAME = os.path.join(home, 'tomo2bm.conf')
 # LOGS_HOME = os.path.join(str(pathlib.Path.home()), 'logs')
-CONFIG_FILE_NAME = os.path.join(str(pathlib.Path.home()), 'tomo2bm.conf')
+# CONFIG_FILE_NAME = os.path.join(str(pathlib.Path.home()), 'tomo2bm.conf')
 
 SECTIONS = OrderedDict()
 

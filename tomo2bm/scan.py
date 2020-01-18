@@ -19,6 +19,7 @@ import logging
 import numpy as np
 
 from tomo2bm import aps2bm
+from tomo2bm import dm
 from tomo2bm import log
 
 global_PVs = {}
@@ -61,7 +62,7 @@ def fly_sleep(params):
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
 
-            dm_lib.scp(global_PVs, params)
+            dm.scp(global_PVs, params)
 
             log.info('  *** Done!')
 

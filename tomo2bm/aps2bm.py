@@ -365,487 +365,491 @@ def setPSO(global_PVs, params):
     log.info('  *** Taxi before starting capture: Done!')
 
 
-def move_sample_out(global_PVs, params):
-    log.info('      *** Sample out')
-    if not (params.sample_move_freeze):
-        if (params.sample_in_out_vertical):
-            log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
-            global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
-            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
-                log.error('Motor_SampleY did not move in properly')
-                log.error(global_PVs['Motor_SampleY'].get())
-        else:
-            if (params.use_furnace):
-                log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
-                global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
-                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
-                    log.error('Motor_FurnaceY did not move in properly')
-                    log.error(global_PVs['Motor_FurnaceY'].get())
-            log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
-            global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
-            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
-                log.error('Motor_SampleX did not move in properly')
-                log.error(global_PVs['Motor_SampleX'].get())
-    else:
-        log.info('      *** *** Sample Stack is Frozen')
-
-
-def move_sample_in(global_PVs, params):
-    log.info('      *** Sample in')
-    if not (params.sample_move_freeze):
-        if (params.sample_in_out_vertical):
-            log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
-            global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
-            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
-                log.error('Motor_SampleY did not move in properly')
-                log.error(global_PVs['Motor_SampleY'].get())
-        else:
-            log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
-            global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
-            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
-                log.error('Motor_SampleX did not move in properly')
-                log.error(global_PVs['Motor_SampleX'].get())
-            if (params.use_furnace):
-                log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
-                global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
-                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
-                    log.error('Motor_FurnaceY did not move in properly')
-                    log.error(global_PVs['Motor_FurnaceY'].get())
-    else:
-        log.info('      *** *** Sample Stack is Frozen')
-
-########################################################################
-def stop_scan(global_PVs, params):
-        log.info(' ')
-        log.error('  *** Stopping the scan: PLEASE WAIT')
-        global_PVs['Motor_SampleRot_Stop'].put(1)
-        global_PVs['HDF1_Capture'].put(0)
-        wait_pv(global_PVs['HDF1_Capture'], 0)
-        pgInit(global_PVs, params)
-        log.error('  *** Stopping scan: Done!')
-        ##pgInit(global_PVs, params)
-
-
-def pgInit(global_PVs, params):
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        log.info('  *** init Point Grey camera')
-        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
-        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
-        global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
-        global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
-        global_PVs['Cam1_ImageMode'].put('Single', wait=True)
-        global_PVs['Cam1_Display'].put(1)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Proc1_Callbacks'].put('Disable')
-        global_PVs['Proc1_Filter_Enable'].put('Disable')
-        global_PVs['HDF1_ArrayPort'].put('PG3')
-        log.info('  *** init Point Grey camera: Done!')
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):   
-        log.info(' ')                
-        log.info('  *** init FLIR camera')
-        log.info('  *** *** set detector to idle')
-        global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
-        log.info('  *** *** set detector to idle:  Done')
-        # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
-        time.sleep(2) 
-        log.info('  *** *** set trigger mode to Off')
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
-        log.info('  *** *** set trigger mode to Off: done')
-        time.sleep(7) 
-        log.info('  *** *** set image mode to single')
-        global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with (ValueError: invalid literal for int() with base 0: 'Single') Added 7 s delay before
-        log.info('  *** *** set image mode to single: done')
-        log.info('  *** *** set cam display to 1')
-        global_PVs['Cam1_Display'].put(1)
-        log.info('  *** *** set cam display to 1: done')
-        log.info('  *** *** set cam acquire')
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
-        log.info('  *** *** set cam acquire: done')
-        if params.station == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
-        else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
-        log.info('  *** init FLIR camera: Done!')
-
-
-def pgSet(global_PVs, params, fname=None):
-
-    # Set detectors
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        # setup Point Grey PV's
-        log.info(' ')
-        log.info('  *** setup Point Grey')
-
-        # mona runf always in B with PG camera
-        global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
-        global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
-
-        global_PVs['Cam1_ImageMode'].put('Multiple')
-        global_PVs['Cam1_ArrayCallbacks'].put('Enable')
-        #global_PVs['Image1_Callbacks'].put('Enable')
-        global_PVs['Cam1_AcquirePeriod'].put(float(params.exposure_time))
-        global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time))
-        # if we are using external shutter then set the exposure time
-        global_PVs['Cam1_FrameRateOnOff'].put(0)
-
-        wait_time_sec = int(params.exposure_time) + 5
-        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
-        global_PVs['Cam1_NumImages'].put(1, wait=True)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-        global_PVs['Cam1_SoftwareTrigger'].put(1)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-        log.info('  *** setup Point Grey: Done!')
-
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        # setup Point Grey PV's
-        log.info(' ')
-        log.info('  *** setup FLIR camera')
-
-        if params.station == '2-BM-A':
-            global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
-            global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
-        else: # Mona (B-station)
-            global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
-            global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
-
-        global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
-
-        # #########################################################################
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
-        global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
-        global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True)
-        global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
-        global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
-        global_PVs['Cam1_TriggerActivation'].put('RisingEdge', wait=True)
-
-        # #########################################################################
-
-        global_PVs['Cam1_ImageMode'].put('Multiple')
-        global_PVs['Cam1_ArrayCallbacks'].put('Enable')
-        #global_PVs['Image1_Callbacks'].put('Enable')
-        #global_PVs['Cam1_AcquirePeriod'].put(float(params.exposure_time))
-        global_PVs['Cam1_FrameRateOnOff'].put(0)
-        global_PVs['Cam1_AcquireTimeAuto'].put('Off')
-
-        global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time))
-        # if we are using external shutter then set the exposure time
-
-        wait_time_sec = int(params.exposure_time) + 5
-
-        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
-        log.info('  *** setup FLIR camera: Done!')
+# ########################################################################
+# def calc_blur_pixel(global_PVs, params):
+#     """
+#     Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
     
-    else:
-        log.error('Detector %s is not defined' % params.camera_ioc_prefix)
-        return
-    if fname is not None:
-        setup_hdf_writer(global_PVs, params, fname)
+#     Parameters
+#     ----------
+#     params.exposure_time: float
+#         Detector exposure time
+#     params.ccd_readout : float
+#         Detector read out time
+#     variableDict[''roiSizeX''] : int
+#         Detector X size
+#     params.sample_rotation_end : float
+#         Tomographic scan angle end
+#     params.sample_rotation_start : float
+#         Tomographic scan angle start
+#     variableDict[''Projections'] : int
+#         Numember of projections
 
+#     Returns
+#     -------
+#     float
+#         Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
+#     """
 
-def setup_frame_type(global_PVs, params):
-    global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
-    global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
-    global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
+#     angular_range =  params.sample_rotation_end -  params.sample_rotation_start
+#     angular_step = angular_range/params.num_projections
+#     scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
+#     rot_speed = angular_range / scan_time
+#     frame_rate = params.num_projections / scan_time
+#     blur_delta = params.exposure_time * rot_speed
+ 
+   
+#     mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
+#     blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
 
-
-def setup_hdf_writer(global_PVs, params, fname=None):
-
-    if (params.camera_ioc_prefix == '2bmbPG3:') or (params.camera_ioc_prefix == '2bmbSP1:'):   
-        # setup Point Grey hdf writer PV's
-        log.info('  ')
-        log.info('  *** setup hdf_writer')
-        setup_frame_type(global_PVs, params)
-        if params.recursive_filter == True:
-            log.info('    *** Recursive Filter Enabled')
-            global_PVs['Proc1_Enable_Background'].put('Disable', wait=True)
-            global_PVs['Proc1_Enable_FlatField'].put('Disable', wait=True)
-            global_PVs['Proc1_Enable_Offset_Scale'].put('Disable', wait=True)
-            global_PVs['Proc1_Enable_Low_Clip'].put('Disable', wait=True)
-            global_PVs['Proc1_Enable_High_Clip'].put('Disable', wait=True)
-
-            global_PVs['Proc1_Callbacks'].put('Enable', wait=True)
-            global_PVs['Proc1_Filter_Enable'].put('Enable', wait=True)
-            global_PVs['HDF1_ArrayPort'].put('PROC1', wait=True)
-            global_PVs['Proc1_Filter_Type'].put(Recursive_Filter_Type, wait=True)
-            global_PVs['Proc1_Num_Filter'].put(int(params.recursive_filter_n_images), wait=True)
-            global_PVs['Proc1_Reset_Filter'].put(1, wait=True)
-            global_PVs['Proc1_AutoReset_Filter'].put('Yes', wait=True)
-            global_PVs['Proc1_Filter_Callbacks'].put('Array N only', wait=True)
-            log.info('    *** Recursive Filter Enabled: Done!')
-        else:
-            global_PVs['Proc1_Filter_Enable'].put('Disable')
-            global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
-        global_PVs['HDF1_AutoSave'].put('Yes')
-        global_PVs['HDF1_DeleteDriverFile'].put('No')
-        global_PVs['HDF1_EnableCallbacks'].put('Enable')
-        global_PVs['HDF1_BlockingCallbacks'].put('No')
-
-        # if (params.recursive_filter == False):
-        #     params.recursive_filter_n_images = 1
-
-        totalProj = ((int(params.num_projections / image_factor(global_PVs, params))) + int(params.num_dark_images) + \
-                        int(params.num_white_images))
-
-        global_PVs['HDF1_NumCapture'].put(totalProj)
-        global_PVs['HDF1_FileWriteMode'].put(str(params.file_write_mode), wait=True)
-        if fname is not None:
-            global_PVs['HDF1_FileName'].put(str(fname), wait=True)
-        global_PVs['HDF1_Capture'].put(1)
-        wait_pv(global_PVs['HDF1_Capture'], 1)
-        log.info('  *** setup hdf_writer: Done!')
-    else:
-        log.error('Detector %s is not defined' % params.camera_ioc_prefix)
-        return
-
-
-def image_factor(global_PVs, params):
-
-    if (params.recursive_filter == False):
-        factor = 1 
-    else:
-        factor = params.recursive_filter_n_images
-    return int(factor)
-
-
-def pgAcquisition(global_PVs, params):
-    theta = []
-    # Estimate the time needed for the flyscan
-    flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
-                      float(params.ccd_readout)) ) + 30
-    log.info(' ')
-    log.info('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
-
-    global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
-    time.sleep(2)    
-
-    move_sample_in(global_PVs, params)
+#     log.info(' ')
+#     log.info('  *** Calc blur pixel')
+#     log.info("  *** *** Total # of proj: %s " % params.num_projections)
+#     log.info("  *** *** Exposure Time: %s s" % params.exposure_time)
+#     log.info("  *** *** Readout Time: %s s" % params.ccd_readout)
+#     log.info("  *** *** Angular Range: %s degrees" % angular_range)
+#     log.info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
+#     log.info(' ')
+#     log.info("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
+#     log.info("  *** *** *** *** Scan Time: %f s" % scan_time) 
+#     log.info("  *** *** *** *** Rot Speed: %f degrees/s" % rot_speed)
+#     log.info("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
+#     log.info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
+#     log.info('  *** Calc blur pixel: Done!')
     
-    # global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time) )
-
-    if (params.recursive_filter == False):
-        params.recursive_filter_n_images = 1
-
-    num_images = int(params.num_projections)  * image_factor(global_PVs, params)   
-    global_PVs['Cam1_NumImages'].put(num_images, wait=True)
+#     return blur_pixel, rot_speed, scan_time
 
 
-    # Set detectors
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+# def move_sample_out(global_PVs, params):
+#     log.info('      *** Sample out')
+#     if not (params.sample_move_freeze):
+#         if (params.sample_in_out_vertical):
+#             log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
+#             global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
+#             if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
+#                 log.error('Motor_SampleY did not move in properly')
+#                 log.error(global_PVs['Motor_SampleY'].get())
+#         else:
+#             if (params.use_furnace):
+#                 log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
+#                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
+#                 if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
+#                     log.error('Motor_FurnaceY did not move in properly')
+#                     log.error(global_PVs['Motor_FurnaceY'].get())
+#             log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
+#             global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
+#             if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
+#                 log.error('Motor_SampleX did not move in properly')
+#                 log.error(global_PVs['Motor_SampleX'].get())
+#     else:
+#         log.info('      *** *** Sample Stack is Frozen')
 
-    # start acquiring
-    global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-    wait_pv(global_PVs['Cam1_Acquire'], 1)
 
-    log.info(' ')
-    log.info('  *** Fly Scan: Start!')
-    global_PVs['Fly_Run'].put(1, wait=True)
-    # wait for acquire to finish 
-    wait_pv(global_PVs['Fly_Run'], 0)
+# def move_sample_in(global_PVs, params):
+#     log.info('      *** Sample in')
+#     if not (params.sample_move_freeze):
+#         if (params.sample_in_out_vertical):
+#             log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
+#             global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
+#             if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
+#                 log.error('Motor_SampleY did not move in properly')
+#                 log.error(global_PVs['Motor_SampleY'].get())
+#         else:
+#             log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
+#             global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
+#             if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
+#                 log.error('Motor_SampleX did not move in properly')
+#                 log.error(global_PVs['Motor_SampleX'].get())
+#             if (params.use_furnace):
+#                 log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
+#                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
+#                 if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
+#                     log.error('Motor_FurnaceY did not move in properly')
+#                     log.error(global_PVs['Motor_FurnaceY'].get())
+#     else:
+#         log.info('      *** *** Sample Stack is Frozen')
 
-    # if the fly scan wait times out we should call done on the detector
-#    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
-    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
-        global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        #  got error here once when missing 100s of frames: wait_pv( 2bmbSP1:cam1:Acquire 0 5 ) reached max timeout. Return False
+# def stop_scan(global_PVs, params):
+#         log.info(' ')
+#         log.error('  *** Stopping the scan: PLEASE WAIT')
+#         global_PVs['Motor_SampleRot_Stop'].put(1)
+#         global_PVs['HDF1_Capture'].put(0)
+#         wait_pv(global_PVs['HDF1_Capture'], 0)
+#         pgInit(global_PVs, params)
+#         log.error('  *** Stopping scan: Done!')
+#         ##pgInit(global_PVs, params)
+
+# ########################################################################
+
+
+# def pgInit(global_PVs, params):
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#         log.info('  *** init Point Grey camera')
+#         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
+#         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)  # sequence Internal / Overlapped / internal because of CCD bug!!
+#         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    #
+#         global_PVs['Proc1_Filter_Callbacks'].put( 'Every array' )
+#         global_PVs['Cam1_ImageMode'].put('Single', wait=True)
+#         global_PVs['Cam1_Display'].put(1)
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+#         global_PVs['Proc1_Callbacks'].put('Disable')
+#         global_PVs['Proc1_Filter_Enable'].put('Disable')
+#         global_PVs['HDF1_ArrayPort'].put('PG3')
+#         log.info('  *** init Point Grey camera: Done!')
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):   
+#         log.info(' ')                
+#         log.info('  *** init FLIR camera')
+#         log.info('  *** *** set detector to idle')
+#         global_PVs['Cam1_Acquire'].put(DetectorIdle)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+#         log.info('  *** *** set detector to idle:  Done')
+#         # global_PVs['Proc1_Filter_Callbacks'].put( 'Every array', wait=True) # commented out to test if crash (ValueError: invalid literal for int() with base 0: 'Single') still occurs
+#         time.sleep(2) 
+#         log.info('  *** *** set trigger mode to Off')
+#         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)    # 
+#         log.info('  *** *** set trigger mode to Off: done')
+#         time.sleep(7) 
+#         log.info('  *** *** set image mode to single')
+#         global_PVs['Cam1_ImageMode'].put('Single', wait=True)   # here is where it crashes with (ValueError: invalid literal for int() with base 0: 'Single') Added 7 s delay before
+#         log.info('  *** *** set image mode to single: done')
+#         log.info('  *** *** set cam display to 1')
+#         global_PVs['Cam1_Display'].put(1)
+#         log.info('  *** *** set cam display to 1: done')
+#         log.info('  *** *** set cam acquire')
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2) 
+#         log.info('  *** *** set cam acquire: done')
+#         if params.station == '2-BM-A':
+#             global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+#             global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
+#         else: # Mona (B-station)
+#             global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+#             global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
+#         log.info('  *** init FLIR camera: Done!')
+
+
+# def pgSet(global_PVs, params, fname=None):
+
+#     # Set detectors
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#         # setup Point Grey PV's
+#         log.info(' ')
+#         log.info('  *** setup Point Grey')
+
+#         # mona runf always in B with PG camera
+#         global_PVs['Cam1_AttributeFile'].put('monaDetectorAttributes.xml', wait=True) 
+#         global_PVs['HDF1_XMLFileName'].put('monaLayout.xml', wait=True) 
+
+#         global_PVs['Cam1_ImageMode'].put('Multiple')
+#         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
+#         #global_PVs['Image1_Callbacks'].put('Enable')
+#         global_PVs['Cam1_AcquirePeriod'].put(float(params.exposure_time))
+#         global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time))
+#         # if we are using external shutter then set the exposure time
+#         global_PVs['Cam1_FrameRateOnOff'].put(0)
+
+#         wait_time_sec = int(params.exposure_time) + 5
+#         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True) #Ext. Standard
+#         global_PVs['Cam1_NumImages'].put(1, wait=True)
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+#         global_PVs['Cam1_SoftwareTrigger'].put(1)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+#         global_PVs['Cam1_SoftwareTrigger'].put(1)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+#         log.info('  *** setup Point Grey: Done!')
+
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         # setup Point Grey PV's
+#         log.info(' ')
+#         log.info('  *** setup FLIR camera')
+
+#         if params.station == '2-BM-A':
+#             global_PVs['Cam1_AttributeFile'].put('flir2bmaDetectorAttributes.xml')
+#             global_PVs['HDF1_XMLFileName'].put('flir2bmaLayout.xml')           
+#         else: # Mona (B-station)
+#             global_PVs['Cam1_AttributeFile'].put('flir2bmbDetectorAttributes.xml', wait=True) 
+#             global_PVs['HDF1_XMLFileName'].put('flir2bmbLayout.xml', wait=True) 
+
+#         global_PVs['Cam1_Acquire'].put(DetectorIdle)
+#         wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
+
+#         # #########################################################################
+#         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+#         global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
+#         global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True)
+#         global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
+#         global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
+#         global_PVs['Cam1_TriggerActivation'].put('RisingEdge', wait=True)
+
+#         # #########################################################################
+
+#         global_PVs['Cam1_ImageMode'].put('Multiple')
+#         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
+#         #global_PVs['Image1_Callbacks'].put('Enable')
+#         #global_PVs['Cam1_AcquirePeriod'].put(float(params.exposure_time))
+#         global_PVs['Cam1_FrameRateOnOff'].put(0)
+#         global_PVs['Cam1_AcquireTimeAuto'].put('Off')
+
+#         global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time))
+#         # if we are using external shutter then set the exposure time
+
+#         wait_time_sec = int(params.exposure_time) + 5
+
+#         global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+#         log.info('  *** setup FLIR camera: Done!')
     
-    log.info('  *** Fly Scan: Done!')
-    # Set trigger mode to internal for post dark and white
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        global_PVs['Cam1_TriggerMode'].put('Internal')
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+#     else:
+#         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
+#         return
+#     if fname is not None:
+#         setup_hdf_writer(global_PVs, params, fname)
 
 
-    theta = global_PVs['Theta_Array'].get(count=int(params.num_projections))
-    if (image_factor(global_PVs, params) > 1):
-        theta = np.mean(theta.reshape(-1, image_factor(global_PVs, params)), axis=1)
+# def setup_frame_type(global_PVs, params):
+#     global_PVs['Cam1_FrameTypeZRST'].put('/exchange/data')
+#     global_PVs['Cam1_FrameTypeONST'].put('/exchange/data_dark')
+#     global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
+
+
+# def setup_hdf_writer(global_PVs, params, fname=None):
+
+#     if (params.camera_ioc_prefix == '2bmbPG3:') or (params.camera_ioc_prefix == '2bmbSP1:'):   
+#         # setup Point Grey hdf writer PV's
+#         log.info('  ')
+#         log.info('  *** setup hdf_writer')
+#         setup_frame_type(global_PVs, params)
+#         if params.recursive_filter == True:
+#             log.info('    *** Recursive Filter Enabled')
+#             global_PVs['Proc1_Enable_Background'].put('Disable', wait=True)
+#             global_PVs['Proc1_Enable_FlatField'].put('Disable', wait=True)
+#             global_PVs['Proc1_Enable_Offset_Scale'].put('Disable', wait=True)
+#             global_PVs['Proc1_Enable_Low_Clip'].put('Disable', wait=True)
+#             global_PVs['Proc1_Enable_High_Clip'].put('Disable', wait=True)
+
+#             global_PVs['Proc1_Callbacks'].put('Enable', wait=True)
+#             global_PVs['Proc1_Filter_Enable'].put('Enable', wait=True)
+#             global_PVs['HDF1_ArrayPort'].put('PROC1', wait=True)
+#             global_PVs['Proc1_Filter_Type'].put(Recursive_Filter_Type, wait=True)
+#             global_PVs['Proc1_Num_Filter'].put(int(params.recursive_filter_n_images), wait=True)
+#             global_PVs['Proc1_Reset_Filter'].put(1, wait=True)
+#             global_PVs['Proc1_AutoReset_Filter'].put('Yes', wait=True)
+#             global_PVs['Proc1_Filter_Callbacks'].put('Array N only', wait=True)
+#             log.info('    *** Recursive Filter Enabled: Done!')
+#         else:
+#             global_PVs['Proc1_Filter_Enable'].put('Disable')
+#             global_PVs['HDF1_ArrayPort'].put(global_PVs['Proc1_ArrayPort'].get())
+#         global_PVs['HDF1_AutoSave'].put('Yes')
+#         global_PVs['HDF1_DeleteDriverFile'].put('No')
+#         global_PVs['HDF1_EnableCallbacks'].put('Enable')
+#         global_PVs['HDF1_BlockingCallbacks'].put('No')
+
+#         # if (params.recursive_filter == False):
+#         #     params.recursive_filter_n_images = 1
+
+#         totalProj = ((int(params.num_projections / image_factor(global_PVs, params))) + int(params.num_dark_images) + \
+#                         int(params.num_white_images))
+
+#         global_PVs['HDF1_NumCapture'].put(totalProj)
+#         global_PVs['HDF1_FileWriteMode'].put(str(params.file_write_mode), wait=True)
+#         if fname is not None:
+#             global_PVs['HDF1_FileName'].put(str(fname), wait=True)
+#         global_PVs['HDF1_Capture'].put(1)
+#         wait_pv(global_PVs['HDF1_Capture'], 1)
+#         log.info('  *** setup hdf_writer: Done!')
+#     else:
+#         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
+#         return
+
+
+# def image_factor(global_PVs, params):
+
+#     if (params.recursive_filter == False):
+#         factor = 1 
+#     else:
+#         factor = params.recursive_filter_n_images
+#     return int(factor)
+
+
+# def pgAcquisition(global_PVs, params):
+#     theta = []
+#     # Estimate the time needed for the flyscan
+#     flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
+#                       float(params.ccd_readout)) ) + 30
+#     log.info(' ')
+#     log.info('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
+
+#     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
+#     time.sleep(2)    
+
+#     # move_sample_in(global_PVs, params)
     
-    return theta
+#     # global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time) )
+
+#     if (params.recursive_filter == False):
+#         params.recursive_filter_n_images = 1
+
+#     num_images = int(params.num_projections)  * image_factor(global_PVs, params)   
+#     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
+
+
+#     # Set detectors
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#         global_PVs['Cam1_TriggerMode'].put('Overlapped', wait=True)
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         global_PVs['Cam1_TriggerMode'].put('On', wait=True)
+
+#     # start acquiring
+#     global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#     wait_pv(global_PVs['Cam1_Acquire'], 1)
+
+#     log.info(' ')
+#     log.info('  *** Fly Scan: Start!')
+#     global_PVs['Fly_Run'].put(1, wait=True)
+#     # wait for acquire to finish 
+#     wait_pv(global_PVs['Fly_Run'], 0)
+
+#     # if the fly scan wait times out we should call done on the detector
+# #    if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, flyscan_time_estimate) == False:
+#     if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 5) == False:
+#         global_PVs['Cam1_Acquire'].put(DetectorIdle)
+#         #  got error here once when missing 100s of frames: wait_pv( 2bmbSP1:cam1:Acquire 0 5 ) reached max timeout. Return False
+    
+#     log.info('  *** Fly Scan: Done!')
+#     # Set trigger mode to internal for post dark and white
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#         global_PVs['Cam1_TriggerMode'].put('Internal')
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+
+
+#     theta = global_PVs['Theta_Array'].get(count=int(params.num_projections))
+#     if (image_factor(global_PVs, params) > 1):
+#         theta = np.mean(theta.reshape(-1, image_factor(global_PVs, params)), axis=1)
+    
+#     return theta
             
 
-def pgAcquireFlat(global_PVs, params):
-    log.info('      *** White Fields')
+# def pgAcquireFlat(global_PVs, params):
+#     log.info('      *** White Fields')
 
-    move_sample_out(global_PVs, params)
+#     # move_sample_out(global_PVs, params)
     
-    global_PVs['Cam1_ImageMode'].put('Multiple')
-    global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
+#     global_PVs['Cam1_ImageMode'].put('Multiple')
+#     global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
 
-    if (params.camera_ioc_prefix == '2bmbPG3:'):
-        global_PVs['Cam1_TriggerMode'].put('Overlapped')
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):
+#         global_PVs['Cam1_TriggerMode'].put('Overlapped')
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         
-    # Set detectors
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        wait_time_sec = int(params.exposure_time) + 5
-        global_PVs['Cam1_NumImages'].put(1)
+#     # Set detectors
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#         wait_time_sec = int(params.exposure_time) + 5
+#         global_PVs['Cam1_NumImages'].put(1)
 
-        for i in range(int(params.num_white_images) * image_factor(global_PVs, params)):
-            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            time.sleep(0.1)
-            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-            time.sleep(0.1)
+#         for i in range(int(params.num_white_images) * image_factor(global_PVs, params)):
+#             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#             time.sleep(0.1)
+#             wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+#             time.sleep(0.1)
+#             global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+#             time.sleep(0.1)
+#             wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+#             time.sleep(0.1)
 
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        wait_time_sec = float(params.num_white_images) * float(params.exposure_time) + 60.0
-        global_PVs['Cam1_NumImages'].put(int(params.num_white_images))
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         wait_time_sec = float(params.num_white_images) * float(params.exposure_time) + 60.0
+#         global_PVs['Cam1_NumImages'].put(int(params.num_white_images))
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
 
-        # time.sleep(0.1)
-        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
-            global_PVs['Cam1_Acquire'].put(DetectorIdle)
+#         # time.sleep(0.1)
+#         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+#             global_PVs['Cam1_Acquire'].put(DetectorIdle)
     
-    move_sample_in(global_PVs, params)
-    log.info('      *** White Fields: Done!')
+#     log.info('      *** White Fields: Done!')
 
 
-def pgAcquireDark(global_PVs, params):
-    log.info("      *** Dark Fields") 
-    global_PVs['Cam1_ImageMode'].put('Multiple')
-    global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
+# def pgAcquireDark(global_PVs, params):
+#     log.info("      *** Dark Fields") 
+#     global_PVs['Cam1_ImageMode'].put('Multiple')
+#     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
 
-    if (params.camera_ioc_prefix == '2bmbPG3:'):
-        global_PVs['Cam1_TriggerMode'].put('Overlapped')
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):
+#         global_PVs['Cam1_TriggerMode'].put('Overlapped')
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         
-    # Set detectors
-    if (params.camera_ioc_prefix == '2bmbPG3:'):   
+#     # Set detectors
+#     if (params.camera_ioc_prefix == '2bmbPG3:'):   
 
-        wait_time_sec = int(params.exposure_time) + 5
-        global_PVs['Cam1_NumImages'].put(1)
+#         wait_time_sec = int(params.exposure_time) + 5
+#         global_PVs['Cam1_NumImages'].put(1)
 
-        for i in range(int(params.num_dark_images) * image_factor(global_PVs, params)):
-            global_PVs['Cam1_Acquire'].put(DetectorAcquire)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
-            time.sleep(0.1)
-            global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
-            time.sleep(0.1)
-            wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
-            time.sleep(0.1)
-        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
+#         for i in range(int(params.num_dark_images) * image_factor(global_PVs, params)):
+#             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
+#             time.sleep(0.1)
+#             wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
+#             time.sleep(0.1)
+#             global_PVs['Cam1_SoftwareTrigger'].put(1, wait=True)
+#             time.sleep(0.1)
+#             wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec)
+#             time.sleep(0.1)
+#         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 600)
 
-    elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        wait_time_sec = float(params.num_dark_images) * float(params.exposure_time) + 60.0
-        global_PVs['Cam1_NumImages'].put(int(params.num_dark_images))
-        #ver 2
-        global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
-        # time.sleep(0.1)
-        if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
-            global_PVs['Cam1_Acquire'].put(DetectorIdle)
+#     elif (params.camera_ioc_prefix == '2bmbSP1:'):
+#         wait_time_sec = float(params.num_dark_images) * float(params.exposure_time) + 60.0
+#         global_PVs['Cam1_NumImages'].put(int(params.num_dark_images))
+#         #ver 2
+#         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
+#         # time.sleep(0.1)
+#         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+#             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 
-    log.info('      *** Dark Fields: Done!')
-    log.info('  *** Acquisition: Done!')        
-
-
-def checkclose_hdf(global_PVs, params):
-
-    buffer_queue = global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()
-    # wait_on_hdd = 10
-    frate = 55.0
-    wait_on_hdd = buffer_queue / frate + 10
-    # wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
-    log.info('  *** Buffer Queue (frames): %d ' % buffer_queue)
-    log.info('  *** Wait HDD (s): %f' % wait_on_hdd)
-    if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
-        global_PVs["HDF1_Capture"].put(0)
-        log.info('  *** File was not closed => forced to close')
-        log.info('      *** before %d' % global_PVs["HDF1_Capture_RBV"].get())
-        wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
-        log.info('      *** after %d' % global_PVs["HDF1_Capture_RBV"].get())
-        if (global_PVs["HDF1_Capture_RBV"].get() == 1):
-            log.error('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
+#     log.info('      *** Dark Fields: Done!')
+#     log.info('  *** Acquisition: Done!')        
 
 
-def add_theta(global_PVs, params, theta_arr):
-    log.info(' ')
-    log.info('  *** add_theta')
+# def checkclose_hdf(global_PVs, params):
+
+#     buffer_queue = global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()
+#     # wait_on_hdd = 10
+#     frate = 55.0
+#     wait_on_hdd = buffer_queue / frate + 10
+#     # wait_on_hdd = (global_PVs['HDF1_QueueSize'].get() - global_PVs['HDF1_QueueFree'].get()) / 55.0 + 10
+#     log.info('  *** Buffer Queue (frames): %d ' % buffer_queue)
+#     log.info('  *** Wait HDD (s): %f' % wait_on_hdd)
+#     if wait_pv(global_PVs["HDF1_Capture_RBV"], 0, wait_on_hdd) == False: # needs to wait for HDF plugin queue to dump to disk
+#         global_PVs["HDF1_Capture"].put(0)
+#         log.info('  *** File was not closed => forced to close')
+#         log.info('      *** before %d' % global_PVs["HDF1_Capture_RBV"].get())
+#         wait_pv(global_PVs["HDF1_Capture_RBV"], 0, 5) 
+#         log.info('      *** after %d' % global_PVs["HDF1_Capture_RBV"].get())
+#         if (global_PVs["HDF1_Capture_RBV"].get() == 1):
+#             log.error('  *** ERROR HDF FILE DID NOT CLOSE; add_theta will fail')
+
+
+# def add_theta(global_PVs, params, theta_arr):
+#     log.info(' ')
+#     log.info('  *** add_theta')
     
-    fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
-    try:
-        hdf_f = h5py.File(fullname, mode='a')
-        if theta_arr is not None:
-            theta_ds = hdf_f.create_dataset('/exchange/theta', (len(theta_arr),))
-            theta_ds[:] = theta_arr[:]
-        hdf_f.close()
-        log.info('  *** add_theta: Done!')
-    except:
-        traceback.print_exc(file=sys.stdout)
-        log.info('  *** add_theta: Failed accessing: %s' % fullname)
+#     fullname = global_PVs['HDF1_FullFileName_RBV'].get(as_string=True)
+#     try:
+#         hdf_f = h5py.File(fullname, mode='a')
+#         if theta_arr is not None:
+#             theta_ds = hdf_f.create_dataset('/exchange/theta', (len(theta_arr),))
+#             theta_ds[:] = theta_arr[:]
+#         hdf_f.close()
+#         log.info('  *** add_theta: Done!')
+#     except:
+#         traceback.print_exc(file=sys.stdout)
+#         log.info('  *** add_theta: Failed accessing: %s' % fullname)
 
 
 #####################################################
 
-def calc_blur_pixel(global_PVs, params):
-    """
-    Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
-    
-    Parameters
-    ----------
-    params.exposure_time: float
-        Detector exposure time
-    params.ccd_readout : float
-        Detector read out time
-    variableDict[''roiSizeX''] : int
-        Detector X size
-    params.sample_rotation_end : float
-        Tomographic scan angle end
-    params.sample_rotation_start : float
-        Tomographic scan angle start
-    variableDict[''Projections'] : int
-        Numember of projections
 
-    Returns
-    -------
-    float
-        Blur error in pixel. For good quality reconstruction this should be < 0.2 pixel.
-    """
-
-    angular_range =  params.sample_rotation_end -  params.sample_rotation_start
-    angular_step = angular_range/params.num_projections
-    scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
-    rot_speed = angular_range / scan_time
-    frame_rate = params.num_projections / scan_time
-    blur_delta = params.exposure_time * rot_speed
- 
-   
-    mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
-    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
-
-    log.info(' ')
-    log.info('  *** Calc blur pixel')
-    log.info("  *** *** Total # of proj: %s " % params.num_projections)
-    log.info("  *** *** Exposure Time: %s s" % params.exposure_time)
-    log.info("  *** *** Readout Time: %s s" % params.ccd_readout)
-    log.info("  *** *** Angular Range: %s degrees" % angular_range)
-    log.info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
-    log.info(' ')
-    log.info("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
-    log.info("  *** *** *** *** Scan Time: %f s" % scan_time) 
-    log.info("  *** *** *** *** Rot Speed: %f degrees/s" % rot_speed)
-    log.info("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
-    log.info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
-    log.info('  *** Calc blur pixel: Done!')
-    
-    return blur_pixel, rot_speed, scan_time
 

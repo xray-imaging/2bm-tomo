@@ -29,14 +29,6 @@ ShutterA_Close_Value = 0
 ShutterB_Open_Value = 1
 ShutterB_Close_Value = 0
 
-FrameTypeData = 0
-FrameTypeDark = 1
-FrameTypeWhite = 2
-
-DetectorIdle = 0
-DetectorAcquire = 1
-EPSILON = 0.1
-
 Recursive_Filter_Type = 'RecursiveAve'
 
 

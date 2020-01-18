@@ -20,6 +20,13 @@ import numpy as np
 
 from tomo2bm import log
 
+FrameTypeData = 0
+FrameTypeDark = 1
+FrameTypeWhite = 2
+
+DetectorIdle = 0
+DetectorAcquire = 1
+EPSILON = 0.1
 
 Recursive_Filter_Type = 'RecursiveAve'
 

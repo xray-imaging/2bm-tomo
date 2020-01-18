@@ -89,9 +89,9 @@ def tomo_fly_scan(global_PVs, params, fname):
         sys.exit(0)
     signal.signal(signal.SIGINT, cleanup)
 
-    if params.has_key('StopTheScan'):
-        aps2bm.stop_scan(global_PVs, params)
-        return
+    # if params.has_key('StopTheScan'):
+    #     aps2bm.stop_scan(global_PVs, params)
+    #     return
 
     # moved to outer loop in main()
     # pgInit(global_PVs, params)

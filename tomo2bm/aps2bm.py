@@ -578,13 +578,8 @@ def pgAcquisition(global_PVs, params):
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     time.sleep(2)    
 
-    if (params.sample_in_out_vertical):
-        global_PVs['Motor_SampleY'].put(str(params.sample_y_in), wait=True, timeout=1000.0)                    
-    else:
-        global_PVs['Motor_SampleX'].put(str(params.sample_x_in), wait=True, timeout=1000.0) 
-        if (params.use_furnace):
-            global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
-
+    move_sample_in(global_PVs, params)
+    
     # global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time) )
 
     if (params.recursive_filter == False):

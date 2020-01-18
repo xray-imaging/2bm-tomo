@@ -174,22 +174,22 @@ SECTIONS['scan'] = {
         'default': 1,
         'type': float,
         'help': " "},
-    'sample-y-in': {
-        'default': 0,
-        'type': float,
-        'help': " "},
-    'sample-y-out': {
-        'default': 1,
-        'type': float,
-        'help': " "},
-    'sample-x-in': {
-        'default': 0,
-        'type': float,
-        'help': " "},
-    'sample-x-out': {
-        'default': 1,
-        'type': float,
-        'help': " "},
+    # 'sample-y-in': {
+    #     'default': 0,
+    #     'type': float,
+    #     'help': " "},
+    # 'sample-y-out': {
+    #     'default': 1,
+    #     'type': float,
+    #     'help': " "},
+    # 'sample-x-in': {
+    #     'default': 0,
+    #     'type': float,
+    #     'help': " "},
+    # 'sample-x-out': {
+    #     'default': 1,
+    #     'type': float,
+    #     'help': " "},
     'sample-in-out-vertical': {
         'default': False,
         'action': 'store_true',

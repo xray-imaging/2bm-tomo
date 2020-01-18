@@ -292,16 +292,6 @@ def stop_scan(global_PVs, params):
         ##pgInit(global_PVs, params)
 
 
-def move_sample_out(global_PVs, params):
-    log.info(' ')
-    log.info('  *** horizontal move_sample_out')
-    global_PVs['Motor_SampleX'].put(float(params.sample_x_out), wait=True)
-    if False == wait_pv(global_PVs['Motor_SampleX'], float(params.sample_x_out), 60):
-        log.error('Motor_SampleX did not move out properly')
-        log.error(global_PVs['Motor_SampleX'].get())
-    log.info('  *** horizontal move_sample_out: Done!')
-
-
 def open_shutters(global_PVs, params):
     log.info(' ')
     log.info('  *** open_shutters')
@@ -640,20 +630,64 @@ def pgAcquisition(global_PVs, params):
     
     return theta
             
+#@@@@@@
+# def move_sample_in(global_PVs, params):
+#     log.info(' ')
+#     log.info('  *** horizontal move_sample_out')
+#     global_PVs['Motor_SampleX'].put(float(params.sample_x_out), wait=True)
+#     if False == wait_pv(global_PVs['Motor_SampleX'], float(params.sample_x_out), 60):
+#         log.error('Motor_SampleX did not move out properly')
+#         log.error(global_PVs['Motor_SampleX'].get())
+#     log.info('  *** horizontal move_sample_out: Done!')
 
-def pgAcquireFlat(global_PVs, params):
-    log.info('      *** White Fields')
+
+# def move_sample_out(global_PVs, params):
+#     log.info(' ')
+#     log.info('  *** horizontal move_sample_out')
+#     global_PVs['Motor_SampleX'].put(float(params.sample_x_out), wait=True)
+#     if False == wait_pv(global_PVs['Motor_SampleX'], float(params.sample_x_out), 60):
+#         log.error('Motor_SampleX did not move out properly')
+#         log.error(global_PVs['Motor_SampleX'].get())
+#     log.info('  *** horizontal move_sample_out: Done!')
+
+
+
+def move_sample_out(global_PVs, params):
+    log.info('      *** Sample out')
     if (params.sample_move):
-        log.info('      *** *** Move Sample Out')
         if (params.sample_in_out_vertical):
-            global_PVs['Motor_SampleY'].put(str(params.sample_y_out), wait=True, timeout=1000.0)                
+            log.info('      *** *** Move Sample Out: Y')
+            global_PVs['Motor_SampleY'].put(str(params.sample_out), wait=True, timeout=1000.0)                
         else:
             if (params.use_furnace):
+                log.info('      *** *** Move Furnace Out: Y')
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
-            global_PVs['Motor_SampleX'].put(str(params.sample_x_out), wait=True, timeout=1000.0)
+            log.info('      *** *** Move Sample In: X')
+            global_PVs['Motor_SampleX'].put(str(params.sample_out), wait=True, timeout=1000.0)
     else:
         log.info('      *** *** Sample Stack is Frozen')
 
+
+def move_sample_in(global_PVs, params):
+    log.info('      *** Sample in')
+    if (params.sample_move):
+        if (params.sample_in_out_vertical):
+            log.info('      *** *** Move Sample In: Y')
+            global_PVs['Motor_SampleY'].put(str(params.sample_in), wait=True, timeout=1000.0)                
+        else:
+            log.info('      *** *** Move Sample In: X')
+            global_PVs['Motor_SampleX'].put(str(params.sample_in), wait=True, timeout=1000.0)
+            if (params.use_furnace):
+                log.info('      *** *** Move Furnace Out: Y')
+                global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
+    else:
+        log.info('      *** *** Sample Stack is Frozen')
+
+
+def pgAcquireFlat(global_PVs, params):
+    log.info('      *** White Fields')
+    move_sample_out(global_PVs, params)
+    
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
 
@@ -685,17 +719,8 @@ def pgAcquireFlat(global_PVs, params):
         # time.sleep(0.1)
         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
-    if (params.sample_move):
-        log.info('      *** *** Move Sample In')
-        if (params.sample_in_out_vertical):
-            global_PVs['Motor_SampleY'].put(str(params.sample_y_in), wait=True, timeout=1000.0)                
-        else:
-            if (params.use_furnace):
-                global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
-            global_PVs['Motor_SampleX'].put(str(params.sample_x_in), wait=True, timeout=1000.0)
-    else:
-        log.info('      *** *** Sample Stack is Frozen')
-
+    
+    move_sample_in(global_PVs, params)
     log.info('      *** White Fields: Done!')
 
 

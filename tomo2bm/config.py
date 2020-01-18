@@ -194,7 +194,7 @@ SECTIONS['scan'] = {
         'default': False,
         'action': 'store_true',
         'help': "False: use X to take the white field"},
-    'sample-move': {
+    'sample-move-freeze': {
         'default': False,
         'action': 'store_true',
         'help': "True: to freeze sample motion during white field data collection"},

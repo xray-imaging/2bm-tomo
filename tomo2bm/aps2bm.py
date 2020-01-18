@@ -657,13 +657,13 @@ def move_sample_out(global_PVs, params):
     if (params.sample_move):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample Out: Y')
-            global_PVs['Motor_SampleY'].put(str(params.sample_out), wait=True, timeout=1000.0)                
+            global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
         else:
             if (params.use_furnace):
                 log.info('      *** *** Move Furnace Out: Y')
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
             log.info('      *** *** Move Sample In: X')
-            global_PVs['Motor_SampleX'].put(str(params.sample_out), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
     else:
         log.info('      *** *** Sample Stack is Frozen')
 
@@ -673,10 +673,10 @@ def move_sample_in(global_PVs, params):
     if (params.sample_move):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample In: Y')
-            global_PVs['Motor_SampleY'].put(str(params.sample_in), wait=True, timeout=1000.0)                
+            global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
         else:
             log.info('      *** *** Move Sample In: X')
-            global_PVs['Motor_SampleX'].put(str(params.sample_in), wait=True, timeout=1000.0)
+            global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
             if (params.use_furnace):
                 log.info('      *** *** Move Furnace Out: Y')
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)

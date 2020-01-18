@@ -82,7 +82,7 @@ def dummy_tomo_fly_scan(global_PVs, params, fname):
     signal.signal(signal.SIGINT, cleanup)
 
 
-def params.recursive_filter_n_images:
+def image_factor(global_PVs, params):
 
     if (params.recursive_filter == False):
         params.recursive_filter_n_images = 1 
@@ -104,8 +104,8 @@ def tomo_fly_scan(global_PVs, params, fname):
 
     # moved to outer loop in main()
     # pgInit(global_PVs, params)
-    params.recursive_filter_n_images
-    
+    image_factor(global_PVs, params)
+
     setPSO(global_PVs, params)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)

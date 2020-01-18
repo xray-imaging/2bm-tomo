@@ -649,7 +649,7 @@ def pgAcquisition(global_PVs, params):
 
 def move_sample_out(global_PVs, params):
     log.info('      *** Sample out')
-    if (params.sample_move):
+    if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample Out: Y')
             global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
@@ -674,7 +674,7 @@ def move_sample_out(global_PVs, params):
 
 def move_sample_in(global_PVs, params):
     log.info('      *** Sample in')
-    if (params.sample_move):
+    if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample In: Y')
             global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                

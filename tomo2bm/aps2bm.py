@@ -292,6 +292,100 @@ def stop_scan(global_PVs, params):
         ##pgInit(global_PVs, params)
 
 
+def move_sample_out(global_PVs, params):
+    log.info(' ')
+    log.info('  *** horizontal move_sample_out')
+    global_PVs['Motor_SampleX'].put(float(params.sample_x_out), wait=True)
+    if False == wait_pv(global_PVs['Motor_SampleX'], float(params.sample_x_out), 60):
+        log.error('Motor_SampleX did not move out properly')
+        log.error(global_PVs['Motor_SampleX'].get())
+    log.info('  *** horizontal move_sample_out: Done!')
+
+
+def open_shutters(global_PVs, params):
+    log.info(' ')
+    log.info('  *** open_shutters')
+    if TESTING:
+        # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
+        log.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
+    else:
+        if params.station == '2-BM-A':
+        # Use Shutter A
+            if ShutterAisFast:
+                global_PVs['ShutterA_Open'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                time.sleep(3)                
+                global_PVs['Fast_Shutter'].put(1, wait=True)
+                time.sleep(1)
+                log.info('  *** open_shutter fast: Done!')
+            else:
+                global_PVs['ShutterA_Open'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
+                time.sleep(3)
+                log.info('  *** open_shutter A: Done!')
+        elif params.station == '2-BM-B':
+            global_PVs['ShutterB_Open'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
+            log.info('  *** open_shutter B: Done!')
+ 
+
+def close_shutters(global_PVs, params):
+    log.info(' ')
+    log.info('  *** close_shutters')
+    if TESTING:
+        # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
+        log.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
+    else:
+        if params.station == '2-BM-A':
+            if ShutterAisFast:
+                global_PVs['Fast_Shutter'].put(0, wait=True)
+                time.sleep(1)
+                log.info('  *** close_shutter fast: Done!')
+            else:
+                global_PVs['ShutterA_Close'].put(1, wait=True)
+                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
+                log.info('  *** close_shutter A: Done!')
+        elif params.station == '2-BM-B':
+            global_PVs['ShutterB_Close'].put(1, wait=True)
+            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
+            log.info('  *** close_shutter B: Done!')
+
+
+def setPSO(global_PVs, params):
+
+    acclTime = 1.0 * params.slew_speed/params.accl_rot
+    scanDelta = abs(((float(params.sample_rotation_end) - float(params.sample_rotation_start))) / ((float(params.num_projections)) * float(image_factor(global_PVs, params))))
+
+    log.info('  *** *** start_pos %f' % float(params.sample_rotation_start))
+    log.info('  *** *** end pos %f' % float(params.sample_rotation_end))
+
+    global_PVs['Fly_StartPos'].put(float(params.sample_rotation_start), wait=True)
+    global_PVs['Fly_EndPos'].put(float(params.sample_rotation_end), wait=True)
+    global_PVs['Fly_SlewSpeed'].put(params.slew_speed, wait=True)
+    global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
+    time.sleep(3.0)
+
+    calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+    
+    if calc_num_proj == None:
+        log.error('  *** *** Error getting fly calculated number of projections!')
+        calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+        log.error('  *** *** Using %s instead of %s' % (calc_num_proj, params.num_projections))
+    if calc_num_proj != int(params.num_projections):
+        log.warning('  *** *** Changing number of projections from: %s to: %s' % (params.num_projections, int(calc_num_proj)))
+        params.num_projections = int(calc_num_proj)
+    log.info('  *** *** Number of projections: %d' % int(params.num_projections))
+    log.info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
+    global_PVs['Fly_ScanControl'].put('Standard')
+
+    log.info(' ')
+    log.info('  *** Taxi before starting capture')
+    global_PVs['Fly_Taxi'].put(1, wait=True)
+    wait_pv(global_PVs['Fly_Taxi'], 0)
+    log.info('  *** Taxi before starting capture: Done!')
+
+########################################################################
+
 def pgInit(global_PVs, params):
     if (params.camera_ioc_prefix == '2bmbPG3:'):   
         log.info('  *** init Point Grey camera')
@@ -654,100 +748,6 @@ def move_sample_in(global_PVs, params):
         log.error(global_PVs['Motor_SampleX'].get())
     log.info('  *** horizontal move_sample_in: Done!')
 
-
-def move_sample_out(global_PVs, params):
-    log.info(' ')
-    log.info('  *** horizontal move_sample_out')
-    global_PVs['Motor_SampleX'].put(float(params.sample_x_out), wait=True)
-    if False == wait_pv(global_PVs['Motor_SampleX'], float(params.sample_x_out), 60):
-        log.error('Motor_SampleX did not move out properly')
-        log.error(global_PVs['Motor_SampleX'].get())
-    log.info('  *** horizontal move_sample_out: Done!')
-
-
-def open_shutters(global_PVs, params):
-    log.info(' ')
-    log.info('  *** open_shutters')
-    if TESTING:
-        # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        log.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
-    else:
-        if params.station == '2-BM-A':
-        # Use Shutter A
-            if ShutterAisFast:
-                global_PVs['ShutterA_Open'].put(1, wait=True)
-                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
-                time.sleep(3)                
-                global_PVs['Fast_Shutter'].put(1, wait=True)
-                time.sleep(1)
-                log.info('  *** open_shutter fast: Done!')
-            else:
-                global_PVs['ShutterA_Open'].put(1, wait=True)
-                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Open_Value)
-                time.sleep(3)
-                log.info('  *** open_shutter A: Done!')
-        elif params.station == '2-BM-B':
-            global_PVs['ShutterB_Open'].put(1, wait=True)
-            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Open_Value)
-            log.info('  *** open_shutter B: Done!')
- 
-
-def close_shutters(global_PVs, params):
-    log.info(' ')
-    log.info('  *** close_shutters')
-    if TESTING:
-        # Logger(variableDict['LogFileName']).info('\x1b[2;30;43m' + '  *** WARNING: testing mode - shutters are deactivated during the scans !!!!' + '\x1b[0m')
-        log.warning('  *** testing mode - shutters are deactivated during the scans !!!!')
-    else:
-        if params.station == '2-BM-A':
-            if ShutterAisFast:
-                global_PVs['Fast_Shutter'].put(0, wait=True)
-                time.sleep(1)
-                log.info('  *** close_shutter fast: Done!')
-            else:
-                global_PVs['ShutterA_Close'].put(1, wait=True)
-                wait_pv(global_PVs['ShutterA_Move_Status'], ShutterA_Close_Value)
-                log.info('  *** close_shutter A: Done!')
-        elif params.station == '2-BM-B':
-            global_PVs['ShutterB_Close'].put(1, wait=True)
-            wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
-            log.info('  *** close_shutter B: Done!')
-
-
-def setPSO(global_PVs, params):
-
-    acclTime = 1.0 * params.slew_speed/params.accl_rot
-    scanDelta = abs(((float(params.sample_rotation_end) - float(params.sample_rotation_start))) / ((float(params.num_projections)) * float(image_factor(global_PVs, params))))
-
-    log.info('  *** *** start_pos %f' % float(params.sample_rotation_start))
-    log.info('  *** *** end pos %f' % float(params.sample_rotation_end))
-
-    global_PVs['Fly_StartPos'].put(float(params.sample_rotation_start), wait=True)
-    global_PVs['Fly_EndPos'].put(float(params.sample_rotation_end), wait=True)
-    global_PVs['Fly_SlewSpeed'].put(params.slew_speed, wait=True)
-    global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
-    time.sleep(3.0)
-
-    calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-    
-    if calc_num_proj == None:
-        log.error('  *** *** Error getting fly calculated number of projections!')
-        calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-        log.error('  *** *** Using %s instead of %s' % (calc_num_proj, params.num_projections))
-    if calc_num_proj != int(params.num_projections):
-        log.warning('  *** *** Changing number of projections from: %s to: %s' % (params.num_projections, int(calc_num_proj)))
-        params.num_projections = int(calc_num_proj)
-    log.info('  *** *** Number of projections: %d' % int(params.num_projections))
-    log.info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
-    global_PVs['Fly_ScanControl'].put('Standard')
-
-    log.info(' ')
-    log.info('  *** Taxi before starting capture')
-    global_PVs['Fly_Taxi'].put(1, wait=True)
-    wait_pv(global_PVs['Fly_Taxi'], 0)
-    log.info('  *** Taxi before starting capture: Done!')
-
-########################################################################
 
 def checkclose_hdf(global_PVs, params):
 

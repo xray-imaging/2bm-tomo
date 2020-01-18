@@ -81,6 +81,10 @@ SECTIONS['detector'] = {
         'default': 0.01,
         'type': float,
         'help': "8bit: 0.006; 16-bit: 0.01"},
+    'exposure-time': {
+        'default': 0.1,
+        'type': float,
+        'help': " "},
     'lens-magnification': {
         'default': 0,
         'type': float,
@@ -93,7 +97,20 @@ SECTIONS['detector'] = {
         'default': 0,
         'type': float,
         'help': " "},
-    }
+    'recursive-filter':{
+        'default': False,
+        'action': 'store_true',
+        'help': " "},
+    'recursive-filter-n-images':{
+        'choices': [1, 2, 4],
+        'default': 1,
+        'type': util.positive_int,
+        'help': " "},
+    'file-write-mode': {
+     'default': 'Stream',
+        'type': str,
+        'help': " "},
+     }
 
 SECTIONS['beamline'] = {
     'station': {
@@ -128,7 +145,7 @@ SECTIONS['sample'] = {
 
 
 SECTIONS['scan'] = {
-    'num-Projections': {
+    'num-projections': {
         'type': util.positive_int,
         'default': 1500,
         'help': " "},
@@ -149,18 +166,34 @@ SECTIONS['scan'] = {
         'default': 0,
         'type': float,
         'help': " "},
-    'sample-in-out-vertical': {
-        'default': False,
-        'action': 'store_true',
-        'help': "False: use X to take the white field"},
-    'sample-move-freeze': {
-        'default': False,
-        'action': 'store_true',
-        'help': "True: to freeze sample motion during white field data collection"},
     'sample-out-position': {
         'default': 1,
         'type': float,
         'help': " "},
+    'sample-y-in': {
+        'default': 0,
+        'type': float,
+        'help': " "},
+    'sample-y-out': {
+        'default': 1,
+        'type': float,
+        'help': " "},
+    'sample-x-in': {
+        'default': 0,
+        'type': float,
+        'help': " "},
+    'sample-x-out': {
+        'default': 1,
+        'type': float,
+        'help': " "},
+    'sample-in-out-vertical': {
+        'default': False,
+        'action': 'store_true',
+        'help': "False: use X to take the white field"},
+    'sample-move': {
+        'default': False,
+        'action': 'store_true',
+        'help': "True: to freeze sample motion during white field data collection"},
     'scan-type': {
         'choices': ["sleep", "vertical", "horizontal", "Mosaic"],
         'default': 'sleep',
@@ -236,6 +269,10 @@ SECTIONS['stage-settings'] = {
         'default':  1.0,
         'type': float,
         'help': " "},
+    'slew_speed': {
+        'default':  1.0,
+        'type': float,
+        'help': " "}, 
     }
 
 SCAN_PARAMS = ('experiment-info', 'detector', 'beamline', 'sample', 'scan', 'furnace', 'file-transfer', 'stage-settings')

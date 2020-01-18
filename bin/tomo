@@ -33,7 +33,6 @@ def run_scan(args):
 
     log.warning('scan end')
 
-    print(args)
     # update config file
     sections = config.SCAN_PARAMS
     config.write(args.config, args=args, sections=sections)

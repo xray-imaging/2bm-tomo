@@ -193,7 +193,7 @@ def _setup_hdf_writer(global_PVs, params, fname=None):
         # if (params.recursive_filter == False):
         #     params.recursive_filter_n_images = 1
 
-        totalProj = ((int(params.num_projections / _image_factor(global_PVs, params))) + int(params.num_dark_images) + \
+        totalProj = ((int(params.num_projections / params.recursive_filter_n_images)) + int(params.num_dark_images) + \
                         int(params.num_white_images))
 
         global_PVs['HDF1_NumCapture'].put(totalProj)
@@ -214,14 +214,6 @@ def _setup_frame_type(global_PVs, params):
     global_PVs['Cam1_FrameTypeTWST'].put('/exchange/data_white')
 
 
-def _image_factor(global_PVs, params):
-
-    if (params.recursive_filter == False):
-        factor = 1 
-    else:
-        factor = params.recursive_filter_n_images
-    return int(factor)
-
 
 def pgAcquisition(global_PVs, params):
     theta = []
@@ -241,7 +233,7 @@ def pgAcquisition(global_PVs, params):
     if (params.recursive_filter == False):
         params.recursive_filter_n_images = 1
 
-    num_images = int(params.num_projections)  * _image_factor(global_PVs, params)   
+    num_images = int(params.num_projections)  * params.recursive_filter_n_images   
     global_PVs['Cam1_NumImages'].put(num_images, wait=True)
 
 
@@ -276,8 +268,8 @@ def pgAcquisition(global_PVs, params):
 
 
     theta = global_PVs['Theta_Array'].get(count=int(params.num_projections))
-    if (_image_factor(global_PVs, params) > 1):
-        theta = np.mean(theta.reshape(-1, _image_factor(global_PVs, params)), axis=1)
+    if (params.recursive_filter_n_images > 1):
+        theta = np.mean(theta.reshape(-1, params.recursive_filter_n_images), axis=1)
     
     return theta
             
@@ -300,7 +292,7 @@ def pgAcquireFlat(global_PVs, params):
         wait_time_sec = int(params.exposure_time) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
-        for i in range(int(params.num_white_images) * _image_factor(global_PVs, params)):
+        for i in range(int(params.num_white_images) * params.recursive_filter_n_images):
             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
             time.sleep(0.1)
             aps2bm.wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)
@@ -338,7 +330,7 @@ def pgAcquireDark(global_PVs, params):
         wait_time_sec = int(params.exposure_time) + 5
         global_PVs['Cam1_NumImages'].put(1)
 
-        for i in range(int(params.num_dark_images) * _image_factor(global_PVs, params)):
+        for i in range(int(params.num_dark_images) * params.recursive_filter_n_images):
             global_PVs['Cam1_Acquire'].put(DetectorAcquire)
             time.sleep(0.1)
             aps2bm.wait_pv(global_PVs['Cam1_Acquire'], DetectorAcquire, 2)

@@ -81,7 +81,14 @@ def dummy_tomo_fly_scan(global_PVs, params, fname):
         sys.exit(0)
     signal.signal(signal.SIGINT, cleanup)
 
-    
+
+def params.recursive_filter_n_images:
+
+    if (params.recursive_filter == False):
+        params.recursive_filter_n_images = 1 
+    return params.recursive_filter_n_images
+
+   
 def tomo_fly_scan(global_PVs, params, fname):
     log.info(' ')
     log.info('  *** start_scan')
@@ -97,8 +104,9 @@ def tomo_fly_scan(global_PVs, params, fname):
 
     # moved to outer loop in main()
     # pgInit(global_PVs, params)
-
-    aps2bm.setPSO(global_PVs, params)
+    params.recursive_filter_n_images
+    
+    setPSO(global_PVs, params)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     log.info('  *** File name prefix: %s' % fname)
@@ -244,6 +252,40 @@ def stop_scan(global_PVs, params):
         pgInit(global_PVs, params)
         log.error('  *** Stopping scan: Done!')
         ##pgInit(global_PVs, params)
+
+
+def setPSO(global_PVs, params):
+
+    acclTime = 1.0 * params.slew_speed/params.accl_rot
+    scanDelta = abs(((float(params.sample_rotation_end) - float(params.sample_rotation_start))) / ((float(params.num_projections)) * float(params.recursive_filter_n_images)))
+
+    log.info('  *** *** start_pos %f' % float(params.sample_rotation_start))
+    log.info('  *** *** end pos %f' % float(params.sample_rotation_end))
+
+    global_PVs['Fly_StartPos'].put(float(params.sample_rotation_start), wait=True)
+    global_PVs['Fly_EndPos'].put(float(params.sample_rotation_end), wait=True)
+    global_PVs['Fly_SlewSpeed'].put(params.slew_speed, wait=True)
+    global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
+    time.sleep(3.0)
+
+    calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+    
+    if calc_num_proj == None:
+        log.error('  *** *** Error getting fly calculated number of projections!')
+        calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
+        log.error('  *** *** Using %s instead of %s' % (calc_num_proj, params.num_projections))
+    if calc_num_proj != int(params.num_projections):
+        log.warning('  *** *** Changing number of projections from: %s to: %s' % (params.num_projections, int(calc_num_proj)))
+        params.num_projections = int(calc_num_proj)
+    log.info('  *** *** Number of projections: %d' % int(params.num_projections))
+    log.info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
+    global_PVs['Fly_ScanControl'].put('Standard')
+
+    log.info(' ')
+    log.info('  *** Taxi before starting capture')
+    global_PVs['Fly_Taxi'].put(1, wait=True)
+    wait_pv(global_PVs['Fly_Taxi'], 0)
+    log.info('  *** Taxi before starting capture: Done!')
 
 ########################################################################
 

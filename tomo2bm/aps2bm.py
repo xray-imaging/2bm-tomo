@@ -651,19 +651,19 @@ def move_sample_out(global_PVs, params):
     log.info('      *** Sample out')
     if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
-            log.info('      *** *** Move Sample Out: Y')
+            log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
             global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
             if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
                 log.error('Motor_SampleY did not move in properly')
                 log.error(global_PVs['Motor_SampleY'].get())
         else:
             if (params.use_furnace):
-                log.info('      *** *** Move Furnace Out: Y')
+                log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
                 if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
                     log.error('Motor_FurnaceY did not move in properly')
                     log.error(global_PVs['Motor_FurnaceY'].get())
-            log.info('      *** *** Move Sample In: X')
+            log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
             global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
             if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
                 log.error('Motor_SampleX did not move in properly')
@@ -676,19 +676,19 @@ def move_sample_in(global_PVs, params):
     log.info('      *** Sample in')
     if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
-            log.info('      *** *** Move Sample In: Y')
+            log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
             global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
             if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
                 log.error('Motor_SampleY did not move in properly')
                 log.error(global_PVs['Motor_SampleY'].get())
         else:
-            log.info('      *** *** Move Sample In: X')
+            log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
             global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
             if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
                 log.error('Motor_SampleX did not move in properly')
                 log.error(global_PVs['Motor_SampleX'].get())
             if (params.use_furnace):
-                log.info('      *** *** Move Furnace Out: Y')
+                log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
                 if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
                     log.error('Motor_FurnaceY did not move in properly')

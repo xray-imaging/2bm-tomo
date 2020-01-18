@@ -31,7 +31,7 @@ def fly_sleep(params):
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.ioc_prefix)
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
             log.info('  *** Failed!')
         else:
             log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \

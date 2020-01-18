@@ -49,7 +49,7 @@ def fly_sleep(params):
             # set sample file name
             fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
-            scan_lib.tomo_fly_scan(global_PVs, params, fname)
+            tomo_fly_scan(global_PVs, params, fname)
 
             log.info(' ')
             log.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))

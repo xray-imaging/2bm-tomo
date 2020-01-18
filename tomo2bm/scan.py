@@ -21,13 +21,13 @@ import numpy as np
 from tomo2bm import aps2bm
 from tomo2bm import log
 
-
+global_PVs = {}
 
 def fly_sleep(params):
 
     tic =  time.time()
     # aps2bm.update_variable_dict(variableDict)
-    aps2bm.init_general_PVs(global_PVs, variableDict)
+    global_PVs = aps2bm.init_general_PVs(global_PVs, variableDict)
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):

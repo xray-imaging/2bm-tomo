@@ -279,6 +279,7 @@ def init_general_PVs(global_PVs, params):
         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
         return            
 
+    return global_PVs
 
 def stop_scan(global_PVs, params):
         log.info(' ')

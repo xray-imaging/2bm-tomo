@@ -35,7 +35,7 @@ def fly_sleep(params):
             log.info('  *** Failed!')
         else:
             log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
-                        % (params.ioc_prefix, detector_sn))
+                        % (params.camera_ioc_prefix, detector_sn))
             
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             params.exposure_time = global_PVs['Cam1_AcquireTime'].get()

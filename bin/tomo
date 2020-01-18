@@ -1,0 +1,86 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+import argparse
+import logging
+import time
+import shutil
+import pathlib
+from datetime import datetime
+
+from tomo2bm import config, __version__
+from tomo2bm import log
+
+
+def init(args):
+
+    if not os.path.exists(str(args.config)):
+        config.write(args.config)
+    else:
+        log.error("{0} already exists".format(args.config))
+
+  
+def run_scan(args):
+
+    log.warning('scan start')
+    if args.scan_type == 'sleep':
+        log.warning('fly scan')
+
+
+    log.warning('scan end')
+
+    # update config file
+    sections = config.SCAN_PARAMS
+    config.write(args.config, args=args, sections=sections)
+
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', **config.SECTIONS['general']['config'])
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {}'.format(__version__))
+
+    scan_params = config.SCAN_PARAMS
+    find_center_params = config.SCAN_PARAMS
+
+    cmd_parsers = [
+        ('init',        init,            (),                             "Create configuration file"),
+        ('scan',        run_scan,        scan_params,                    "Run tomographic reconstruction"),
+    ]
+
+    subparsers = parser.add_subparsers(title="Commands", metavar='')
+
+    for cmd, func, sections, text in cmd_parsers:
+        cmd_params = config.Params(sections=sections)
+        cmd_parser = subparsers.add_parser(cmd, help=text, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        cmd_parser = cmd_params.add_arguments(cmd_parser)
+        cmd_parser.set_defaults(_func=func)
+
+    args = config.parse_known_args(parser, subparser=True)
+
+    # create logger
+    logs_home = args.logs_home
+
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = os.path.join(logs_home, 'tomopy_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H_%M_%S") + '.log')
+ 
+    log.setup_custom_logger(lfname)
+    log.info("Saving log at %s" % lfname)
+
+    try:
+        config.log_values(args)
+        args._func(args)
+    except RuntimeError as e:
+        log.error(str(e))
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
+

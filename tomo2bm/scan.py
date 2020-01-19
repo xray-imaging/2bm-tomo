@@ -172,7 +172,7 @@ def fly_scan_mosaic(params):
 
             start_x = params.horizontal_scan_start
             end_x = params.horizontal_scan_end
-            step_size_x = params.horizontal_step_size
+            step_size_x = params.horizontal_scan_step_size
 
             # set scan stop so also ends are included
             stop_x = end_x + step_size_x

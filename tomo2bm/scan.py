@@ -39,7 +39,7 @@ def fly_scan(params):
             flir.init(global_PVs, params)
 
             log.info(' ')
-            log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
+            log.info("  *** Running %d sleep scans" % params.sleep_steps)
             for i in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
                 # set sample file name
@@ -48,8 +48,8 @@ def fly_scan(params):
                 log.info(' ')
                 log.info('  *** Start scan %d' % i)
                 tomo_fly_scan(global_PVs, params, fname)
-                print(i, n_sleep_steps)
-                if ((i+1)!=n_sleep_steps):
+                print(i,  params.sleep_steps)
+                if ((i+1)!= params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 

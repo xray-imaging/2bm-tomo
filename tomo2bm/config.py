@@ -222,6 +222,10 @@ SECTIONS['scan'] = {
     'sleep-time': {
         'default': 0,
         'type': float,
+        'help': "wait time (s) between each data collection"},
+    'sleep-steps': {
+        'type': util.positive_int,
+        'default': 1,
         'help': " "},
     }
 

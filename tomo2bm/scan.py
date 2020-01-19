@@ -48,23 +48,34 @@ def fly_scan(params):
             # init camera
             flir.init(global_PVs, params)
 
-            # set sample file name
-            fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+            for i in np.arange(0, params.sleep_steps, 1):
+                tic_01 =  time.time()
+                # set sample file name
+                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
-            tomo_fly_scan(global_PVs, params, fname)
+                log.info(' ')
+                log.info('  *** Start scan %d' % i)
+                tomo_fly_scan(global_PVs, params, fname)
 
-            log.info(' ')
-            log.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
-            log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                if ((i+1)!=params.sleep_steps):
+                    log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
+                    time.sleep(params.sleep_time) 
 
+                log.info(' ')
+                log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                log.info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
+                log.info('  *** Scan Done!')
+    
+                dm.scp(global_PVs, variableDict)
+
+            log.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
+ 
             log.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             log.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
-
-            dm.scp(global_PVs, params)
-
+ 
             log.info('  *** Done!')
 
     except  KeyError:

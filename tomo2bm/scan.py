@@ -203,7 +203,7 @@ def fly_scan_mosaic(params):
                         log.info('  *** The sample horizontal position is at %s mm' % (j))
                         params.sample_in_position = j
                         fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
-                        scan.tomo_fly_scan(global_PVs, params, fname)
+                        tomo_fly_scan(global_PVs, params, fname)
                         h = h + 1
                         dm.scp(global_PVs, params)
                     log.info(' ')

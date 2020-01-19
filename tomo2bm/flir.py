@@ -1,21 +1,12 @@
 '''
-    Tomo Lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
+    detector lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
     
 '''
-from __future__ import print_function
-
 import sys
 import json
 import time
-from epics import PV
 import h5py
-import shutil
-import os
-import imp
 import traceback
-import math
-import signal
-import logging
 import numpy as np
 
 from tomo2bm import aps2bm

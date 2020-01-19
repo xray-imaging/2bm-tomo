@@ -1,9 +1,7 @@
 '''
-    Tomo Scan Lib for Sector 2-BM  using Point Grey Grasshooper3 or FLIR Oryx cameras
+    Scan Lib for Sector 2-BM
     
 '''
-from __future__ import print_function
-
 import sys
 import time
 import signal

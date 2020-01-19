@@ -18,7 +18,6 @@ CONFIG_FILE_NAME = os.path.join(home, 'tomo2bm.conf')
 
 SECTIONS = OrderedDict()
 
-
 SECTIONS['general'] = {
     'config': {
         'default': CONFIG_FILE_NAME,
@@ -144,7 +143,6 @@ SECTIONS['sample'] = {
         'help': " "},
     }
 
-
 SECTIONS['scan'] = {
     'scan-type': {
         'choices': ['standard', 'vertical', 'horizontal', 'mosaic'],
@@ -225,7 +223,6 @@ SECTIONS['scan'] = {
         'default': 1,
         'help': " "},
     }
-
                                           
 SECTIONS['furnace'] = {                 # True: moves the furnace  to FurnaceYOut position to take white field: 
     'use-furnace': {                    #       Note: this flag is active ONLY when both 1. and 2. are met:
@@ -392,7 +389,7 @@ def log_values(args):
     """
     args = args.__dict__
 
-    log.warning('tomopy-cli status start')
+    log.warning('tomoo scan status start')
     for section, name in zip(SECTIONS, NICE_NAMES):
         entries = sorted((k for k in args.keys() if k.replace('_', '-') in SECTIONS[section]))
 
@@ -404,4 +401,4 @@ def log_values(args):
                 value = args[entry] if args[entry] is not None else "-"
                 log.info("  {:<16} {}".format(entry, value))
 
-    log.warning('tomopy-cli status end')
+    log.warning('tomo scan status end')

@@ -35,17 +35,12 @@ def fly_scan(params):
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
-            start = params.sleep_start
-            end = params.sleep_end
-            step_size = params.sleep_step_size
-            n_sleep_steps = int((end-start)/step_size)
-
             # init camera
             flir.init(global_PVs, params)
 
             log.info(' ')
             log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
-            for i in np.arange(start, end, step_size):
+            for i in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
                 # set sample file name
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
@@ -100,11 +95,6 @@ def fly_scan_vertical(params):
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
-            start = params.sleep_start
-            end = params.sleep_end
-            step_size = params.sleep_step_size
-            n_sleep_steps = int((end-start)/step_size)
-
             start_y = params.vertical_scan_start
             end_y = params.vertical_scan_end
             step_y = params.vertical_scan_step_size
@@ -117,7 +107,7 @@ def fly_scan_vertical(params):
             lib.info(' ')
             lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
 
-            for ii in np.arange(start, end, step_size):
+            for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
                 log.info('  *** Start scan %d' % ii)
                 for i in np.arange(start_y, end_y, step_size_y):
@@ -138,7 +128,7 @@ def fly_scan_vertical(params):
                     dm.scp(global_PVs, params)
 
                 global_PVs['Motor_SampleY'].put(start, wait=True, timeout=1000.0)
-                if ((ii+1)!=n_sleep_steps):
+                if ((ii+1)!=params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 
@@ -188,18 +178,13 @@ def fly_scan_mosaic(params):
             # set scan stop so also ends are included
             stop_x = end_x + step_size_x
             stop_y = end_y + step_size_y
-            n_sleep_steps = int((end-start)/step_size)
 
             # init camera
             flir.init(global_PVs, params)
 
-            start = params.sleep_start
-            end = params.sleep_end
-            step_size = params.sleep_step_size
-
             log.info(' ')
             log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
-            for ii in np.arange(start, end, step_size):
+            for ii in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
 
                 log.info(' ')
@@ -232,7 +217,7 @@ def fly_scan_mosaic(params):
                 global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
                 log.info('  *** Moving rotary stage to start position: Done!')
 
-                if ((i+1)!=n_sleep_steps):
+                if ((ii+1)!=params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 

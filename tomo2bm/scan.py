@@ -114,8 +114,8 @@ def fly_scan_vertical(params):
                     # set sample file name
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
-                    log_log.info(' ')
-                    log_log.info('  *** The sample vertical position is at %s mm' % (i))
+                    log.info(' ')
+                    log.info('  *** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True, timeout=1000.0)
                     tomo_fly_scan(global_PVs, params, fname)
 

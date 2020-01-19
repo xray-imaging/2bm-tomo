@@ -200,19 +200,19 @@ def move_sample_out(global_PVs, params):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
             global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
-            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
+            if aps2bm.wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
                 log.error('Motor_SampleY did not move in properly')
                 log.error(global_PVs['Motor_SampleY'].get())
         else:
             if (params.use_furnace):
                 log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
-                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
+                if aps2bm.wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
                     log.error('Motor_FurnaceY did not move in properly')
                     log.error(global_PVs['Motor_FurnaceY'].get())
             log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
             global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
-            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
+            if aps2bm.wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
                 log.error('Motor_SampleX did not move in properly')
                 log.error(global_PVs['Motor_SampleX'].get())
     else:
@@ -225,19 +225,19 @@ def move_sample_in(global_PVs, params):
         if (params.sample_in_out_vertical):
             log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
             global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
-            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
+            if aps2bm.wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
                 log.error('Motor_SampleY did not move in properly')
                 log.error(global_PVs['Motor_SampleY'].get())
         else:
             log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
             global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
-            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
+            if aps2bm.wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
                 log.error('Motor_SampleX did not move in properly')
                 log.error(global_PVs['Motor_SampleX'].get())
             if (params.use_furnace):
                 log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
                 global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
-                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
+                if aps2bm.wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
                     log.error('Motor_FurnaceY did not move in properly')
                     log.error(global_PVs['Motor_FurnaceY'].get())
     else:
@@ -248,7 +248,7 @@ def stop_scan(global_PVs, params):
         log.error('  *** Stopping the scan: PLEASE WAIT')
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
-        wait_pv(global_PVs['HDF1_Capture'], 0)
+        aps2bm.wait_pv(global_PVs['HDF1_Capture'], 0)
         pgInit(global_PVs, params)
         log.error('  *** Stopping scan: Done!')
         ##pgInit(global_PVs, params)
@@ -284,7 +284,7 @@ def setPSO(global_PVs, params):
     log.info(' ')
     log.info('  *** Taxi before starting capture')
     global_PVs['Fly_Taxi'].put(1, wait=True)
-    wait_pv(global_PVs['Fly_Taxi'], 0)
+    aps2bm.wait_pv(global_PVs['Fly_Taxi'], 0)
     log.info('  *** Taxi before starting capture: Done!')
 
 ########################################################################

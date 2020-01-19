@@ -31,6 +31,7 @@ ShutterB_Close_Value = 0
 
 Recursive_Filter_Type = 'RecursiveAve'
 
+EPSILON = 0.1
 
 
 # def update_variable_dict(variableDict):

@@ -176,6 +176,7 @@ SECTIONS['scan'] = {
         'help': "Sample position for white field images"},
     'sample-in-out': {
         'default': 'horizontal',
+        'choices': ['horizontal', 'vertical'],
         'help': "which stage is used to take the white field"},
     'sample-move-freeze': {
         'default': False,
@@ -217,15 +218,7 @@ SECTIONS['scan'] = {
         'default': 0,
         'type': float,
         'help': "wait time (s) between each data collection"},
-    'sleep-start': {
-        'type': util.positive_int,
-        'default': 0,
-        'help': " "},
-    'sleep-end': {
-        'type': util.positive_int,
-        'default': 1,
-        'help': " "},
-    'sleep-step-size': {
+    'sleep-steps': {
         'type': util.positive_int,
         'default': 1,
         'help': " "},

@@ -48,7 +48,6 @@ def fly_scan(params):
                 log.info(' ')
                 log.info('  *** Start scan %d' % i)
                 tomo_fly_scan(global_PVs, params, fname)
-                print(i,  params.sleep_steps)
                 if ((i+1)!= params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 

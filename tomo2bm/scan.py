@@ -46,7 +46,7 @@ def fly_sleep(params):
             params.slew_speed = rot_speed
 
             # init camera
-            flir.pgInit(global_PVs, params)
+            flir.init(global_PVs, params)
 
             # set sample file name
             fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
@@ -103,7 +103,7 @@ def tomo_fly_scan(global_PVs, params, fname):
     #     return
 
     # moved to outer loop in main()
-    # pgInit(global_PVs, params)
+    # init(global_PVs, params)
     image_factor(global_PVs, params)
 
     setPSO(global_PVs, params)
@@ -111,14 +111,14 @@ def tomo_fly_scan(global_PVs, params, fname):
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     log.info('  *** File name prefix: %s' % fname)
 
-    flir.pgSet(global_PVs, params, fname) 
+    flir.set(global_PVs, params, fname) 
 
     aps2bm.open_shutters(global_PVs, params)
 
     move_sample_in(global_PVs, params)
 
     # # run fly scan
-    theta = flir.pgAcquisition(global_PVs, params)
+    theta = flir.acquire(global_PVs, params)
 
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
     if (0 < theta_end < 180.0):
@@ -126,13 +126,13 @@ def tomo_fly_scan(global_PVs, params, fname):
         log.error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
 
     move_sample_out(global_PVs, params)
-    flir.pgAcquireFlat(global_PVs, params)
+    flir.acquire_flat(global_PVs, params)
     move_sample_in(global_PVs, params)
 
     aps2bm.close_shutters(global_PVs, params)
     time.sleep(2)
 
-    flir.pgAcquireDark(global_PVs, params)
+    flir.acquire_dark(global_PVs, params)
 
     flir.checkclose_hdf(global_PVs, params)
 
@@ -249,9 +249,9 @@ def stop_scan(global_PVs, params):
         global_PVs['Motor_SampleRot_Stop'].put(1)
         global_PVs['HDF1_Capture'].put(0)
         aps2bm.wait_pv(global_PVs['HDF1_Capture'], 0)
-        pgInit(global_PVs, params)
+        flir.init(global_PVs, params)
         log.error('  *** Stopping scan: Done!')
-        ##pgInit(global_PVs, params)
+        ##init(global_PVs, params)
 
 
 def setPSO(global_PVs, params):

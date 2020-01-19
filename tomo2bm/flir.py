@@ -27,11 +27,10 @@ FrameTypeWhite = 2
 
 DetectorIdle = 0
 DetectorAcquire = 1
-EPSILON = 0.1
 
 Recursive_Filter_Type = 'RecursiveAve'
 
-def pgInit(global_PVs, params):
+def init(global_PVs, params):
     if (params.camera_ioc_prefix == '2bmbPG3:'):   
         log.info('  *** init Point Grey camera')
         global_PVs['Cam1_TriggerMode'].put('Internal', wait=True)    # 
@@ -78,11 +77,10 @@ def pgInit(global_PVs, params):
         log.info('  *** init FLIR camera: Done!')
 
 
-def pgSet(global_PVs, params, fname=None):
+def set(global_PVs, params, fname=None):
 
     # Set detectors
     if (params.camera_ioc_prefix == '2bmbPG3:'):   
-        # setup Point Grey PV's
         log.info(' ')
         log.info('  *** setup Point Grey')
 
@@ -112,7 +110,6 @@ def pgSet(global_PVs, params, fname=None):
         log.info('  *** setup Point Grey: Done!')
 
     elif (params.camera_ioc_prefix == '2bmbSP1:'):
-        # setup Point Grey PV's
         log.info(' ')
         log.info('  *** setup FLIR camera')
 
@@ -126,15 +123,12 @@ def pgSet(global_PVs, params, fname=None):
         global_PVs['Cam1_Acquire'].put(DetectorIdle)
         aps2bm.wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, 2)
 
-        # #########################################################################
         global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
         global_PVs['Cam1_TriggerSource'].put('Line2', wait=True)
         global_PVs['Cam1_TriggerOverlap'].put('ReadOut', wait=True)
         global_PVs['Cam1_ExposureMode'].put('Timed', wait=True)
         global_PVs['Cam1_TriggerSelector'].put('FrameStart', wait=True)
         global_PVs['Cam1_TriggerActivation'].put('RisingEdge', wait=True)
-
-        # #########################################################################
 
         global_PVs['Cam1_ImageMode'].put('Multiple')
         global_PVs['Cam1_ArrayCallbacks'].put('Enable')
@@ -215,7 +209,7 @@ def _setup_frame_type(global_PVs, params):
 
 
 
-def pgAcquisition(global_PVs, params):
+def acquire(global_PVs, params):
     theta = []
     # Estimate the time needed for the flyscan
     flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
@@ -226,8 +220,6 @@ def pgAcquisition(global_PVs, params):
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     time.sleep(2)    
 
-    # move_sample_in(global_PVs, params)
-    
     # global_PVs['Cam1_AcquireTime'].put(float(params.exposure_time) )
 
     if (params.recursive_filter == False):
@@ -274,11 +266,9 @@ def pgAcquisition(global_PVs, params):
     return theta
             
 
-def pgAcquireFlat(global_PVs, params):
+def acquire_flat(global_PVs, params):
     log.info('      *** White Fields')
-
-    # move_sample_out(global_PVs, params)
-    
+   
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeWhite)             
 
@@ -314,7 +304,7 @@ def pgAcquireFlat(global_PVs, params):
     log.info('      *** White Fields: Done!')
 
 
-def pgAcquireDark(global_PVs, params):
+def acquire_dark(global_PVs, params):
     log.info("      *** Dark Fields") 
     global_PVs['Cam1_ImageMode'].put('Multiple')
     global_PVs['Cam1_FrameType'].put(FrameTypeDark)             
@@ -344,9 +334,7 @@ def pgAcquireDark(global_PVs, params):
     elif (params.camera_ioc_prefix == '2bmbSP1:'):
         wait_time_sec = float(params.num_dark_images) * float(params.exposure_time) + 60.0
         global_PVs['Cam1_NumImages'].put(int(params.num_dark_images))
-        #ver 2
         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=5.0) # it was 1000.0
-        # time.sleep(0.1)
         if aps2bm.wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
             global_PVs['Cam1_Acquire'].put(DetectorIdle)
 

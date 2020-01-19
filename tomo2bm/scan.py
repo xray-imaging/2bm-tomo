@@ -66,7 +66,7 @@ def fly_scan(params):
                 log.info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
                 log.info('  *** Scan Done!')
     
-                dm.scp(global_PVs, variableDict)
+                dm.scp(global_PVs, params)
 
             log.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  

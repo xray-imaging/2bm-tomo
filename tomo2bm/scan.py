@@ -38,6 +38,7 @@ def fly_scan(params):
             start = params.sleep_start
             end = params.sleep_end
             step_size = params.sleep_step_size
+            n_sleep_steps = int((end-start)/step_size)
 
             # init camera
             flir.init(global_PVs, params)
@@ -52,8 +53,8 @@ def fly_scan(params):
                 log.info(' ')
                 log.info('  *** Start scan %d' % i)
                 tomo_fly_scan(global_PVs, params, fname)
-
-                if ((i+1)!=params.sleep_steps):
+                print(i, n_sleep_steps)
+                if ((i+1)!=n_sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 
@@ -102,6 +103,7 @@ def fly_scan_vertical(params):
             start = params.sleep_start
             end = params.sleep_end
             step_size = params.sleep_step_size
+            n_sleep_steps = int((end-start)/step_size)
 
             start_y = params.vertical_scan_start
             end_y = params.vertical_scan_end
@@ -115,7 +117,7 @@ def fly_scan_vertical(params):
             lib.info(' ')
             lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
 
-            for ii in np.arange(0, params.sleep_steps, 1):
+            for ii in np.arange(start, end, step_size):
                 log.info(' ')
                 log.info('  *** Start scan %d' % ii)
                 for i in np.arange(start_y, end_y, step_size_y):
@@ -136,7 +138,7 @@ def fly_scan_vertical(params):
                     dm.scp(global_PVs, params)
 
                 global_PVs['Motor_SampleY'].put(start, wait=True, timeout=1000.0)
-                if ((ii+1)!=params.sleep_steps):
+                if ((ii+1)!=n_sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 
@@ -186,6 +188,7 @@ def fly_scan_mosaic(params):
             # set scan stop so also ends are included
             stop_x = end_x + step_size_x
             stop_y = end_y + step_size_y
+            n_sleep_steps = int((end-start)/step_size)
 
             # init camera
             flir.init(global_PVs, params)
@@ -229,7 +232,7 @@ def fly_scan_mosaic(params):
                 global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
                 log.info('  *** Moving rotary stage to start position: Done!')
 
-                if ((i+1)!=params.sleep_steps):
+                if ((i+1)!=n_sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 

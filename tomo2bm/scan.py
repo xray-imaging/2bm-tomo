@@ -54,11 +54,11 @@ def fly_scan(params):
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
                 log.info(' ')
-                log.info('  *** Start scan %d' % i)
+                log.error('  *** Start scan %d' % i)
                 tomo_fly_scan(global_PVs, params, fname)
 
                 if ((i+1)!=params.sleep_steps):
-                    log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
+                    log.error('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 
                 log.info(' ')

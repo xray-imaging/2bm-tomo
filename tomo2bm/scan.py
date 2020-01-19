@@ -35,10 +35,16 @@ def fly_scan(params):
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
+            start = params.sleep_start
+            end = params.sleep_end
+            step_size = params.sleep_step_size
+
             # init camera
             flir.init(global_PVs, params)
 
-            for i in np.arange(0, params.sleep_steps, 1):
+            log.info(' ')
+            log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
+            for i in np.arange(start, end, step_size):
                 tic_01 =  time.time()
                 # set sample file name
                 fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
@@ -93,9 +99,13 @@ def fly_scan_vertical(params):
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
-            start = params.vertical_scan_start
-            end = params.vertical_scan_end
-            step = params.vertical_scan_step_size
+            start = params.sleep_start
+            end = params.sleep_end
+            step_size = params.sleep_step_size
+
+            start_y = params.vertical_scan_start
+            end_y = params.vertical_scan_end
+            step_y = params.vertical_scan_step_size
 
             # init camera
             flir.init(global_PVs, params)
@@ -108,7 +118,7 @@ def fly_scan_vertical(params):
             for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
                 log.info('  *** Start scan %d' % ii)
-                for i in np.arange(start, end, step_size):
+                for i in np.arange(start_y, end_y, step_size_y):
                     tic_01 =  time.time()
                     # set sample file name
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
@@ -180,7 +190,7 @@ def fly_scan_mosaic(params):
             # init camera
             flir.init(global_PVs, params)
 
-            start = params.sleep_tart
+            start = params.sleep_start
             end = params.sleep_end
             step_size = params.sleep_step_size
 

@@ -5,23 +5,14 @@
 from __future__ import print_function
 
 import sys
-import json
 import time
-from epics import PV
-import h5py
-import shutil
-import os
-import imp
-import traceback
-import math
 import signal
-import logging
 import numpy as np
 
-from tomo2bm import aps2bm
 from tomo2bm import dm
 from tomo2bm import log
 from tomo2bm import flir
+from tomo2bm import aps2bm
 
 global_PVs = {}
 

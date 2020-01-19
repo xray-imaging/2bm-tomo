@@ -3,8 +3,6 @@ import sys
 import pathlib
 import argparse
 import configparser
-import h5py
-import numpy as np
 
 from collections import OrderedDict
 
@@ -13,7 +11,6 @@ from tomo2bm import util
 from tomo2bm import __version__
 
 home = os.path.expanduser("~")
-
 LOGS_HOME = os.path.join(home, 'logs')
 CONFIG_FILE_NAME = os.path.join(home, 'tomo2bm.conf')
 # LOGS_HOME = os.path.join(str(pathlib.Path.home()), 'logs')
@@ -336,33 +333,7 @@ def config_to_list(config_name=CONFIG_FILE_NAME):
                         result.append('--{}={}'.format(name, value))
 
     return result
-
-
-def param_from_dxchange(hdf_file, data_path, attr = None, scalar = True, char_array=False):
-    """
-    Reads a parameter from a DXchange file.
-    Inputs
-    hdf_file: string path or pathlib.Path object for the DXchange file.
-    data_path: path to the requested data in the DXchange file.
-    attr: name of the attribute if this is stored as an attribute (default: None)
-    scalar: True if the value is a single valued dataset (dafault: True)
-    char_array: if True, interpret as a character array.  Useful for EPICS strings (default: False)
-    """
-    if not os.path.isfile(hdf_file):
-        return None
-    with h5py.File(hdf_file,'r') as f:
-        try:
-            if attr:
-                return f[data_path].attrs[attr].decode('ASCII')
-            elif char_array:
-                return ''.join([chr(i) for i in f[data_path][0]]).strip(chr(0))
-            elif scalar:
-                return f[data_path][0]
-            else:
-                return None
-        except KeyError:
-            return None
-    
+   
 
 class Params(object):
     def __init__(self, sections=()):

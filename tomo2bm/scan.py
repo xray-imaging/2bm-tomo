@@ -25,7 +25,7 @@ from tomo2bm import flir
 
 global_PVs = {}
 
-def fly_sleep(params):
+def fly_scan(params):
 
     tic =  time.time()
     # aps2bm.update_variable_dict(params)
@@ -82,7 +82,7 @@ def dummy_tomo_fly_scan(global_PVs, params, fname):
     signal.signal(signal.SIGINT, cleanup)
 
 
-def image_factor(global_PVs, params):
+def set_image_factor(global_PVs, params):
 
     if (params.recursive_filter == False):
         params.recursive_filter_n_images = 1 
@@ -104,20 +104,15 @@ def tomo_fly_scan(global_PVs, params, fname):
 
     # moved to outer loop in main()
     # init(global_PVs, params)
-    image_factor(global_PVs, params)
-
-    setPSO(global_PVs, params)
+    set_image_factor(global_PVs, params)
+    set_pso(global_PVs, params)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     log.info('  *** File name prefix: %s' % fname)
-
     flir.set(global_PVs, params, fname) 
 
     aps2bm.open_shutters(global_PVs, params)
-
     move_sample_in(global_PVs, params)
-
-    # # run fly scan
     theta = flir.acquire(global_PVs, params)
 
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
@@ -133,13 +128,10 @@ def tomo_fly_scan(global_PVs, params, fname):
     time.sleep(2)
 
     flir.acquire_dark(global_PVs, params)
-
     flir.checkclose_hdf(global_PVs, params)
-
     flir.add_theta(global_PVs, params, theta)
 
 
-########################################################################
 def calc_blur_pixel(global_PVs, params):
     """
     Calculate the blur error (pixel units) due to a rotary stage fly scan motion durng the exposure.
@@ -195,6 +187,7 @@ def calc_blur_pixel(global_PVs, params):
 
 
 def move_sample_out(global_PVs, params):
+
     log.info('      *** Sample out')
     if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
@@ -220,6 +213,7 @@ def move_sample_out(global_PVs, params):
 
 
 def move_sample_in(global_PVs, params):
+
     log.info('      *** Sample in')
     if not (params.sample_move_freeze):
         if (params.sample_in_out_vertical):
@@ -243,6 +237,7 @@ def move_sample_in(global_PVs, params):
     else:
         log.info('      *** *** Sample Stack is Frozen')
 
+
 def stop_scan(global_PVs, params):
         log.info(' ')
         log.error('  *** Stopping the scan: PLEASE WAIT')
@@ -254,7 +249,7 @@ def stop_scan(global_PVs, params):
         ##init(global_PVs, params)
 
 
-def setPSO(global_PVs, params):
+def set_pso(global_PVs, params):
 
     acclTime = 1.0 * params.slew_speed/params.accl_rot
     scanDelta = abs(((float(params.sample_rotation_end) - float(params.sample_rotation_start))) / ((float(params.num_projections)) * float(params.recursive_filter_n_images)))
@@ -287,5 +282,4 @@ def setPSO(global_PVs, params):
     aps2bm.wait_pv(global_PVs['Fly_Taxi'], 0)
     log.info('  *** Taxi before starting capture: Done!')
 
-########################################################################
 

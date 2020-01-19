@@ -149,6 +149,11 @@ SECTIONS['sample'] = {
 
 
 SECTIONS['scan'] = {
+    'scan-type': {
+        'choices': ['standard', 'vertical', 'horizontal', 'mosaic'],
+        'default': 'standard',
+        'type': str,
+        'help': " "},
     'num-projections': {
         'type': util.positive_int,
         'default': 1500,
@@ -174,22 +179,6 @@ SECTIONS['scan'] = {
         'default': 1,
         'type': float,
         'help': " "},
-    # 'sample-y-in': {
-    #     'default': 0,
-    #     'type': float,
-    #     'help': " "},
-    # 'sample-y-out': {
-    #     'default': 1,
-    #     'type': float,
-    #     'help': " "},
-    # 'sample-x-in': {
-    #     'default': 0,
-    #     'type': float,
-    #     'help': " "},
-    # 'sample-x-out': {
-    #     'default': 1,
-    #     'type': float,
-    #     'help': " "},
     'sample-in-out-vertical': {
         'default': False,
         'action': 'store_true',
@@ -198,11 +187,6 @@ SECTIONS['scan'] = {
         'default': False,
         'action': 'store_true',
         'help': "True: to freeze sample motion during white field data collection"},
-    'scan-type': {
-        'choices': ["sleep", "vertical", "horizontal", "Mosaic"],
-        'default': 'sleep',
-        'type': str,
-        'help': " "},
     'sample-rotation-start': {
         'default': 0,
         'type': float,

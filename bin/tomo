@@ -26,11 +26,7 @@ def init(args):
 def run_scan(args):
 
     log.warning('scan start')
-    if args.scan_type == 'sleep':
-        log.warning('fly scan')
-        scan.fly_sleep(args)
-
-
+    scan.fly_scan(args)
     log.warning('scan end')
 
     # update config file

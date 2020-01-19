@@ -145,7 +145,7 @@ SECTIONS['sample'] = {
 
 SECTIONS['scan'] = {
     'scan-type': {
-        'choices': ['standard', 'vertical', 'horizontal', 'mosaic'],
+        'choices': ['standard', 'vertical', 'mosaic'],
         'default': 'standard',
         'type': str,
         'help': " "},
@@ -174,10 +174,9 @@ SECTIONS['scan'] = {
         'default': 1,
         'type': float,
         'help': "Sample position for white field images"},
-    'sample-in-out-vertical': {
-        'default': False,
-        'action': 'store_true',
-        'help': "When set, move Y to take the white field"},
+    'sample-in-out': {
+        'default': 'horizontal',
+        'help': "which stage is used to take the white field"},
     'sample-move-freeze': {
         'default': False,
         'action': 'store_true',

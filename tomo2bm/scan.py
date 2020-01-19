@@ -14,6 +14,96 @@ from tomo2bm import aps2bm
 
 global_PVs = {}
 
+
+
+def fly_scan_mosaic(params):
+
+    tic =  time.time()
+    # aps2bm.update_variable_dict(params)
+    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    try: 
+        detector_sn = global_PVs['Cam1_SerialNumber'].get()
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
+            log.info('  *** Failed!')
+        else:
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                        % (params.camera_ioc_prefix, detector_sn))
+            
+            # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
+            params.exposure_time = global_PVs['Cam1_AcquireTime'].get()
+            # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
+            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
+            params.slew_speed = rot_speed
+
+            start_y = params.vertical_scan_start
+            end_y = params.vertical_scan_end
+            step_size_y = params.vertical_scan_step_size
+
+
+            start_x = params.horizontal_scan_start
+            end_x = params.horizontal_scan_end
+            step_size_x = params.horizontal_step_size
+
+            # set scan stop so also ends are included
+            stop_x = end_x + step_size_x
+            stop_y = end_y + step_size_y
+
+            # init camera
+            flir.init(global_PVs, params)
+
+            start = params.sleep_tart
+            end = params.sleep_end
+            step_size = params.sleep_step_size
+
+            log.info(' ')
+            log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
+            for ii in np.arange(start, end, step_size):
+                tic_01 =  time.time()
+
+                log.info(' ')
+                log.info("  *** Running %d mosaic scans" % (len(np.arange(start_x, stop_x, step_size_x)) * len(np.arange(start_y, stop_y, step_size_y))))
+                log.info(' ')
+                log.info('  *** Horizontal Positions (mm): %s' % np.arange(start_x, stop_x, step_size_x))
+                log.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, stop_y, step_size_y))
+
+                h = 0
+                v = 0
+                
+                for i in np.arange(start_y, stop_y, step_size_y):
+                    log.info(' ')
+                    log.info('  *** The sample vertical position is at %s mm' % (i))
+                    global_PVs['Motor_SampleY'].put(i, wait=True)
+                    for j in np.arange(start_x, stop_x, step_size_x):
+                        log.info('  *** The sample horizontal position is at %s mm' % (j))
+                        params.sample_in_position = j
+                        fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
+                        scan.tomo_fly_scan(global_PVs, params, fname)
+                        h = h + 1
+                        dm.scp(global_PVs, params)
+                    log.info(' ')
+                    log.info('  *** Total scan time: %s minutes' % str((time.time() - tic)/60.))
+                    log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                    v = v + 1
+                    h = 0
+
+                log.info('  *** Moving rotary stage to start position')
+                global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                log.info('  *** Moving rotary stage to start position: Done!')
+
+                if ((i+1)!=params.sleep_steps):
+                    log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
+                    time.sleep(params.sleep_time) 
+
+                global_PVs['Cam1_ImageMode'].put('Continuous')
+
+                log.info('  *** Done!')
+
+    except  KeyError:
+        log.error('  *** Some PV assignment failed!')
+        pass
+
+
 def fly_scan(params):
 
     tic =  time.time()
@@ -34,31 +124,44 @@ def fly_scan(params):
             blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
+            start = params.vertical_scan_start
+            end = params.vertical_scan_end
+            step = params.vertical_scan_step_size
+
             # init camera
             flir.init(global_PVs, params)
 
-            for i in np.arange(0, params.sleep_steps, 1):
-                tic_01 =  time.time()
-                # set sample file name
-                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+            lib.info(' ')
+            lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            lib.info(' ')
+            lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
 
+            for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
-                log.error('  *** Start scan %d' % i)
-                tomo_fly_scan(global_PVs, params, fname)
+                log.info('  *** Start scan %d' % ii)
+                for i in np.arange(start, end, step_size):
+                    tic_01 =  time.time()
+                    # set sample file name
+                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
-                if ((i+1)!=params.sleep_steps):
-                    log.error('  *** Wait (s): %s ' % str(params.sleep_time))
+                    log_lib.info(' ')
+                    log_lib.info('  *** The sample vertical position is at %s mm' % (i))
+                    global_PVs['Motor_SampleY'].put(i, wait=True, timeout=1000.0)
+                    tomo_fly_scan(global_PVs, params, fname)
+
+                    log.info(' ')
+                    log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
+                    log.info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
+                    log.info('  *** Scan Done!')
+        
+                    dm.scp(global_PVs, params)
+
+                global_PVs['Motor_SampleY'].put(start, wait=True, timeout=1000.0)
+                if ((ii+1)!=params.sleep_steps):
+                    log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
 
-                log.info(' ')
-                log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
-                log.info('  *** Total scan time: %s minutes' % str((time.time() - tic_01)/60.))
-                log.info('  *** Scan Done!')
-    
-                dm.scp(global_PVs, params)
-
             log.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
- 
             log.info('  *** Moving rotary stage to start position')
             global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
             log.info('  *** Moving rotary stage to start position: Done!')

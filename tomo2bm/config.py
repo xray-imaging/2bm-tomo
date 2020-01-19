@@ -169,15 +169,15 @@ SECTIONS['scan'] = {
     'sample-in-position': {
         'default': 0,
         'type': float,
-        'help': " "},
+        'help': "Sample position during data collection"},
     'sample-out-position': {
         'default': 1,
         'type': float,
-        'help': " "},
+        'help': "Sample position for white field images"},
     'sample-in-out-vertical': {
         'default': False,
         'action': 'store_true',
-        'help': "False: use X to take the white field"},
+        'help': "When set, move Y to take the white field"},
     'sample-move-freeze': {
         'default': False,
         'action': 'store_true',
@@ -199,7 +199,7 @@ SECTIONS['scan'] = {
         'type': float,
         'help': " "},
     'vertical-scan-step-size': {
-        'default': 0.1,
+        'default': 1,
         'type': float,
         'help': " "},
     'horizontal-scan-start': {
@@ -211,14 +211,22 @@ SECTIONS['scan'] = {
         'type': float,
         'help': " "},
     'horizontal-scan-step-size': {
-        'default': 0.1,
+        'default': 1,
         'type': float,
         'help': " "},
     'sleep-time': {
         'default': 0,
         'type': float,
         'help': "wait time (s) between each data collection"},
-    'sleep-steps': {
+    'sleep-start': {
+        'type': util.positive_int,
+        'default': 0,
+        'help': " "},
+    'sleep-end': {
+        'type': util.positive_int,
+        'default': 1,
+        'help': " "},
+    'sleep-step-size': {
         'type': util.positive_int,
         'default': 1,
         'help': " "},

@@ -25,10 +25,16 @@ def init(args):
   
 def run_scan(args):
 
-    log.warning('scan start')
-    scan.fly_scan(args)
-    log.warning('scan end')
-
+    if (args.scan_type == 'standard'):
+        log.warning('scan start')
+        scan.fly_scan(args)
+        log.warning('scan end')
+    else:
+        log.warning('mosaic scan start')
+        args.sample_in_out_vertical = False
+        scan.fly_scan(args)
+        log.warning('mosaic scan end')
+       
     # update config file
     sections = config.SCAN_PARAMS
     config.write(args.config, args=args, sections=sections)

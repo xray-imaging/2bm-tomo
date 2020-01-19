@@ -101,10 +101,10 @@ def fly_scan_vertical(params):
             # init camera
             flir.init(global_PVs, params)
 
-            lib.info(' ')
-            lib.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
-            lib.info(' ')
-            lib.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
+            log.info(' ')
+            log.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            log.info(' ')
+            log.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
 
             for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
@@ -114,8 +114,8 @@ def fly_scan_vertical(params):
                     # set sample file name
                     fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
-                    log_lib.info(' ')
-                    log_lib.info('  *** The sample vertical position is at %s mm' % (i))
+                    log_log.info(' ')
+                    log_log.info('  *** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True, timeout=1000.0)
                     tomo_fly_scan(global_PVs, params, fname)
 

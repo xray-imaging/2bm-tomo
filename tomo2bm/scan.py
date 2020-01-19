@@ -96,7 +96,7 @@ def fly_scan_vertical(params):
 
             start_y = params.vertical_scan_start
             end_y = params.vertical_scan_end
-            step_y = params.vertical_scan_step_size
+            step_size_y = params.vertical_scan_step_size
 
             # init camera
             flir.init(global_PVs, params)

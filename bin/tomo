@@ -35,7 +35,7 @@ def run_scan(args):
         log.warning('veritical scan ')
     elif (args.scan_type == 'mosaic'):
         log.warning('mosaic scan start')
-        args.sample_in_out_vertical = False
+        args.sample_in_out = 'horizontal'
         scan.fly_scan_mosaic(args)
         log.warning('mosaic scan ')
 

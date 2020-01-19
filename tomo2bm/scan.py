@@ -102,9 +102,9 @@ def fly_scan_vertical(params):
             flir.init(global_PVs, params)
 
             log.info(' ')
-            log.info("  *** Running %d scans" % len(np.arange(start, end, step_size)))
+            log.info("  *** Running %d scans" % params.sleep_steps)
             log.info(' ')
-            log.info('  *** Vertical Positions (mm): %s' % np.arange(start, end, step_size))
+            log.info('  *** Vertical Positions (mm): %s' % np.arange(start_y, end_y, step_size_y))
 
             for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
@@ -182,7 +182,7 @@ def fly_scan_mosaic(params):
             flir.init(global_PVs, params)
 
             log.info(' ')
-            log.info("  *** Running %d sleep scans" % len(np.arange(start, end, step_size)))
+            log.info("  *** Running %d sleep scans" % params.sleep_steps)
             for ii in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
 

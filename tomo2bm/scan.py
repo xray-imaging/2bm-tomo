@@ -197,10 +197,10 @@ def fly_scan_mosaic(params):
                 
                 for i in np.arange(start_y, stop_y, step_size_y):
                     log.info(' ')
-                    log.info('  *** The sample vertical position is at %s mm' % (i))
+                    log.error('  *** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True)
                     for j in np.arange(start_x, stop_x, step_size_x):
-                        log.info('  *** The sample horizontal position is at %s mm' % (j))
+                        log.error('  *** The sample horizontal position is at %s mm' % (j))
                         params.sample_in_position = j
                         fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
                         tomo_fly_scan(global_PVs, params, fname)

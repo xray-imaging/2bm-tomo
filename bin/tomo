@@ -26,15 +26,23 @@ def init(args):
 def run_scan(args):
 
     if (args.scan_type == 'standard'):
-        log.warning('scan start')
+        log.warning('standard scan start')
         scan.fly_scan(args)
-        log.warning('scan end')
-    else:
+        log.warning('standard scan end')
+    elif (args.scan_type == 'vertical'):
+        log.warning('veritical scan start')
+        scan.fly_scan_vertical(args)
+        log.warning('veritical scan ')
+    elif (args.scan_type == 'mosaic'):
         log.warning('mosaic scan start')
         args.sample_in_out_vertical = False
-        scan.fly_scan(args)
-        log.warning('mosaic scan end')
-       
+        scan.fly_scan_mosaic(args)
+        log.warning('mosaic scan ')
+
+    else:
+        log.error('%s is not supported' % args.scan_type)
+
+
     # update config file
     sections = config.SCAN_PARAMS
     config.write(args.config, args=args, sections=sections)

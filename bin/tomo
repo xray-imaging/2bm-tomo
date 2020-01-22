@@ -13,6 +13,7 @@ from datetime import datetime
 from tomo2bm import config, __version__
 from tomo2bm import log
 from tomo2bm import scan
+from tomo2bm import aps2bm
 
 
 def init(args):
@@ -22,9 +23,12 @@ def init(args):
     else:
         log.error("{0} already exists".format(args.config))
 
+def run_status(args):
+    scan.dummy_scan(args)
+    config.log_values(args)
+
   
 def run_scan(args):
-
     if (args.scan_type == 'standard'):
         log.warning('standard scan start')
         scan.fly_scan(args)
@@ -61,6 +65,7 @@ def main():
     cmd_parsers = [
         ('init',        init,            (),                             "Create configuration file"),
         ('scan',        run_scan,        scan_params,                    "Run tomographic reconstruction"),
+        ('status',      run_status,      scan_params,                    "Show the tomographic reconstruction status"),
     ]
 
     subparsers = parser.add_subparsers(title="Commands", metavar='')
@@ -80,13 +85,13 @@ def main():
     if not os.path.exists(logs_home):
         os.makedirs(logs_home)
 
-    lfname = os.path.join(logs_home, 'tomopy_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H_%M_%S") + '.log')
+    lfname = os.path.join(logs_home, 'tomo2bm_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H_%M_%S") + '.log')
  
     log.setup_custom_logger(lfname)
     log.info("Saving log at %s" % lfname)
 
     try:
-        config.log_values(args)
+        # config.log_values(args)
         args._func(args)
     except RuntimeError as e:
         log.error(str(e))

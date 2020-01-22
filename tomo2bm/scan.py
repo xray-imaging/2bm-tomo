@@ -229,14 +229,21 @@ def fly_scan_mosaic(params):
         pass
 
 
-def dummy_tomo_fly_scan(global_PVs, params, fname):
-    log.info(' ')
-    log.info('  *** start_scan')
-
-    def cleanup(signal, frame):
-        stop_scan(global_PVs, params)
-        sys.exit(0)
-    signal.signal(signal.SIGINT, cleanup)
+def dummy_scan(params):
+    tic =  time.time()
+    # aps2bm.update_variable_dict(params)
+    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    try: 
+        detector_sn = global_PVs['Cam1_SerialNumber'].get()
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
+            log.info('  *** Failed!')
+        else:
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                        % (params.camera_ioc_prefix, detector_sn))
+    except  KeyError:
+        log.error('  *** Some PV assignment failed!')
+        pass
 
 
 def set_image_factor(global_PVs, params):

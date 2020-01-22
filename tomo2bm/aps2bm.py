@@ -249,7 +249,22 @@ def init_general_PVs(global_PVs, params):
         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
         return            
 
+    user_info_update(global_PVs, params)
+
     return global_PVs
+
+
+def user_info_update(global_PVs, params):
+
+    params.proposal_title = global_PVs['Proposal_Title'].get(as_string=True)
+    params.user_email = global_PVs['User_Email'].get(as_string=True)
+    params.user_badge = global_PVs['User_Badge'].get(as_string=True)
+    params.user_last_name = global_PVs['User_Last_Name'].get(as_string=True)
+    params.proposal_number = global_PVs['Proposal_Number'].get(as_string=True)
+    params.user_institution = global_PVs['User_Institution'].get(as_string=True)
+    params.experiment_year_month = global_PVs['Experiment_Year_Month'].get(as_string=True)
+    params.user_info_update = global_PVs['User_Info_Update'].get(as_string=True)
+
 
 
 def open_shutters(global_PVs, params):
@@ -299,4 +314,3 @@ def close_shutters(global_PVs, params):
             global_PVs['ShutterB_Close'].put(1, wait=True)
             wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
             log.info('  *** close_shutter B: Done!')
-

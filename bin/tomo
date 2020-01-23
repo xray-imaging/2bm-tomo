@@ -48,8 +48,7 @@ def run_scan(args):
 
 
     # update config file
-    sections = config.SCAN_PARAMS
-    config.write(args.config, args=args, sections=sections)
+    config.update_log(args)
 
 
 def main():

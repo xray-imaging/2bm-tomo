@@ -43,11 +43,12 @@ def fly_scan(params):
             for i in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
                 # set sample file name
-                fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
-
+                # fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+                params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
+                params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
                 log.info(' ')
                 log.info('  *** Start scan %d' % i)
-                tomo_fly_scan(global_PVs, params, fname)
+                tomo_fly_scan(global_PVs, params)
                 if ((i+1)!= params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
@@ -112,12 +113,13 @@ def fly_scan_vertical(params):
                 for i in np.arange(start_y, end_y, step_size_y):
                     tic_01 =  time.time()
                     # set sample file name
-                    fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+                    params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
+                    params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
 
                     log.info(' ')
                     log.info('  *** The sample vertical position is at %s mm' % (i))
                     global_PVs['Motor_SampleY'].put(i, wait=True, timeout=1000.0)
-                    tomo_fly_scan(global_PVs, params, fname)
+                    tomo_fly_scan(global_PVs, params)
 
                     log.info(' ')
                     log.info('  *** Data file: %s' % global_PVs['HDF1_FullFileName_RBV'].get(as_string=True))
@@ -202,8 +204,10 @@ def fly_scan_mosaic(params):
                     for j in np.arange(start_x, stop_x, step_size_x):
                         log.error('  *** The sample horizontal position is at %s mm' % (j))
                         params.sample_in_position = j
-                        fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
-                        tomo_fly_scan(global_PVs, params, fname)
+                        # set sample file name
+                        params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
+                        params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
+                        tomo_fly_scan(global_PVs, params)
                         h = h + 1
                         dm.scp(global_PVs, params)
                     log.info(' ')
@@ -253,7 +257,7 @@ def set_image_factor(global_PVs, params):
     return params.recursive_filter_n_images
 
    
-def tomo_fly_scan(global_PVs, params, fname):
+def tomo_fly_scan(global_PVs, params):
     log.info(' ')
     log.info('  *** start_scan')
 
@@ -272,8 +276,8 @@ def tomo_fly_scan(global_PVs, params, fname):
     set_pso(global_PVs, params)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
-    log.info('  *** File name prefix: %s' % fname)
-    flir.set(global_PVs, params, fname) 
+    log.info('  *** File name prefix: %s' % params.file_name)
+    flir.set(global_PVs, params) 
 
     aps2bm.open_shutters(global_PVs, params)
     move_sample_in(global_PVs, params)

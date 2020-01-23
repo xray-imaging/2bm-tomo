@@ -68,8 +68,9 @@ def init(global_PVs, params):
         log.info('  *** init FLIR camera: Done!')
 
 
-def set(global_PVs, params, fname=None):
+def set(global_PVs, params):
 
+    fname = params.file_name
     # Set detectors
     if (params.camera_ioc_prefix == '2bmbPG3:'):   
         log.info(' ')

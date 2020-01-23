@@ -20,7 +20,7 @@ def check_remote_directory(remote_server, remote_dir):
         log.warning('      *** remote directory %s exists' % (remote_dir))
         return 0
 
-    except subprocess.CalledProcessError:#, e: 
+    except subprocess.CalledProcessError as e: 
         # log.info('      *** return code = %d' % (e.returncode))
         log.warning('      *** remote directory %s does not exist' % (remote_dir))
         if e.returncode == 2:
@@ -39,7 +39,7 @@ def create_remote_directory(remote_server, remote_dir):
         log.info('      *** creating remote directory %s: Done!' % (remote_dir))
         return 0
 
-    except subprocess.CalledProcessError: #, e:
+    except subprocess.CalledProcessError as e:
         log.error('  *** Error while creating remote directory. Error code: %d' % (e.returncode))
         return -1
 

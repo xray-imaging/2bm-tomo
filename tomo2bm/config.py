@@ -1,5 +1,6 @@
 import os
 import sys
+import shutil
 import pathlib
 import argparse
 import configparser
@@ -53,7 +54,7 @@ SECTIONS['experiment-info'] = {
         'type': str,
         'help': " "},
     'proposal-number': {
-        'type': util.positive_int,
+        'type': str,
         'default': None,
         'help': " "},
     'proposal-title': {
@@ -138,6 +139,10 @@ SECTIONS['sample'] = {
         'type': float,
         'help': " "},
     'file-name': {
+        'default': None,
+        'type': str,
+        'help': " "},
+    'file-path': {
         'default': None,
         'type': str,
         'help': " "},
@@ -389,7 +394,7 @@ def log_values(args):
     """
     args = args.__dict__
 
-    log.warning('tomoo scan status start')
+    log.warning('tomo scan status start')
     for section, name in zip(SECTIONS, NICE_NAMES):
         entries = sorted((k for k in args.keys() if k.replace('_', '-') in SECTIONS[section]))
 
@@ -402,3 +407,18 @@ def log_values(args):
                 log.info("  {:<16} {}".format(entry, value))
 
     log.warning('tomo scan status end')
+
+
+def update_log(args):
+       # update tomo2bm.conf
+        sections = SCAN_PARAMS
+        write(args.config, args=args, sections=sections)
+
+        log_fname = args.file_path + os.sep + args.file_name + '.conf'
+        try:
+            shutil.copyfile(args.config, log_fname)
+            log.info('  *** copied %s to %s ' % (args.config, log_fname))
+        except:
+            log.error('  *** attempt to copy %s to %s failed' % (args.config, log_fname))
+            pass
+        log.warning(' *** command to repeat the reconstruction: tomopy recon --config {:s}'.format(log_fname))

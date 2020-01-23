@@ -421,4 +421,4 @@ def update_log(args):
         except:
             log.error('  *** attempt to copy %s to %s failed' % (args.config, log_fname))
             pass
-        log.warning(' *** command to repeat the reconstruction: tomopy recon --config {:s}'.format(log_fname))
+        log.warning(' *** command to repeat the scan: tomo scan --config {:s}'.format(log_fname))

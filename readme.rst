@@ -49,6 +49,6 @@ Scanning parameters are stored in **tomo2bm.conf**. You can create a template wi
 
     $ tomo scan
 
-To run a scan with a different and previously stored configuration file **old_tomo2bm.conf** just use::
+A the end of each scan the current config file is copied in the raw data directory and renamed as **sample_name.conf**. To repeat the scan with the same condition just use::
 
-    $ tomo scan --config old_tomo2bm.conf
+    $ tomo scan --config /data_folder/sample_name.conf

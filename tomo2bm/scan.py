@@ -11,6 +11,7 @@ from tomo2bm import dm
 from tomo2bm import log
 from tomo2bm import flir
 from tomo2bm import aps2bm
+from tomo2bm import config
 
 global_PVs = {}
 
@@ -128,7 +129,9 @@ def fly_scan_vertical(params):
         
                     dm.scp(global_PVs, params)
 
-                global_PVs['Motor_SampleY'].put(start, wait=True, timeout=1000.0)
+                log.info('  *** Moving vertical stage to start position')
+                global_PVs['Motor_SampleY'].put(start_y, wait=True, timeout=1000.0)
+
                 if ((ii+1)!=params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
                     time.sleep(params.sleep_time) 
@@ -216,6 +219,12 @@ def fly_scan_mosaic(params):
                     v = v + 1
                     h = 0
 
+                log.info('  *** Moving vertical stage to start position')
+                global_PVs['Motor_SampleY'].put(start_y, wait=True, timeout=1000.0)
+
+                log.info('  *** Moving horizontal stage to start position')
+                global_PVs['Motor_SampleX'].put(start_x, wait=True, timeout=1000.0)
+
                 log.info('  *** Moving rotary stage to start position')
                 global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
                 log.info('  *** Moving rotary stage to start position: Done!')
@@ -298,6 +307,9 @@ def tomo_fly_scan(global_PVs, params):
     flir.acquire_dark(global_PVs, params)
     flir.checkclose_hdf(global_PVs, params)
     flir.add_theta(global_PVs, params, theta)
+
+    # update config file
+    config.update_config(params)
 
 
 def calc_blur_pixel(global_PVs, params):

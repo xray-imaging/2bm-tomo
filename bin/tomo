@@ -36,7 +36,7 @@ def run_scan(args):
     elif (args.scan_type == 'vertical'):
         log.warning('veritical scan start')
         scan.fly_scan_vertical(args)
-        log.warning('veritical scan ')
+        log.warning('veritical scan end')
     elif (args.scan_type == 'mosaic'):
         log.warning('mosaic scan start')
         args.sample_in_out = 'horizontal'
@@ -46,9 +46,6 @@ def run_scan(args):
     else:
         log.error('%s is not supported' % args.scan_type)
 
-
-    # update config file
-    config.update_log(args)
 
 
 def main():

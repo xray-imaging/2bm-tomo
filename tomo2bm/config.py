@@ -409,7 +409,7 @@ def log_values(args):
     log.warning('tomo scan status end')
 
 
-def update_log(args):
+def update_config(args):
        # update tomo2bm.conf
         sections = SCAN_PARAMS
         write(args.config, args=args, sections=sections)

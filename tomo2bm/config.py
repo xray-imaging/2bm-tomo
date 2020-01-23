@@ -414,6 +414,7 @@ def update_log(args):
         sections = SCAN_PARAMS
         write(args.config, args=args, sections=sections)
 
+        # copy tomo2bm.conf to the raw data directory with a unique name (sample_name.conf)
         log_fname = args.file_path + os.sep + args.file_name + '.conf'
         try:
             shutil.copyfile(args.config, log_fname)

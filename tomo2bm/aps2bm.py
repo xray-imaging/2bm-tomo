@@ -47,7 +47,9 @@ def wait_pv(pv, wait_val, max_timeout_sec=-1):
             return True
 
 
-def init_general_PVs(global_PVs, params):
+def init_general_PVs(params):
+
+    global_PVs = {}
 
     # shutter pv's
     global_PVs['ShutterA_Open'] = PV('2bma:A_shutter:open.VAL')
@@ -232,7 +234,6 @@ def init_general_PVs(global_PVs, params):
         global_PVs['Proc1_Enable_Low_Clip'] = PV(params.camera_ioc_prefix + 'Proc1:EnableLowClip')
         global_PVs['Proc1_Enable_High_Clip'] = PV(params.camera_ioc_prefix + 'Proc1:EnableHighClip')
 
-
     if (params.camera_ioc_prefix == '2bmbPG3:'):
         global_PVs['Cam1_FrameRateOnOff'] = PV(params.camera_ioc_prefix + 'cam1:FrameRateOnOff')
 
@@ -248,9 +249,7 @@ def init_general_PVs(global_PVs, params):
     
     else:
         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
-        return            
-
-    user_info_update(global_PVs, params)
+        return None        
 
     return global_PVs
 
@@ -266,6 +265,7 @@ def user_info_update(global_PVs, params):
     params.experiment_year_month = global_PVs['Experiment_Year_Month'].get(as_string=True)
     params.user_info_update = global_PVs['User_Info_Update'].get(as_string=True)
 
+    params.lens_magnification = global_PVs['Lens_Magnification'].get(as_string=True)
 
 
 def open_shutters(global_PVs, params):
@@ -315,3 +315,55 @@ def close_shutters(global_PVs, params):
             global_PVs['ShutterB_Close'].put(1, wait=True)
             wait_pv(global_PVs['ShutterB_Move_Status'], ShutterB_Close_Value)
             log.info('  *** close_shutter B: Done!')
+
+def move_sample_out(global_PVs, params):
+
+    log.info('      *** Sample out')
+    if not (params.sample_move_freeze):
+        if (params.sample_in_out=="vertical"):
+            log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
+            global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
+            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
+                log.error('Motor_SampleY did not move in properly')
+                log.error(global_PVs['Motor_SampleY'].get())
+        else:
+            if (params.use_furnace):
+                log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
+                global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
+                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
+                    log.error('Motor_FurnaceY did not move in properly')
+                    log.error(global_PVs['Motor_FurnaceY'].get())
+            log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
+            global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
+            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
+                log.error('Motor_SampleX did not move in properly')
+                log.error(global_PVs['Motor_SampleX'].get())
+    else:
+        log.info('      *** *** Sample Stack is Frozen')
+
+
+
+def move_sample_in(global_PVs, params):
+
+    log.info('      *** Sample in')
+    if not (params.sample_move_freeze):
+        if (params.sample_in_out=="vertical"):
+            log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
+            global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
+            if wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
+                log.error('Motor_SampleY did not move in properly')
+                log.error(global_PVs['Motor_SampleY'].get())
+        else:
+            log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
+            global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
+            if wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
+                log.error('Motor_SampleX did not move in properly')
+                log.error(global_PVs['Motor_SampleX'].get())
+            if (params.use_furnace):
+                log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
+                global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
+                if wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
+                    log.error('Motor_FurnaceY did not move in properly')
+                    log.error(global_PVs['Motor_FurnaceY'].get())
+    else:
+        log.info('      *** *** Sample Stack is Frozen')

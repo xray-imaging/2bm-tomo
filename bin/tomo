@@ -14,6 +14,7 @@ from tomo2bm import config, __version__
 from tomo2bm import log
 from tomo2bm import scan
 from tomo2bm import aps2bm
+from tomo2bm import sphere
 
 
 def init(args):
@@ -47,6 +48,21 @@ def run_scan(args):
         log.error('%s is not supported' % args.scan_type)
 
 
+def run_axis(args):
+    log.warning('finding roll and rotation axis location')
+    rotation_axis_location, roll = sphere.find_roll_and_rotation_axis_location(args)
+    if (rotation_axis_location or roll) is None:
+        log.error('find returned None')
+    else:
+        log.warning('roll: %f' % roll) 
+        log.warning('rotation axis location %f pixel' % rotation_axis_location)
+
+
+def run_res(args):
+    log.warning('finding detector resolution')
+    args.resolution = sphere.find_resolution(args)
+    log.warning('detector resolution: %f μm/pixel' % args.resolution)
+
 
 def main():
 
@@ -56,12 +72,15 @@ def main():
                         version='%(prog)s {}'.format(__version__))
 
     scan_params = config.SCAN_PARAMS
-    find_center_params = config.SCAN_PARAMS
+    sphere_params = config.SPHERE_PARAMS
 
     cmd_parsers = [
-        ('init',        init,            (),                             "Create configuration file"),
-        ('scan',        run_scan,        scan_params,                    "Run tomographic reconstruction"),
-        ('status',      run_status,      scan_params,                    "Show the tomographic reconstruction status"),
+        ('init',                 init,            (),                             "Create configuration file"),
+        ('scan',                 run_scan,        scan_params,                    "Run tomographic reconstruction"),
+        ('status',               run_status,      scan_params,                    "Show the tomographic reconstruction status"),
+        ('find_axis',            run_axis,        sphere_params,                  "Find rotation axis location. Use an alignment sphere"),
+        ('find_res',             run_res,         sphere_params,                  "Find resolution. Use an alignment sphere"),
+        ('find_roll',            run_axis,        sphere_params,                  "Find roll. Use an alignment sphere"),
     ]
 
     subparsers = parser.add_subparsers(title="Commands", metavar='')

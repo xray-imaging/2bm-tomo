@@ -71,25 +71,33 @@ SECTIONS['experiment-info'] = {
         'help': " "},
         }
 
-SECTIONS['detector'] = {
+SECTIONS['camera-ioc'] = {
     'camera-ioc-prefix':{
         'choices': ['2bmbSP1:', '2bmbPG3:', '2bmbSP1:'],
         'default': '2bmbSP1:',
         'type': str,
         'help': "FLIR: 2bmbSP1:, PointGrey: 2bmbPG3:, Gbe: 2bmbSP1:"},
+    'exposure-time': {
+        'default': 0.1,
+        'type': float,
+        'help': " "},
+        }
+
+SECTIONS['detector'] = {
     'ccd-readout': {
         'choices': [0.006, 0.01],
         'default': 0.01,
         'type': float,
-        'help': "8bit: 0.006; 16-bit: 0.01"},
-    'exposure-time': {
-        'default': 0.1,
-        'type': float,
+        # 'help': "8bit: 0.006; 16-bit: 0.01"},
         'help': " "},
     'lens-magnification': {
         'default': 0,
         'type': float,
         'help': " "},
+    'resolution': {
+        'default': 1.5,
+        'type': float,
+        'help': "Detector pixel size in μm/pixel"},
     'scintillator-type': {
         'default': None,
         'type': str,
@@ -107,11 +115,22 @@ SECTIONS['detector'] = {
         'default': 1,
         'type': util.positive_int,
         'help': " "},
+     }
+
+SECTIONS['file'] = {
+    'file-name': {
+        'default': None,
+        'type': str,
+        'help': " "},
+    'file-path': {
+        'default': None,
+        'type': str,
+        'help': " "},
     'file-write-mode': {
      'default': 'Stream',
         'type': str,
         'help': " "},
-     }
+        }
 
 SECTIONS['beamline'] = {
     'station': {
@@ -138,15 +157,36 @@ SECTIONS['sample'] = {
         'default': 1,
         'type': float,
         'help': " "},
-    'file-name': {
-        'default': None,
-        'type': str,
-        'help': " "},
-    'file-path': {
-        'default': None,
-        'type': str,
-        'help': " "},
     }
+
+
+SECTIONS['sample-motion'] = {
+    'sample-rotation-start': {
+        'default': 0,
+        'type': float,
+        'help': " "},
+    'sample-rotation-end': {
+        'default': 180,
+        'type': float,
+        'help': " "},
+    'sample-in-position': {
+        'default': 0,
+        'type': float,
+        'help': "Sample position during data collection"},
+    'sample-out-position': {
+        'default': 1,
+        'type': float,
+        'help': "Sample position for white field images"},
+    'sample-in-out': {
+        'default': 'horizontal',
+        'choices': ['horizontal', 'vertical'],
+        'help': "which stage is used to take the white field"},
+    'sample-move-freeze': {
+        'default': False,
+        'action': 'store_true',
+        'help': "True: to freeze sample motion during white field data collection"},
+        }
+
 
 SECTIONS['scan'] = {
     'scan-type': {
@@ -170,30 +210,6 @@ SECTIONS['scan'] = {
         'choices': ['horizontal', 'vertical'],
         'default': 'horizontal',
         'type': str,
-        'help': " "},
-    'sample-in-position': {
-        'default': 0,
-        'type': float,
-        'help': "Sample position during data collection"},
-    'sample-out-position': {
-        'default': 1,
-        'type': float,
-        'help': "Sample position for white field images"},
-    'sample-in-out': {
-        'default': 'horizontal',
-        'choices': ['horizontal', 'vertical'],
-        'help': "which stage is used to take the white field"},
-    'sample-move-freeze': {
-        'default': False,
-        'action': 'store_true',
-        'help': "True: to freeze sample motion during white field data collection"},
-    'sample-rotation-start': {
-        'default': 0,
-        'type': float,
-        'help': " "},
-    'sample-rotation-end': {
-        'default': 180,
-        'type': float,
         'help': " "},
     'vertical-scan-start': {
         'default': 0,
@@ -266,9 +282,38 @@ SECTIONS['stage-settings'] = {
         'help': " "}, 
     }
 
-SCAN_PARAMS = ('experiment-info', 'detector', 'beamline', 'sample', 'scan', 'furnace', 'file-transfer', 'stage-settings')
+SECTIONS['sphere'] = {
+    # 'find-resolution': {
+    #     'default': False,
+    #     'choices': [True, False],
+    #     'help': " "},
+    # 'find-rotation-axis': {
+    #     'default': False,
+    #     'choices': [True, False],
+    #     'help': " "},
+    # 'find-rotation-axis-roll': {
+    #     'default': False,
+    #     'choices': [True, False],
+    #     'help': " "},
+    # 'find-rotation-axis-pitch': {
+    #     'default': False,
+    #     'choices': [True, False],
+    #     'help': " "},
+    'rotation_axis-position': {
+        'default': 0.1,
+        'type': float,
+        'help': "Off axis horizontal position of the sphere used to calculate resolution (mm)"},
 
-NICE_NAMES = ('general', 'experiment info', 'detector', 'beam line', 'sample', 'scan', 'furnace', 'file transfer', 'stage settings')
+    'off-axis-position': {
+        'default': 0.1,
+        'type': float,
+        'help': "Off axis horizontal position of the sphere used to calculate resolution (mm)"},
+    }
+
+SCAN_PARAMS = ('experiment-info', 'camera-ioc', 'detector', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
+SPHERE_PARAMS = ('camera-ioc', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere',)
+
+NICE_NAMES = ('general', 'experiment info', 'camera-ioc', 'detector', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 
 
 def get_config_name():
@@ -423,3 +468,11 @@ def update_config(args):
             log.error('  *** attempt to copy %s to %s failed' % (args.config, log_fname))
             pass
         log.warning(' *** command to repeat the scan: tomo scan --config {:s}'.format(log_fname))
+
+
+def update_sphere(args):
+       # update tomo2bm.conf
+        sections = SPHERE_PARAMS
+        # if 'sphere' in  sections:
+        #     print("DDDDDDD")
+        write(args.config, args=args, sections=sections)

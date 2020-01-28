@@ -13,14 +13,13 @@ from tomo2bm import flir
 from tomo2bm import aps2bm
 from tomo2bm import config
 
-global_PVs = {}
-
 
 def fly_scan(params):
 
     tic =  time.time()
-    # aps2bm.update_variable_dict(params)
-    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    global_PVs = aps2bm.init_general_PVs(params)
+    aps2bm.user_info_update(global_PVs, params)
+
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
@@ -79,8 +78,9 @@ def fly_scan(params):
 def fly_scan_vertical(params):
 
     tic =  time.time()
-    # aps2bm.update_variable_dict(params)
-    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    global_PVs = aps2bm.init_general_PVs(params)
+    aps2bm.user_info_update(global_PVs, params)
+
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
@@ -153,8 +153,9 @@ def fly_scan_vertical(params):
 def fly_scan_mosaic(params):
 
     tic =  time.time()
-    # aps2bm.update_variable_dict(params)
-    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    global_PVs = aps2bm.init_general_PVs(params)
+    aps2bm.user_info_update(global_PVs, params)
+
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
@@ -244,8 +245,9 @@ def fly_scan_mosaic(params):
 
 def dummy_scan(params):
     tic =  time.time()
-    # aps2bm.update_variable_dict(params)
-    global_PVsx = aps2bm.init_general_PVs(global_PVs, params)
+    global_PVs = aps2bm.init_general_PVs(params)
+    aps2bm.user_info_update(global_PVs, params)
+
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
@@ -289,7 +291,7 @@ def tomo_fly_scan(global_PVs, params):
     flir.set(global_PVs, params) 
 
     aps2bm.open_shutters(global_PVs, params)
-    move_sample_in(global_PVs, params)
+    aps2bm.move_sample_in(global_PVs, params)
     theta = flir.acquire(global_PVs, params)
 
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
@@ -297,9 +299,9 @@ def tomo_fly_scan(global_PVs, params):
         # print('\x1b[2;30;41m' + '  *** Rotary Stage ERROR. Theta stopped at: ***' + theta_end + '\x1b[0m')
         log.error('  *** Rotary Stage ERROR. Theta stopped at: %s ***' % str(theta_end))
 
-    move_sample_out(global_PVs, params)
+    aps2bm.move_sample_out(global_PVs, params)
     flir.acquire_flat(global_PVs, params)
-    move_sample_in(global_PVs, params)
+    aps2bm.move_sample_in(global_PVs, params)
 
     aps2bm.close_shutters(global_PVs, params)
     time.sleep(2)
@@ -364,58 +366,6 @@ def calc_blur_pixel(global_PVs, params):
     log.info('  *** Calc blur pixel: Done!')
     
     return blur_pixel, rot_speed, scan_time
-
-
-def move_sample_out(global_PVs, params):
-
-    log.info('      *** Sample out')
-    if not (params.sample_move_freeze):
-        if (params.sample_in_out=="vertical"):
-            log.info('      *** *** Move Sample Y out at: %f' % params.sample_out_position)
-            global_PVs['Motor_SampleY'].put(str(params.sample_out_position), wait=True, timeout=1000.0)                
-            if aps2bm.wait_pv(global_PVs['Motor_SampleY'], float(params.sample_out_position), 60) == False:
-                log.error('Motor_SampleY did not move in properly')
-                log.error(global_PVs['Motor_SampleY'].get())
-        else:
-            if (params.use_furnace):
-                log.info('      *** *** Move Furnace Y out at: %f' % params.furnace_out_position)
-                global_PVs['Motor_FurnaceY'].put(str(params.furnace_out_position), wait=True, timeout=1000.0)
-                if aps2bm.wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_out_position), 60) == False:
-                    log.error('Motor_FurnaceY did not move in properly')
-                    log.error(global_PVs['Motor_FurnaceY'].get())
-            log.info('      *** *** Move Sample X out at: %f' % params.sample_out_position)
-            global_PVs['Motor_SampleX'].put(str(params.sample_out_position), wait=True, timeout=1000.0)
-            if aps2bm.wait_pv(global_PVs['Motor_SampleX'], float(params.sample_out_position), 60) == False:
-                log.error('Motor_SampleX did not move in properly')
-                log.error(global_PVs['Motor_SampleX'].get())
-    else:
-        log.info('      *** *** Sample Stack is Frozen')
-
-
-def move_sample_in(global_PVs, params):
-
-    log.info('      *** Sample in')
-    if not (params.sample_move_freeze):
-        if (params.sample_in_out=="vertical"):
-            log.info('      *** *** Move Sample Y in at: %f' % params.sample_in_position)
-            global_PVs['Motor_SampleY'].put(str(params.sample_in_position), wait=True, timeout=1000.0)                
-            if aps2bm.wait_pv(global_PVs['Motor_SampleY'], float(params.sample_in_position), 60) == False:
-                log.error('Motor_SampleY did not move in properly')
-                log.error(global_PVs['Motor_SampleY'].get())
-        else:
-            log.info('      *** *** Move Sample X in at: %f' % params.sample_in_position)
-            global_PVs['Motor_SampleX'].put(str(params.sample_in_position), wait=True, timeout=1000.0)
-            if aps2bm.wait_pv(global_PVs['Motor_SampleX'], float(params.sample_in_position), 60) == False:
-                log.error('Motor_SampleX did not move in properly')
-                log.error(global_PVs['Motor_SampleX'].get())
-            if (params.use_furnace):
-                log.info('      *** *** Move Furnace Y in at: %f' % params.furnace_in_position)
-                global_PVs['Motor_FurnaceY'].put(str(params.furnace_in_position), wait=True, timeout=1000.0)
-                if aps2bm.wait_pv(global_PVs['Motor_FurnaceY'], float(params.furnace_in_position), 60) == False:
-                    log.error('Motor_FurnaceY did not move in properly')
-                    log.error(global_PVs['Motor_FurnaceY'].get())
-    else:
-        log.info('      *** *** Sample Stack is Frozen')
 
 
 def stop_scan(global_PVs, params):

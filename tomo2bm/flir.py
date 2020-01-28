@@ -368,3 +368,56 @@ def add_theta(global_PVs, params, theta_arr):
     except:
         traceback.print_exc(file=sys.stdout)
         log.info('  *** add_theta: Failed accessing: %s' % fullname)
+
+
+def take_image(global_PVs, params):
+
+    log.info('  *** taking a single image')
+   
+    nRow = global_PVs['Cam1_SizeY_RBV'].get()
+    nCol = global_PVs['Cam1_SizeX_RBV'].get()
+
+    image_size = nRow * nCol
+
+    global_PVs['Cam1_NumImages'].put(1, wait=True)
+
+    global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
+    wait_time_sec = int(params.exposure_time) + 5
+
+    global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
+    time.sleep(0.1)
+    if aps2bm.wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
+        global_PVs['Cam1_Acquire'].put(DetectorIdle)
+    
+    # Get the image loaded in memory
+    img_vect = global_PVs['Cam1_Image'].get(count=image_size)
+    img = np.reshape(img_vect,[nRow, nCol])
+
+    return img
+
+
+def take_flat(global_PVs, params):
+
+    log.info('  *** acquire white')
+    return take_image(global_PVs, params)
+
+
+def take_dark(global_PVs, params):
+    
+    log.info('  *** acquire dark')
+    return take_image(global_PVs, params)
+
+
+def take_dark_and_white(global_PVs, params):
+    aps2bm.close_shutters(global_PVs, params)
+    dark_field = take_dark(global_PVs, params)
+    # plot(dark_field)
+
+    aps2bm.open_shutters(global_PVs, params)
+    aps2bm.move_sample_out(global_PVs, params)
+    white_field = take_flat(global_PVs, params)
+    # plot(white_field)
+
+    aps2bm.move_sample_in(global_PVs, params)
+
+    return dark_field, white_field

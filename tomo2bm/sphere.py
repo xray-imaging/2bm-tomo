@@ -60,6 +60,7 @@ def find_resolution(params):
     global_PVs = aps2bm.init_general_PVs(params)
     aps2bm.user_info_update(global_PVs, params)
 
+    params.file_name = None # so we don't run the flir._setup_hdf_writer 
     resolution = None
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -155,6 +156,7 @@ def find_roll_and_rotation_axis_location(params):
 
     global_PVs = aps2bm.init_general_PVs(params)
 
+    params.file_name = None # so we don't run the flir._setup_hdf_writer 
     rotation_axis_location = None
     roll = None
 

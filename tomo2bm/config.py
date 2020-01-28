@@ -71,7 +71,7 @@ SECTIONS['experiment-info'] = {
         'help': " "},
         }
 
-SECTIONS['camera-ioc'] = {
+SECTIONS['detector'] = {
     'camera-ioc-prefix':{
         'choices': ['2bmbSP1:', '2bmbPG3:', '2bmbSP1:'],
         'default': '2bmbSP1:',
@@ -81,23 +81,15 @@ SECTIONS['camera-ioc'] = {
         'default': 0.1,
         'type': float,
         'help': " "},
-        }
-
-SECTIONS['detector'] = {
     'ccd-readout': {
         'choices': [0.006, 0.01],
         'default': 0.01,
         'type': float,
         # 'help': "8bit: 0.006; 16-bit: 0.01"},
         'help': " "},
-    'lens-magnification': {
-        'default': 0,
-        'type': float,
-        'help': " "},
-    'resolution': {
-        'default': 1.5,
-        'type': float,
-        'help': "Detector pixel size in μm/pixel"},
+        }
+
+SECTIONS['scintillator'] = {
     'scintillator-type': {
         'default': None,
         'type': str,
@@ -106,6 +98,9 @@ SECTIONS['detector'] = {
         'default': 0,
         'type': float,
         'help': " "},
+    }
+
+SECTIONS['hdf-plugin'] = {
     'recursive-filter':{
         'default': False,
         'action': 'store_true',
@@ -283,37 +278,36 @@ SECTIONS['stage-settings'] = {
     }
 
 SECTIONS['sphere'] = {
-    # 'find-resolution': {
-    #     'default': False,
-    #     'choices': [True, False],
-    #     'help': " "},
-    # 'find-rotation-axis': {
-    #     'default': False,
-    #     'choices': [True, False],
-    #     'help': " "},
-    # 'find-rotation-axis-roll': {
-    #     'default': False,
-    #     'choices': [True, False],
-    #     'help': " "},
-    # 'find-rotation-axis-pitch': {
-    #     'default': False,
-    #     'choices': [True, False],
-    #     'help': " "},
-    'rotation_axis-position': {
-        'default': 0.1,
+    'lens-magnification': {
+        'default': None,
         'type': float,
-        'help': "Off axis horizontal position of the sphere used to calculate resolution (mm)"},
-
+        'help': " "},
+    'resolution': {
+        'default': None,
+        'type': float,
+        'help': "Detector pixel size in μm/pixel"},
+    'rotation-axis-position': {
+        'default': None,
+        'type': float,
+        'help': "horizontal location of the rotation axis (pixels)"},
+    'rotation-axis-roll': {
+        'default': None,
+        'type': float,
+        'help': "rotation axis roll "},
+    'rotation-axis-pitch': {
+        'default': None,
+        'type': float,
+        'help': "rotation axis pitch"},
     'off-axis-position': {
         'default': 0.1,
         'type': float,
         'help': "Off axis horizontal position of the sphere used to calculate resolution (mm)"},
     }
 
-SCAN_PARAMS = ('experiment-info', 'camera-ioc', 'detector', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
-SPHERE_PARAMS = ('camera-ioc', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere',)
+SCAN_PARAMS = ('experiment-info', 'detector', 'scintillator', 'hdf-plugin', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
+SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere',)
 
-NICE_NAMES = ('general', 'experiment info', 'camera-ioc', 'detector', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
+NICE_NAMES = ('general', 'experiment info', 'detector', 'scintillator', 'hdf plugin', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 
 
 def get_config_name():

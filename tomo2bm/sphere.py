@@ -34,24 +34,24 @@ import numexpr as ne
 
 global variableDict
 
-variableDict = {
-        'SampleXIn': 0, 
-        'SampleXOut': 4,
-        'SampleRotStart': 0.0,
-        'SampleRotEnd': 180.0,
-        'AxisLocation': 0.0,
-        'Roll': 0.0,
-        'ScanRange': 2,                     # for focus scan: relative motion in mm
-        'NSteps': 20,                       # for focus scan 
-        'StabilizeSleep_ms': 250,           # for focus scan 
-        # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-        'CCD_Readout': 0.006,               # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-        # 'CCD_Readout': 0.01,                # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-        'Station': '2-BM-A',
-        'ExposureTime': 0.1,                # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
-        'IOC_Prefix': '2bmbSP1:',           # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
-        'DetectorResolution': 1.0
-        }
+# variableDict = {
+#         'SampleXIn': 0, 
+#         'SampleXOut': 4,
+#         'SampleRotStart': 0.0,
+#         'SampleRotEnd': 180.0,
+#         'AxisLocation': 0.0,
+#         'Roll': 0.0,
+#         'ScanRange': 2,                     # for focus scan: relative motion in mm
+#         'NSteps': 20,                       # for focus scan 
+#         'StabilizeSleep_ms': 250,           # for focus scan 
+#         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
+#         'CCD_Readout': 0.006,               # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+#         # 'CCD_Readout': 0.01,                # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
+#         'Station': '2-BM-A',
+#         'ExposureTime': 0.1,                # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
+#         'IOC_Prefix': '2bmbSP1:',           # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
+#         'DetectorResolution': 1.0
+#         }
 
 
 def find_resolution(params):
@@ -61,7 +61,6 @@ def find_resolution(params):
     aps2bm.user_info_update(global_PVs, params)
 
     params.file_name = None # so we don't run the flir._setup_hdf_writer 
-    resolution = None
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
         if ((detector_sn == None) or (detector_sn == 'Unknown')):
@@ -109,6 +108,120 @@ def find_resolution(params):
         pass
 
 
+def find_roll_and_rotation_axis_location(params):
+
+    global_PVs = aps2bm.init_general_PVs(params)
+
+    params.file_name = None # so we don't run the flir._setup_hdf_writer 
+
+    try: 
+        detector_sn = global_PVs['Cam1_SerialNumber'].get()
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
+            log.info('  *** Failed!')
+        else:
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                        % (params.camera_ioc_prefix, detector_sn))
+
+            flir.init(global_PVs, params)
+            flir.set(global_PVs, params) 
+
+            sphere_0, sphere_180 = take_sphere_0_180(global_PVs, params)
+
+            cmass_0 = center_of_mass(sphere_0)
+            cmass_180 = center_of_mass(sphere_180)
+
+            params.rotation_axis_position = (cmass_180[1] + cmass_0[1]) / 2.0
+            log.info('  *** shift (center of mass): [%f, %f]' % ((cmass_180[0] - cmass_0[0]) ,(cmass_180[1] - cmass_0[1])))
+            # log.info('  *** difference horizontal center of mass %f' % (cmass_180[1] - cmass_0[1]))
+            # log.info('  *** ratio %f' % ((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
+
+            params.roll = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
+            log.info("  *** roll:%f" % (params.roll))
+            # plot(sphere_0)
+            # plot(sphere_180)
+            # plot(sphere_180[:,::-1])
+            
+            
+            # shift = register_translation(sphere_0, sphere_180[:,::-1], 10)
+            # print(shift)
+            # log.info('  *** shift (cross correlation): [%f, %f]' % (shift[0][1],shift[0][0]))
+            # log.info('  *** rotation axis location: %f' % (sphere_0.shape[0][1]/2.0 +(shift[0][1]/2)))
+            # log.info('  *** rotation axis offset: %f' % (shift[0][1]/2))
+            # rotation_axis_position = (sphere_0.shape[0][1]/2.0 + (shift[0][1]/2))
+            # roll = np.rad2deg(np.arctan(shift[0][0]/shift[0][1]))
+            # log.info("  *** new roll:%f" % (roll))
+
+
+            # shift = register_translation(sphere_0, sphere_180, 1000, return_error=False)
+            # roll = np.rad2deg(np.arctan(shift[0]/shift[1]))
+            # log.info("new roll2:%f" % (roll))
+
+            config.update_sphere(params)
+
+        return params.rotation_axis_position, params.roll
+    except  KeyError:
+        log.error('  *** Some PV assignment failed!')
+        pass
+
+
+def take_sphere_0_180(global_PVs, params):
+
+
+    dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
+
+    log.info('  *** moving rotary stage to %f deg position' % float(params.sample_rotation_start))
+    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_start), wait=True, timeout=600.0)
+    
+    log.info('  *** acquire sphere at %f deg position' % float(params.sample_rotation_start))
+    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+ 
+    log.info('  *** moving rotary stage to %f deg position' % float(params.sample_rotation_end))
+    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_end), wait=True, timeout=600.0)
+    
+    log.info('  *** acquire sphere at %f deg position' % float(params.sample_rotation_end))
+    sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+
+    log.info('  *** moving rotary stage back to %f deg position' % float(params.sample_rotation_start))
+    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_start), wait=True, timeout=600.0)
+    
+    return sphere_0, sphere_180
+
+
+def center_of_mass(image):
+    
+    threshold_value = filters.threshold_otsu(image)
+    log.info("  *** threshold_value: %f" % (threshold_value))
+    labeled_foreground = (image < threshold_value).astype(int)
+    properties = regionprops(labeled_foreground, image)
+    return properties[0].weighted_centroid
+    # return properties[0].centroid
+
+
+def center_rotation_axis(global_PVs, params):
+
+    nCol = global_PVs['Cam1_SizeX_RBV'].get()
+    
+    log.info(' ')
+    log.info('  *** centering rotation axis')
+
+    current_axis_position = global_PVs["Motor_SampleX"].get()
+    log.info('  *** current axis position: %f' % current_axis_position)
+    time.sleep(.5)
+    correction = (((nCol / 2.0) - variableDict['AxisLocation']) * variableDict['DetectorResolution'] / 1000.0) + current_axis_position
+    log.info('  *** correction: %f' % correction)
+
+    log.info('  *** moving to: %f (mm)' % correction)
+    global_PVs["Motor_SampleX"].put(correction, wait=True, timeout=600.0)
+
+    log.info('  *** re-setting position from %f (mm) to 0 (mm)' % correction)
+    global_PVs["Motor_SampleX_SET"].put(1, wait=True, timeout=5.0)
+    time.sleep(.5)
+    global_PVs["Motor_SampleX"].put(0, wait=True, timeout=5.0)
+    time.sleep(.5)
+    global_PVs["Motor_SampleX_SET"].put(0, wait=True, timeout=5.0)
+
+
 def normalize(arr, flat, dark, cutoff=None, out=None):
     """
     Normalize raw projection data using the flat and dark field projections.
@@ -150,121 +263,6 @@ def normalize(arr, flat, dark, cutoff=None, out=None):
         cutoff = np.float32(cutoff)
         ne.evaluate('where(out>cutoff,cutoff,out)', out=out)
     return out
-
-
-def find_roll_and_rotation_axis_location(params):
-
-    global_PVs = aps2bm.init_general_PVs(params)
-
-    params.file_name = None # so we don't run the flir._setup_hdf_writer 
-    rotation_axis_location = None
-    roll = None
-
-    try: 
-        detector_sn = global_PVs['Cam1_SerialNumber'].get()
-        if ((detector_sn == None) or (detector_sn == 'Unknown')):
-            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
-            log.info('  *** Failed!')
-        else:
-            log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
-                        % (params.camera_ioc_prefix, detector_sn))
-
-            flir.init(global_PVs, params)
-            flir.set(global_PVs, params) 
-
-            sphere_0, sphere_180 = take_sphere_0_180(global_PVs, params)
-
-            cmass_0 = center_of_mass(sphere_0)
-            cmass_180 = center_of_mass(sphere_180)
-
-            rotation_axis_location = (cmass_180[1] + cmass_0[1]) / 2.0
-            log.info('  *** shift (center of mass): [%f, %f]' % ((cmass_180[0] - cmass_0[0]) ,(cmass_180[1] - cmass_0[1])))
-            # log.info('  *** difference horizontal center of mass %f' % (cmass_180[1] - cmass_0[1]))
-            # log.info('  *** ratio %f' % ((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
-
-            roll = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
-            log.info("  *** roll:%f" % (roll))
-            # plot(sphere_0)
-            # plot(sphere_180)
-            # plot(sphere_180[:,::-1])
-            
-            
-            # shift = register_translation(sphere_0, sphere_180[:,::-1], 10)
-            # print(shift)
-            # log.info('  *** shift (cross correlation): [%f, %f]' % (shift[0][1],shift[0][0]))
-            # log.info('  *** rotation axis location: %f' % (sphere_0.shape[0][1]/2.0 +(shift[0][1]/2)))
-            # log.info('  *** rotation axis offset: %f' % (shift[0][1]/2))
-            # rotation_axis_location = (sphere_0.shape[0][1]/2.0 + (shift[0][1]/2))
-            # roll = np.rad2deg(np.arctan(shift[0][0]/shift[0][1]))
-            # log.info("  *** new roll:%f" % (roll))
-
-
-            # shift = register_translation(sphere_0, sphere_180, 1000, return_error=False)
-            # roll = np.rad2deg(np.arctan(shift[0]/shift[1]))
-            # log.info("new roll2:%f" % (roll))
-
-        return rotation_axis_location, roll
-    except  KeyError:
-        log.error('  *** Some PV assignment failed!')
-        pass
-
-
-def take_sphere_0_180(global_PVs, params):
-
-
-    dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
-
-    log.info('  *** moving rotary stage to %f deg position' % float(params.sample_rotation_start))
-    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_start), wait=True, timeout=600.0)
-    
-    log.info('  *** acquire sphere at %f deg position' % float(params.sample_rotation_start))
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
- 
-    log.info('  *** moving rotary stage to %f deg position' % float(params.sample_rotation_end))
-    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_end), wait=True, timeout=600.0)
-    
-    log.info('  *** acquire sphere at %f deg position' % float(params.sample_rotation_end))
-    sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
-
-    log.info('  *** moving rotary stage back to %f deg position' % float(params.sample_rotation_start))
-    global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_start), wait=True, timeout=600.0)
-    
-    return sphere_0, sphere_180
-
-
-def center_of_mass(image):
-    
-    threshold_value = filters.threshold_otsu(image)
-    log.info("threshold_value: %f" % (threshold_value))
-    labeled_foreground = (image < threshold_value).astype(int)
-    properties = regionprops(labeled_foreground, image)
-    return properties[0].weighted_centroid
-    # return properties[0].centroid
-
-
-def center_rotation_axis(global_PVs, params):
-
-    nCol = global_PVs['Cam1_SizeX_RBV'].get()
-    
-    log.info(' ')
-    log.info('  *** centering rotation axis')
-
-    current_axis_position = global_PVs["Motor_SampleX"].get()
-    log.info('  *** current axis position: %f' % current_axis_position)
-    time.sleep(.5)
-    correction = (((nCol / 2.0) - variableDict['AxisLocation']) * variableDict['DetectorResolution'] / 1000.0) + current_axis_position
-    log.info('  *** correction: %f' % correction)
-
-    log.info('  *** moving to: %f (mm)' % correction)
-    global_PVs["Motor_SampleX"].put(correction, wait=True, timeout=600.0)
-
-    log.info('  *** re-setting position from %f (mm) to 0 (mm)' % correction)
-    global_PVs["Motor_SampleX_SET"].put(1, wait=True, timeout=5.0)
-    time.sleep(.5)
-    global_PVs["Motor_SampleX"].put(0, wait=True, timeout=5.0)
-    time.sleep(.5)
-    global_PVs["Motor_SampleX_SET"].put(0, wait=True, timeout=5.0)
-
 
 # def main():
 #     home = os.path.expanduser("~")

@@ -140,7 +140,9 @@ def set(global_PVs, params):
     else:
         log.error('Detector %s is not defined' % params.camera_ioc_prefix)
         return
-    if fname is not None:
+    if fname is None:
+        log.warning('  *** hdf_writer will not be configured')
+    else:
         _setup_hdf_writer(global_PVs, params, fname)
 
 

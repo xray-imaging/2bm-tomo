@@ -184,6 +184,14 @@ SECTIONS['sample-motion'] = {
 
 
 SECTIONS['scan'] = {
+    'scan-counter': {
+        'type': util.positive_int,
+        'default': 0,
+        'help': " "},
+    'reverse': {
+        'default': False,
+        'choices': ['True', 'False'],
+        'help': 'When set, the data set was collected in reverse (180-0)'},
     'scan-type': {
         'choices': ['standard', 'vertical', 'mosaic'],
         'default': 'standard',

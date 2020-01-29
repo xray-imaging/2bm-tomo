@@ -44,10 +44,11 @@ def fly_scan(params):
                 tic_01 =  time.time()
                 # set sample file name
                 # fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+                params.scan_counter = global_PVs['HDF1_FileNumber'].get()
                 params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
                 params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
                 log.info(' ')
-                log.info('  *** Start scan %d' % i)
+                log.info('  *** Start scan %d/%d' % (i, (params.sleep_steps -1)))
                 tomo_fly_scan(global_PVs, params)
                 if ((i+1)!= params.sleep_steps):
                     log.warning('  *** Wait (s): %s ' % str(params.sleep_time))
@@ -63,7 +64,7 @@ def fly_scan(params):
             log.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
  
             log.info('  *** Moving rotary stage to start position')
-            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+            global_PVs["Motor_SampleRot"].put(params.sample_rotation_start, wait=True, timeout=600.0)
             log.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
@@ -110,9 +111,10 @@ def fly_scan_vertical(params):
 
             for ii in np.arange(0, params.sleep_steps, 1):
                 log.info(' ')
-                log.info('  *** Start scan %d' % ii)
+                log.info('  *** Start scan %d/%d' % (ii, (params.sleep_steps -1)))
                 for i in np.arange(start_y, end_y, step_size_y):
                     tic_01 =  time.time()
+                    params.scan_counter = global_PVs['HDF1_FileNumber'].get()
                     # set sample file name
                     params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
                     params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
@@ -138,7 +140,7 @@ def fly_scan_vertical(params):
 
             log.info('  *** Total loop scan time: %s minutes' % str((time.time() - tic)/60.))
             log.info('  *** Moving rotary stage to start position')
-            global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+            global_PVs["Motor_SampleRot"].put(params.sample_rotation_start, wait=True, timeout=600.0)
             log.info('  *** Moving rotary stage to start position: Done!')
 
             global_PVs['Cam1_ImageMode'].put('Continuous')
@@ -208,6 +210,7 @@ def fly_scan_mosaic(params):
                     for j in np.arange(start_x, stop_x, step_size_x):
                         log.error('  *** The sample horizontal position is at %s mm' % (j))
                         params.sample_in_position = j
+                        params.scan_counter = global_PVs['HDF1_FileNumber'].get()
                         # set sample file name
                         params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
                         params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True) + '_y' + str(v) + '_x' + str(h)
@@ -227,7 +230,7 @@ def fly_scan_mosaic(params):
                 global_PVs['Motor_SampleX'].put(start_x, wait=True, timeout=1000.0)
 
                 log.info('  *** Moving rotary stage to start position')
-                global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
+                global_PVs["Motor_SampleRot"].put(params.sample_rotation_start, wait=True, timeout=600.0)
                 log.info('  *** Moving rotary stage to start position: Done!')
 
                 if ((ii+1)!=params.sleep_steps):
@@ -284,7 +287,15 @@ def tomo_fly_scan(global_PVs, params):
     # moved to outer loop in main()
     # init(global_PVs, params)
     set_image_factor(global_PVs, params)
-    set_pso(global_PVs, params)
+
+    rotation_start = params.sample_rotation_start
+    rotation_end = params.sample_rotation_end
+
+    if ((params.reverse == 'True') and ((params.scan_counter % 2) == 1)):
+        params.sample_rotation_start = rotation_end
+        params.sample_rotation_end = rotation_start
+
+    aps2bm.set_pso(global_PVs, params)
 
     # fname = global_PVs['HDF1_FileName'].get(as_string=True)
     log.info('  *** File name prefix: %s' % params.file_name)
@@ -292,7 +303,13 @@ def tomo_fly_scan(global_PVs, params):
 
     aps2bm.open_shutters(global_PVs, params)
     aps2bm.move_sample_in(global_PVs, params)
+
+
     theta = flir.acquire(global_PVs, params)
+
+    if ((params.reverse == 'True') and ((params.scan_counter % 2) == 1)):
+        params.sample_rotation_start = rotation_start
+        params.sample_rotation_end = rotation_end
 
     theta_end =  global_PVs['Motor_SampleRot_RBV'].get()
     if (0 < theta_end < 180.0):
@@ -379,37 +396,6 @@ def stop_scan(global_PVs, params):
         ##init(global_PVs, params)
 
 
-def set_pso(global_PVs, params):
 
-    acclTime = 1.0 * params.slew_speed/params.accl_rot
-    scanDelta = abs(((float(params.sample_rotation_end) - float(params.sample_rotation_start))) / ((float(params.num_projections)) * float(params.recursive_filter_n_images)))
-
-    log.info('  *** *** start_pos %f' % float(params.sample_rotation_start))
-    log.info('  *** *** end pos %f' % float(params.sample_rotation_end))
-
-    global_PVs['Fly_StartPos'].put(float(params.sample_rotation_start), wait=True)
-    global_PVs['Fly_EndPos'].put(float(params.sample_rotation_end), wait=True)
-    global_PVs['Fly_SlewSpeed'].put(params.slew_speed, wait=True)
-    global_PVs['Fly_ScanDelta'].put(scanDelta, wait=True)
-    time.sleep(3.0)
-
-    calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-    
-    if calc_num_proj == None:
-        log.error('  *** *** Error getting fly calculated number of projections!')
-        calc_num_proj = global_PVs['Fly_Calc_Projections'].get()
-        log.error('  *** *** Using %s instead of %s' % (calc_num_proj, params.num_projections))
-    if calc_num_proj != int(params.num_projections):
-        log.warning('  *** *** Changing number of projections from: %s to: %s' % (params.num_projections, int(calc_num_proj)))
-        params.num_projections = int(calc_num_proj)
-    log.info('  *** *** Number of projections: %d' % int(params.num_projections))
-    log.info('  *** *** Fly calc triggers: %d' % int(calc_num_proj))
-    global_PVs['Fly_ScanControl'].put('Standard')
-
-    log.info(' ')
-    log.info('  *** Taxi before starting capture')
-    global_PVs['Fly_Taxi'].put(1, wait=True)
-    aps2bm.wait_pv(global_PVs['Fly_Taxi'], 0)
-    log.info('  *** Taxi before starting capture: Done!')
 
 

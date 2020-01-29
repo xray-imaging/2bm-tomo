@@ -95,9 +95,9 @@ def find_resolution(params):
 
             shift = register_translation(sphere_0, sphere_1, 10)
 
-            log.info('  *** shift %f' % shift[1])
+            log.info('  *** shift %f' % shift[0][1])
 
-            params.resolution =  abs(params.off_axis_position) / np.abs(shift[0][0]) * 1000.0
+            params.resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
             
             config.update_sphere(params)
 

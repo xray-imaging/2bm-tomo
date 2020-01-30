@@ -365,6 +365,7 @@ def calc_blur_pixel(global_PVs, params):
     max_blur_delta = params.exposure_time * max_rot_speed
     mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
     max_blur_pixel = mid_detector * np.sin(max_blur_delta * np.pi /180.)
+    max_frame_rate = params.num_projections / min_scan_time
 
     rot_speed = max_rot_speed * params.rotation_slow_factor
     scan_time = angular_range / rot_speed
@@ -387,7 +388,7 @@ def calc_blur_pixel(global_PVs, params):
     log.error("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
     log.error("  *** *** *** *** Scan Time: %f (min %f) s" % (scan_time, min_scan_time))
     log.error("  *** *** *** *** Rot Speed: %f (max %f) degrees/s" % (rot_speed, max_rot_speed))
-    log.error("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
+    log.error("  *** *** *** *** Frame Rate: %f (max %f) fps" % (frame_rate, max_frame_rate))
     log.error("  *** *** *** *** Blur: %f (max %f) pixels" % (blur_pixel, max_blur_pixel))
     log.error('  *** Calc blur pixel: Done!')
     

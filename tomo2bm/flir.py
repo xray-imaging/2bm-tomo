@@ -210,9 +210,9 @@ def acquire(global_PVs, params):
 
     flyscan_time_estimate = angular_range / params.slew_speed
 
-    flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
-                      float(params.ccd_readout)) ) + 30
-    log.info(' ')
+    # flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
+    #                   float(params.ccd_readout)) ) + 30
+    # log.info(' ')
     log.error('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)

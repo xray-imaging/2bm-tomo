@@ -377,20 +377,23 @@ def calc_blur_pixel(global_PVs, params):
 
     frame_rate = params.num_projections / scan_time
 
-    log.error(' ')
-    log.error('  *** Calc blur pixel')
-    log.error("  *** *** Total # of proj: %s " % params.num_projections)
-    log.error("  *** *** Exposure Time: %s s" % params.exposure_time)
-    log.error("  *** *** Readout Time: %s s" % params.ccd_readout)
-    log.error("  *** *** Angular Range: %s degrees" % angular_range)
-    log.error("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
-    log.error(' ')
-    log.error("  *** *** *** *** Angular Step: %4.2f degrees" % angular_step)   
-    log.error("  *** *** *** *** Scan Time: %4.2f (min %4.2f) s" % (scan_time, min_scan_time))
-    log.error("  *** *** *** *** Rot Speed: %4.2f (max %4.2f) degrees/s" % (rot_speed, max_rot_speed))
-    log.error("  *** *** *** *** Frame Rate: %4.2f (max %4.2f) fps" % (frame_rate, max_frame_rate))
-    log.error("  *** *** *** *** Blur: %4.2f (max %4.2f) pixels" % (blur_pixel, max_blur_pixel))
-    log.error('  *** Calc blur pixel: Done!')
+    log.info(' ')
+    log.info('  *** Calc blur pixel')
+    log.info("  *** *** Total # of proj: %s " % params.num_projections)
+    log.info("  *** *** Exposure Time: %s s" % params.exposure_time)
+    log.info("  *** *** Readout Time: %s s" % params.ccd_readout)
+    log.info("  *** *** Angular Range: %s degrees" % angular_range)
+    log.info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
+    log.info(' ')
+    log.info("  *** *** *** *** Angular Step: %4.2f degrees" % angular_step)   
+    log.info("  *** *** *** *** Scan Time: %4.2f (min %4.2f) s" % (scan_time, min_scan_time))
+    log.info("  *** *** *** *** Rot Speed: %4.2f (max %4.2f) degrees/s" % (rot_speed, max_rot_speed))
+    log.info("  *** *** *** *** Frame Rate: %4.2f (max %4.2f) fps" % (frame_rate, max_frame_rate))
+    if (blur_pixel > 1):
+        log.error("  *** *** *** *** Blur: %4.2f (max %4.2f) pixels" % (blur_pixel, max_blur_pixel))
+    else:
+        log.info("  *** *** *** *** Blur: %4.2f (max %4.2f) pixels" % (blur_pixel, max_blur_pixel))
+    log.info('  *** Calc blur pixel: Done!')
     
     return rot_speed
 

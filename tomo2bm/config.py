@@ -283,6 +283,10 @@ SECTIONS['stage-settings'] = {
         'default':  1.0,
         'type': float,
         'help': " "}, 
+    'rotation-slow-factor': {
+        'type': util.restricted_float,
+        'default': 1,
+        'help': "Reduce rotation speed to reduce blurring"},
     }
 
 SECTIONS['sphere'] = {

@@ -32,7 +32,7 @@ def fly_scan(params):
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             params.exposure_time = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
+            rot_speed = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
             # init camera
@@ -94,7 +94,7 @@ def fly_scan_vertical(params):
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             params.exposure_time = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
+            rot_speed = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
             start_y = params.vertical_scan_start
@@ -170,7 +170,7 @@ def fly_scan_mosaic(params):
             # calling global_PVs['Cam1_AcquireTime'] to replace the default 'ExposureTime' with the one set in the camera
             params.exposure_time = global_PVs['Cam1_AcquireTime'].get()
             # calling calc_blur_pixel() to replace the default 'SlewSpeed' 
-            blur_pixel, rot_speed, scan_time = calc_blur_pixel(global_PVs, params)
+            rot_speed = calc_blur_pixel(global_PVs, params)
             params.slew_speed = rot_speed
 
             start_y = params.vertical_scan_start
@@ -358,14 +358,20 @@ def calc_blur_pixel(global_PVs, params):
 
     angular_range =  params.sample_rotation_end -  params.sample_rotation_start
     angular_step = angular_range/params.num_projections
-    scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
-    rot_speed = angular_range / scan_time
-    frame_rate = params.num_projections / scan_time
+
+    min_scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
+    max_rot_speed = angular_range / min_scan_time
+
+    rotation_speed = max_rot_speed * params.rotation_slow_factor
+    scan_time = angular_range / rotation_speed
+
+
     blur_delta = params.exposure_time * rot_speed
- 
    
     mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
-    blur_pixel = mid_detector * (1 - np.cos(blur_delta * np.pi /180.))
+    blur_pixel = mid_detector * np.sin(blur_delta * np.pi /180.)
+
+    frame_rate = params.num_projections / scan_time
 
     log.info(' ')
     log.info('  *** Calc blur pixel')
@@ -382,7 +388,7 @@ def calc_blur_pixel(global_PVs, params):
     log.info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
     log.info('  *** Calc blur pixel: Done!')
     
-    return blur_pixel, rot_speed, scan_time
+    return rot_speed
 
 
 def stop_scan(global_PVs, params):

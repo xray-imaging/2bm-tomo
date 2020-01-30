@@ -206,10 +206,14 @@ def _setup_frame_type(global_PVs, params):
 def acquire(global_PVs, params):
     theta = []
     # Estimate the time needed for the flyscan
+    angular_range =  params.sample_rotation_end -  params.sample_rotation_start
+
+    flyscan_time_estimate = angular_range / params.slew_speed
+
     flyscan_time_estimate = (float(params.num_projections) * (float(params.exposure_time) + \
                       float(params.ccd_readout)) ) + 30
     log.info(' ')
-    log.info('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
+    log.error('  *** Fly Scan Time Estimate: %f minutes' % (flyscan_time_estimate/60.))
 
     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
     time.sleep(2)    

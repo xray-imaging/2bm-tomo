@@ -362,31 +362,34 @@ def calc_blur_pixel(global_PVs, params):
     min_scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
     max_rot_speed = angular_range / min_scan_time
 
+    max_blur_delta = params.exposure_time * max_rot_speed
+    mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
+    max_blur_pixel = mid_detector * np.sin(max_blur_delta * np.pi /180.)
+
     rot_speed = max_rot_speed * params.rotation_slow_factor
     scan_time = angular_range / rot_speed
 
 
-    blur_delta = params.exposure_time * rot_speed
-   
+    blur_delta = params.exposure_time * rot_speed  
     mid_detector = global_PVs['Cam1_MaxSizeX_RBV'].get() / 2.0
     blur_pixel = mid_detector * np.sin(blur_delta * np.pi /180.)
 
     frame_rate = params.num_projections / scan_time
 
-    log.info(' ')
-    log.info('  *** Calc blur pixel')
-    log.info("  *** *** Total # of proj: %s " % params.num_projections)
-    log.info("  *** *** Exposure Time: %s s" % params.exposure_time)
-    log.info("  *** *** Readout Time: %s s" % params.ccd_readout)
-    log.info("  *** *** Angular Range: %s degrees" % angular_range)
-    log.info("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
-    log.info(' ')
-    log.info("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
-    log.info("  *** *** *** *** Scan Time: %f s" % scan_time) 
-    log.info("  *** *** *** *** Rot Speed: %f degrees/s" % rot_speed)
-    log.info("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
-    log.info("  *** *** *** *** Max Blur: %f pixels" % blur_pixel)
-    log.info('  *** Calc blur pixel: Done!')
+    log.error(' ')
+    log.error('  *** Calc blur pixel')
+    log.error("  *** *** Total # of proj: %s " % params.num_projections)
+    log.error("  *** *** Exposure Time: %s s" % params.exposure_time)
+    log.error("  *** *** Readout Time: %s s" % params.ccd_readout)
+    log.error("  *** *** Angular Range: %s degrees" % angular_range)
+    log.error("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
+    log.error(' ')
+    log.error("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
+    log.error("  *** *** *** *** Scan Time: %f (min %f) s" % (scan_time, min_scan_time))
+    log.error("  *** *** *** *** Rot Speed: %f (max %f) degrees/s" % (rot_speed, max_rot_speed))
+    log.error("  *** *** *** *** Frame Rate: %f fps" % frame_rate)
+    log.error("  *** *** *** *** Blur: %f (max %f) pixels" % (blur_pixel, max_blur_pixel))
+    log.error('  *** Calc blur pixel: Done!')
     
     return rot_speed
 

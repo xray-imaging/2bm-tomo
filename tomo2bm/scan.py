@@ -385,11 +385,11 @@ def calc_blur_pixel(global_PVs, params):
     log.error("  *** *** Angular Range: %s degrees" % angular_range)
     log.error("  *** *** Camera X size: %s " % global_PVs['Cam1_SizeX'].get())
     log.error(' ')
-    log.error("  *** *** *** *** Angular Step: %f degrees" % angular_step)   
-    log.error("  *** *** *** *** Scan Time: %f (min %f) s" % (scan_time, min_scan_time))
-    log.error("  *** *** *** *** Rot Speed: %f (max %f) degrees/s" % (rot_speed, max_rot_speed))
-    log.error("  *** *** *** *** Frame Rate: %f (max %f) fps" % (frame_rate, max_frame_rate))
-    log.error("  *** *** *** *** Blur: %f (max %f) pixels" % (blur_pixel, max_blur_pixel))
+    log.error("  *** *** *** *** Angular Step: %4.2f degrees" % angular_step)   
+    log.error("  *** *** *** *** Scan Time: %4.2f (min %4.2f) s" % (scan_time, min_scan_time))
+    log.error("  *** *** *** *** Rot Speed: %4.2f (max %4.2f) degrees/s" % (rot_speed, max_rot_speed))
+    log.error("  *** *** *** *** Frame Rate: %4.2f (max %4.2f) fps" % (frame_rate, max_frame_rate))
+    log.error("  *** *** *** *** Blur: %4.2f (max %4.2f) pixels" % (blur_pixel, max_blur_pixel))
     log.error('  *** Calc blur pixel: Done!')
     
     return rot_speed

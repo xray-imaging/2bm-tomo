@@ -362,8 +362,8 @@ def calc_blur_pixel(global_PVs, params):
     min_scan_time = params.num_projections * (params.exposure_time + params.ccd_readout)
     max_rot_speed = angular_range / min_scan_time
 
-    rotation_speed = max_rot_speed * params.rotation_slow_factor
-    scan_time = angular_range / rotation_speed
+    rot_speed = max_rot_speed * params.rotation_slow_factor
+    scan_time = angular_range / rot_speed
 
 
     blur_delta = params.exposure_time * rot_speed

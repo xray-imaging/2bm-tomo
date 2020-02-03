@@ -76,8 +76,8 @@ def main():
 
     cmd_parsers = [
         ('init',                 init,            (),                             "Create configuration file"),
-        ('scan',                 run_scan,        scan_params,                    "Run tomographic reconstruction"),
-        ('status',               run_status,      scan_params,                    "Show the tomographic reconstruction status"),
+        ('scan',                 run_scan,        scan_params,                    "Run tomographic scan"),
+        ('status',               run_status,      scan_params,                    "Show the tomographic scan status"),
         ('find_axis',            run_axis,        sphere_params,                  "Find rotation axis location. Use an alignment sphere"),
         ('find_res',             run_res,         sphere_params,                  "Find resolution. Use an alignment sphere"),
         ('find_roll',            run_axis,        sphere_params,                  "Find roll. Use an alignment sphere"),

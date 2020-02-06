@@ -298,7 +298,7 @@ SECTIONS['sphere'] = {
         'default': None,
         'type': float,
         'help': "Detector pixel size in μm/pixel"},
-    'rotation-axis-position': {
+    'rotation-axis-location': {
         'default': None,
         'type': float,
         'help': "horizontal location of the rotation axis (pixels)"},
@@ -316,8 +316,17 @@ SECTIONS['sphere'] = {
         'help': "Off axis horizontal position of the sphere used to calculate resolution (mm)"},
     }
 
+SECTIONS['find'] = {
+    'option': {
+        'choices': ['resolution', 'axis', 'roll', 'pitch'],
+        'default': 'resolution',
+        'type': str,
+        'help': " "}
+    }
+
+
 SCAN_PARAMS = ('experiment-info', 'detector', 'scintillator', 'hdf-plugin', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
-SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere',)
+SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'find')
 
 NICE_NAMES = ('general', 'experiment info', 'detector', 'scintillator', 'hdf plugin', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 

@@ -43,7 +43,7 @@ def fly_scan(params):
             for i in np.arange(0, params.sleep_steps, 1):
                 tic_01 =  time.time()
                 # set sample file name
-                # fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
+                #fname = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)
                 params.scan_counter = global_PVs['HDF1_FileNumber'].get()
                 params.file_path = global_PVs['HDF1_FilePath'].get(as_string=True)
                 params.file_name = str('{:03}'.format(global_PVs['HDF1_FileNumber'].get())) + '_' + global_PVs['Sample_Name'].get(as_string=True)

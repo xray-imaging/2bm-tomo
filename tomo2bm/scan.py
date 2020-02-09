@@ -390,7 +390,7 @@ def calc_blur_pixel(global_PVs, params):
     log.info("  *** *** *** *** Rot Speed: %4.2f (max %4.2f) degrees/s" % (rot_speed, max_rot_speed))
     log.info("  *** *** *** *** Rot Speed Reduced to: %4.2f %%" % (params.rotation_slow_factor *100.))
     log.info("  *** *** *** *** Frame Rate: %4.2f (max %4.2f) fps" % (frame_rate, max_frame_rate))
-    params.rotation_slow_factor
+
     if (blur_pixel > 1):
         log.error("  *** *** *** *** Blur: %4.2f (max %4.2f) pixels" % (blur_pixel, max_blur_pixel))
     else:

@@ -56,7 +56,7 @@ def run_find(args):
         if (args.rotation_axis_location or args.rotation_axis_roll) is None:
             log.error('find returned None')
         else:
-            log.warning('roll: %f' % args.rotation_axis_roll) +ls
+            log.warning('roll: %f' % args.rotation_axis_roll)
             log.warning('rotation axis location %f pixel' % args.rotation_axis_location)
     elif (args.option == 'resolution'):
         log.warning('finding detector resolution')

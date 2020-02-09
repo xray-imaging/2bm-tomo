@@ -7,7 +7,7 @@ import time
 from epics import PV
 from tomo2bm import log
 
-TESTING = True
+TESTING = False
 
 ShutterAisFast = True           # True: use m7 as shutter; False: use Front End Shutter
 

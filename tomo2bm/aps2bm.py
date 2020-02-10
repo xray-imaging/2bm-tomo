@@ -276,14 +276,14 @@ def user_info_params_update_from_pv(global_PVs, params):
     params.experiment_year_month = global_PVs['Experiment_Year_Month'].get(as_string=True)
     params.user_info_update = global_PVs['User_Info_Update'].get(as_string=True)
 
-    params.lens_magnification = global_PVs['Lens_Magnification'].get(as_string=True)
-    params.ccd_pixel_size = global_PVs['CCD_Pixel_Size'].get(as_string=True)
 
 def image_resolution_pv_update(global_PVs, params):
 
     print("A", params.image_resolution, params.ccd_pixel_size)
     global_PVs['Image_Resolution'].put(params.image_resolution, wait=True)
     global_PVs['CCD_Pixel_Size'].put(params.ccd_pixel_size, wait=True)
+    global_PVs['Lens_Magnification'].put(params.lens_magnification, wait=True)
+
 
 def open_shutters(global_PVs, params):
     log.info(' ')

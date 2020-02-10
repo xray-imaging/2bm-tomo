@@ -71,7 +71,12 @@ def init_general_PVs(params):
     global_PVs['User_Info_Update'] = PV('2bmS1:ExpInfo:UserInfoUpdate.VAL')
     global_PVs['Time'] = PV('S:IOC:timeOfDayISO8601')
 
+    global_PVs['Energy'] = PV('2bmS1:ExpInfo:Energy.VAL')
+    global_PVs['Energy_Mode'] = PV('2bmS1:ExpInfo:EnergyMode.VAL')
+
     global_PVs['Lens_Magnification'] = PV('2bmS1:ExpInfo:LensMagnification.VAL')
+    global_PVs['Image_Resolution'] = PV('2bmS1:ExpInfo:ImageResolution.VAL')
+    global_PVs['CCD_Pixel_Size'] = PV('2bmS1:ExpInfo:CCDPixelSize.VAL')
     global_PVs['Scintillator_Type'] = PV('2bmS1:ExpInfo:ScintillatorType.VAL')
     global_PVs['Scintillator_Thickness'] = PV('2bmS1:ExpInfo:ScintillatorThickness.VAL')
     global_PVs['Sample_Detector_Distance'] = PV('2bmS1:ExpInfo:SampleDetectorDistance.VAL')
@@ -107,11 +112,6 @@ def init_general_PVs(params):
     global_PVs['User_Name'] = PV('2bmS1:ExpInfo:UserName.VAL')
     global_PVs['Remote_Data_Trasfer'] = PV('2bmS1:ExpInfo:RemoteDataTrasfer.VAL')
     global_PVs['Remote_Analysis_Dir'] = PV('2bmS1:ExpInfo:RemoteAnalysisDir.VAL')
-
-    # global_PVs['Energy'] = PV('2bmS1:ExpInfo:Energy.VAL')
-    # global_PVs['CCD_Pixel_Size'] = PV('2bmS1:ExpInfo:CCDPixelSize.VAL')
-    # global_PVs['Image_Resolution'] = PV('2bmS1:ExpInfo:ImageResolution.VAL')
-
 
     if params.station == '2-BM-A':
         log.info('*** Running in station A:')
@@ -265,7 +265,7 @@ def init_general_PVs(params):
     return global_PVs
 
 
-def user_info_update(global_PVs, params):
+def user_info_params_update_from_pv(global_PVs, params):
 
     params.proposal_title = global_PVs['Proposal_Title'].get(as_string=True)
     params.user_email = global_PVs['User_Email'].get(as_string=True)
@@ -277,6 +277,7 @@ def user_info_update(global_PVs, params):
     params.user_info_update = global_PVs['User_Info_Update'].get(as_string=True)
 
     params.lens_magnification = global_PVs['Lens_Magnification'].get(as_string=True)
+    params.ccd_pixel_size = global_PVs['CCD_Pixel_Size'].get(as_string=True)
 
 
 def open_shutters(global_PVs, params):

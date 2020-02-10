@@ -60,8 +60,8 @@ def run_find(args):
             log.warning('rotation axis location %f pixel' % args.rotation_axis_location)
     elif (args.option == 'resolution'):
         log.warning('finding detector resolution')
-        args.resolution = sphere.find_resolution(args)
-        log.warning('detector resolution: %f μm/pixel' % args.resolution)
+        args.image_resolution = sphere.find_resolution(args)
+        log.warning('detector resolution: %f μm/pixel' % args.image_resolution)
     elif (args.option == 'pitch'):
         log.warning('not implemented')
 

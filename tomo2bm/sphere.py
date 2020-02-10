@@ -58,7 +58,7 @@ def find_resolution(params):
 
     log.info('find resolution')
     global_PVs = aps2bm.init_general_PVs(params)
-    aps2bm.user_info_update(global_PVs, params)
+    aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
     params.file_name = None # so we don't run the flir._setup_hdf_writer 
     try: 
@@ -97,11 +97,11 @@ def find_resolution(params):
 
             log.info('  *** shift %f' % shift[0][1])
 
-            params.resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
+            params.image_resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
             
             config.update_sphere(params)
 
-            return params.resolution
+            return params.image_resolution
 
     except  KeyError:
         log.error('  *** Some PV assignment failed!')

@@ -81,6 +81,10 @@ SECTIONS['detector'] = {
         'default': 0.1,
         'type': float,
         'help': " "},
+    'ccd-pixel-size': {
+        'default': 3.45,
+        'type': float,
+        'help': " "},
     'ccd-readout': {
         'choices': [0.006, 0.01],
         'default': 0.01,
@@ -294,7 +298,7 @@ SECTIONS['sphere'] = {
         'default': None,
         'type': float,
         'help': " "},
-    'resolution': {
+    'image-resolution': {
         'default': None,
         'type': float,
         'help': "Detector pixel size in μm/pixel"},

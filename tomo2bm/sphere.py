@@ -60,6 +60,7 @@ def find_resolution(params):
     global_PVs = aps2bm.init_general_PVs(params)
     aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
+    print(params.ccd_pixel_size)
     params.file_name = None # so we don't run the flir._setup_hdf_writer 
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -100,6 +101,8 @@ def find_resolution(params):
             params.image_resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
             
             config.update_sphere(params)
+            print(params.ccd_pixel_size)
+
             aps2bm.image_resolution_pv_update(global_PVs, params)
 
             return params.image_resolution

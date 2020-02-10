@@ -50,6 +50,7 @@ def run_scan(args):
 
 def run_find(args):
 
+    print(args.ccd_pixel_size)
     if (args.option == 'axis') or (args.option == 'roll'):
         log.warning('finding roll and rotation axis location')
         args.rotation_axis_location, args.rotation_axis_roll = sphere.find_roll_and_rotation_axis_location(args)

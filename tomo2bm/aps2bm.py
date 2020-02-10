@@ -279,11 +279,11 @@ def user_info_params_update_from_pv(global_PVs, params):
 
 def image_resolution_pv_update(global_PVs, params):
 
-    if (params.image_resolution not None):
+    if (params.image_resolution is not None):
         global_PVs['Image_Resolution'].put(params.image_resolution, wait=True)
-    if (params.ccd_pixel_size not None):
+    if (params.ccd_pixel_size is not None):
         global_PVs['CCD_Pixel_Size'].put(params.ccd_pixel_size, wait=True)
-    if (params.lens_magnification not None):
+    if (params.lens_magnification is not None):
         global_PVs['Lens_Magnification'].put(params.lens_magnification, wait=True)
 
 

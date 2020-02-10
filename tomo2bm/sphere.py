@@ -101,7 +101,7 @@ def find_resolution(params):
             
             config.update_sphere(params)
             aps2bm.image_resolution_pv_update(global_PVs, params)
-            
+
             return params.image_resolution
 
     except  KeyError:
@@ -132,7 +132,7 @@ def find_roll_and_rotation_axis_location(params):
             cmass_0 = center_of_mass(sphere_0)
             cmass_180 = center_of_mass(sphere_180)
 
-            params.rotation_axis_position = (cmass_180[1] + cmass_0[1]) / 2.0
+            params.rotation_axis_location = (cmass_180[1] + cmass_0[1]) / 2.0
             log.info('  *** shift (center of mass): [%f, %f]' % ((cmass_180[0] - cmass_0[0]) ,(cmass_180[1] - cmass_0[1])))
             # log.info('  *** difference horizontal center of mass %f' % (cmass_180[1] - cmass_0[1]))
             # log.info('  *** ratio %f' % ((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
@@ -149,7 +149,7 @@ def find_roll_and_rotation_axis_location(params):
             # log.info('  *** shift (cross correlation): [%f, %f]' % (shift[0][1],shift[0][0]))
             # log.info('  *** rotation axis location: %f' % (sphere_0.shape[0][1]/2.0 +(shift[0][1]/2)))
             # log.info('  *** rotation axis offset: %f' % (shift[0][1]/2))
-            # rotation_axis_position = (sphere_0.shape[0][1]/2.0 + (shift[0][1]/2))
+            # rotation_axis_location = (sphere_0.shape[0][1]/2.0 + (shift[0][1]/2))
             # roll = np.rad2deg(np.arctan(shift[0][0]/shift[0][1]))
             # log.info("  *** new roll:%f" % (roll))
 
@@ -159,8 +159,9 @@ def find_roll_and_rotation_axis_location(params):
             # log.info("new roll2:%f" % (roll))
 
             config.update_sphere(params)
+            aps2bm.rotation_axis_location_pv_update(global_PVs, params)
 
-        return params.rotation_axis_position, params.roll
+        return params.rotation_axis_location, params.roll
     except  KeyError:
         log.error('  *** Some PV assignment failed!')
         pass

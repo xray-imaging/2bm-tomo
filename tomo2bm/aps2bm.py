@@ -282,7 +282,7 @@ def user_info_params_update_from_pv(global_PVs, params):
 def image_resolution_pv_update(global_PVs, params):
 
     global_PVs['Image_Resolution'].put(params.image_resolution, wait=True)
-
+    global_PVs['CCD_Pixel_Size'].put(params.ccd_pixel_size, wait=True)
 
 def open_shutters(global_PVs, params):
     log.info(' ')

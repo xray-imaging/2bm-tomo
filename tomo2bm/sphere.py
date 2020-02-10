@@ -159,7 +159,6 @@ def find_roll_and_rotation_axis_location(params):
             # log.info("new roll2:%f" % (roll))
 
             config.update_sphere(params)
-            aps2bm.rotation_axis_location_pv_update(global_PVs, params)
 
         return params.rotation_axis_location, params.roll
     except  KeyError:

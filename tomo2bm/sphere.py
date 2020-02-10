@@ -100,7 +100,8 @@ def find_resolution(params):
             params.image_resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
             
             config.update_sphere(params)
-
+            aps2bm.image_resolution_pv_update(global_PVs, params)
+            
             return params.image_resolution
 
     except  KeyError:

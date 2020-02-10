@@ -279,10 +279,12 @@ def user_info_params_update_from_pv(global_PVs, params):
 
 def image_resolution_pv_update(global_PVs, params):
 
-    print("A", params.image_resolution, params.ccd_pixel_size)
-    global_PVs['Image_Resolution'].put(params.image_resolution, wait=True)
-    global_PVs['CCD_Pixel_Size'].put(params.ccd_pixel_size, wait=True)
-    global_PVs['Lens_Magnification'].put(params.lens_magnification, wait=True)
+    if (params.image_resolution not None):
+        global_PVs['Image_Resolution'].put(params.image_resolution, wait=True)
+    if (params.ccd_pixel_size not None):
+        global_PVs['CCD_Pixel_Size'].put(params.ccd_pixel_size, wait=True)
+    if (params.lens_magnification not None):
+        global_PVs['Lens_Magnification'].put(params.lens_magnification, wait=True)
 
 
 def open_shutters(global_PVs, params):

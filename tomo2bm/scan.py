@@ -18,7 +18,7 @@ def fly_scan(params):
 
     tic =  time.time()
     global_PVs = aps2bm.init_general_PVs(params)
-    aps2bm.user_info_update(global_PVs, params)
+    aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -80,7 +80,7 @@ def fly_scan_vertical(params):
 
     tic =  time.time()
     global_PVs = aps2bm.init_general_PVs(params)
-    aps2bm.user_info_update(global_PVs, params)
+    aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -156,7 +156,7 @@ def fly_scan_mosaic(params):
 
     tic =  time.time()
     global_PVs = aps2bm.init_general_PVs(params)
-    aps2bm.user_info_update(global_PVs, params)
+    aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()
@@ -249,7 +249,7 @@ def fly_scan_mosaic(params):
 def dummy_scan(params):
     tic =  time.time()
     global_PVs = aps2bm.init_general_PVs(params)
-    aps2bm.user_info_update(global_PVs, params)
+    aps2bm.user_info_params_update_from_pv(global_PVs, params)
 
     try: 
         detector_sn = global_PVs['Cam1_SerialNumber'].get()

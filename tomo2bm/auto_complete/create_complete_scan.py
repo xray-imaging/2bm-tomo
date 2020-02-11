@@ -8,14 +8,15 @@ def run(fname):
                                stdout=subprocess.PIPE,
                                stderr=subprocess.STDOUT)
         stdout, _ = out.communicate()
-        stdout = str(stdout)
+        #stdout = str(stdout)  #Python 3
 
         cmdscan = []
         parscan = []
         st = stdout.find("optional")
         while(1):
             st = stdout.find('--', st)
-            end = min(stdout.find(' ', st),stdout.find('\\n', st))
+            end = min(stdout.find(' ', st),stdout.find('\n', st))
+            #end = min(stdout.find(' ', st),stdout.find('\n', st))  #Python 3
             if(st < 0):
                 break            
             cmdscan.append(stdout[st:end])            
@@ -23,10 +24,12 @@ def run(fname):
             st1 = stdout.find('--', end)                
             if(st1>st or st1<0):
                 end = stdout.find(')', st)
-                parscan.append(stdout[st+9:end].replace(" ","").replace("\\n",""))                
+                parscan.append(stdout[st+9:end].replace(" ","").replace("\n",""))                
+                #parscan.append(stdout[st+9:end].replace(" ","").replace("\\n",""))         #Python 3       
             else:
-                parscan.append("") 
-            st = end        
+                parscan.append("")                 
+            st = end
+                    
         # Create bash file
         fid = open(fname, 'w')
         fid.write(

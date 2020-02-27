@@ -1,0 +1,117 @@
+#!/usr/bin/env python
+
+import os
+import re
+import sys
+import argparse
+import logging
+import time
+import shutil
+import pathlib
+from datetime import datetime
+
+from tomo2bm import config, __version__
+from tomo2bm import log
+from tomo2bm import scan
+from tomo2bm import aps2bm
+from tomo2bm import sphere
+
+
+def init(args):
+
+    if not os.path.exists(str(args.config)):
+        config.write(args.config)
+    else:
+        log.error("{0} already exists".format(args.config))
+
+def run_status(args):
+    scan.dummy_scan(args)
+    config.log_values(args)
+
+  
+def run_scan(args):
+    if (args.scan_type == 'standard'):
+        log.warning('standard scan start')
+        scan.fly_scan(args)
+        log.warning('standard scan end')
+    elif (args.scan_type == 'vertical'):
+        log.warning('veritical scan start')
+        scan.fly_scan_vertical(args)
+        log.warning('veritical scan end')
+    elif (args.scan_type == 'mosaic'):
+        log.warning('mosaic scan start')
+        args.sample_in_out = 'horizontal'
+        scan.fly_scan_mosaic(args)
+        log.warning('mosaic scan ')
+
+    else:
+        log.error('%s is not supported' % args.scan_type)
+
+
+def run_find(args):
+
+    if (args.option == 'axis') or (args.option == 'roll'):
+        log.warning('finding roll and rotation axis location')
+        args.rotation_axis_location, args.rotation_axis_roll = sphere.find_roll_and_rotation_axis_location(args)
+        if (args.rotation_axis_location or args.rotation_axis_roll) is None:
+            log.error('find returned None')
+        else:
+            log.warning('roll: %f' % args.rotation_axis_roll)
+            log.warning('rotation axis location %f pixel' % args.rotation_axis_location)
+    elif (args.option == 'resolution'):
+        log.warning('finding detector resolution')
+        args.image_resolution = sphere.find_resolution(args)
+        log.warning('detector resolution: %f μm/pixel' % args.image_resolution)
+    elif (args.option == 'pitch'):
+        log.warning('not implemented')
+
+def main():
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config', **config.SECTIONS['general']['config'])
+    parser.add_argument('--version', action='version',
+                        version='%(prog)s {}'.format(__version__))
+
+    scan_params = config.SCAN_PARAMS
+    sphere_params = config.SPHERE_PARAMS
+
+    cmd_parsers = [
+        ('init',                 init,            (),                             "Create configuration file"),
+        ('scan',                 run_scan,        scan_params,                    "Run tomographic scan"),
+        ('status',               run_status,      scan_params,                    "Show the tomographic scan status"),
+        ('find',                 run_find,        sphere_params,                  "Find resolution/roll/pitch/rotation axis location. Use an alignment sphere"),
+    ]
+
+    subparsers = parser.add_subparsers(title="Commands", metavar='')
+
+    for cmd, func, sections, text in cmd_parsers:
+        cmd_params = config.Params(sections=sections)
+        cmd_parser = subparsers.add_parser(cmd, help=text, formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+        cmd_parser = cmd_params.add_arguments(cmd_parser)
+        cmd_parser.set_defaults(_func=func)
+
+    args = config.parse_known_args(parser, subparser=True)
+
+    # create logger
+    logs_home = args.logs_home
+
+    # make sure logs directory exists
+    if not os.path.exists(logs_home):
+        os.makedirs(logs_home)
+
+    lfname = os.path.join(logs_home, 'tomo2bm_' + datetime.strftime(datetime.now(), "%Y-%m-%d_%H_%M_%S") + '.log')
+ 
+    log.setup_custom_logger(lfname)
+    log.info("Saving log at %s" % lfname)
+
+    try:
+        # config.log_values(args)
+        args._func(args)
+    except RuntimeError as e:
+        log.error(str(e))
+        sys.exit(1)
+
+
+if __name__ == '__main__':
+    main()
+

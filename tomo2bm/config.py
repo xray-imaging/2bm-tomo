@@ -301,7 +301,7 @@ SECTIONS['sphere'] = {
     'image-resolution': {
         'default': None,
         'type': float,
-        'help': "Detector pixel size in μm/pixel"},
+        'help': "Detector pixel size in micron/pixel"},
     'rotation-axis-location': {
         'default': None,
         'type': float,

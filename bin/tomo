@@ -61,7 +61,7 @@ def run_find(args):
     elif (args.option == 'resolution'):
         log.warning('finding detector resolution')
         args.image_resolution = sphere.find_resolution(args)
-        log.warning('detector resolution: %f μm/pixel' % args.image_resolution)
+        log.warning('detector resolution: %f micron/pixel' % args.image_resolution)
     elif (args.option == 'pitch'):
         log.warning('not implemented')
 

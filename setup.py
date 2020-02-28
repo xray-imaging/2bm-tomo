@@ -8,9 +8,9 @@ class PostInstallCommand(install):
         install.run(self)
         from tomo2bm.auto_complete import create_complete_scan
         import pathlib
-        fname = os.path.expanduser("~")+'/complete_tomo.sh'        
-        create_complete_scan.run(fname)
-        print('For autocomplete please run: \n\n $ source '+ fname +'\n')
+        create_complete_scan.run(str(pathlib.Path.home())+'/complete_tomo.sh')
+        print('For autocomplete please run: \n\n $ source '+str(pathlib.Path.home())+'/complete_tomo.sh\n'     )
+
 setup(
     name='tomo2bm',
     version=open('VERSION').read().strip(),
@@ -23,5 +23,5 @@ setup(
     scripts=['bin/tomo'],
     description='cli to run tomo scans at 2-bm',
     zip_safe=False,
-    cmdclass={'install': PostInstallCommand}
+    cmdclass={'install': PostInstallCommand},
 )

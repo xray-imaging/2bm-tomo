@@ -254,8 +254,8 @@ SECTIONS['scan'] = {
                                           
 SECTIONS['furnace'] = {                 # True: moves the furnace  to FurnaceYOut position to take white field: 
     'use-furnace': {                    #       Note: this flag is active ONLY when both 1. and 2. are met:
-        'default': False,               #           1. SampleMoveEnabled = True
-        'action': 'store_true',         #           2. SampleInOutVertical = False  
+        'default': False,               #           1. --sample-move-freeze default after init (False)
+        'action': 'store_true',         #           2. --sample-in-out horizontal 
         'help': " "},
     'furnace-in-position': {
         'default': 0,

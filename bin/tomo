@@ -64,6 +64,11 @@ def run_find(args):
         log.warning('detector resolution: %f micron/pixel' % args.image_resolution)
     elif (args.option == 'pitch'):
         log.warning('not implemented')
+    elif (args.option == 'center'):
+        log.warning('finding rotation center location')
+        xc, yc = sphere.find_sphere_rotation_center(args)
+        log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
+
 
 def main():
 

@@ -128,6 +128,9 @@ def init_general_PVs(params):
         global_PVs['Motor_SampleRot_Velo'] = PV('2bma:m82.VELO') 
         global_PVs['Motor_Sample_Top_0'] = PV('2bmS1:m2.VAL')
         global_PVs['Motor_Sample_Top_90'] = PV('2bmS1:m1.VAL') 
+        global_PVs['Motor_Pitch'] = PV('2bma:m50.VAL')
+        global_PVs['Motor_Roll'] = PV('2bma:m51.VAL')
+        
         # Set FlyScan
         global_PVs['Fly_ScanDelta'] = PV('2bma:PSOFly2:scanDelta')
         global_PVs['Fly_StartPos'] = PV('2bma:PSOFly2:startPos')

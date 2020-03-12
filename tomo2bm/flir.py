@@ -396,7 +396,7 @@ def take_image(global_PVs, params):
     # Get the image loaded in memory
     img_vect = global_PVs['Cam1_Image'].get(count=image_size)
     img = np.reshape(img_vect,[nRow, nCol])
-
+    # img = np.frombuffer(img_vect['value'][0]['ubyteValue'], dtype=np.uint8)
     return img
 
 

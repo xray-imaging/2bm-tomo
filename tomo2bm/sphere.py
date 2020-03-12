@@ -93,11 +93,11 @@ def find_resolution(params):
             log.info('  *** moving X stage back to %f mm position' % (params.sample_in_position))
             aps2bm.move_sample_in(global_PVs, params)
 
-            shift = register_translation(sphere_0, sphere_1, 10)
+            shift = register_translation(sphere_0, sphere_1, 100)
 
-            log.info('  *** shift %f' % shift[0][1])
+            log.info('  *** shift X: %f, Y: %f' % (shift[0][1],shift[0][0]))
 
-            params.image_resolution =  abs(params.off_axis_position) / np.abs(shift[0][1]) * 1000.0
+            params.image_resolution =  abs(params.off_axis_position) / np.linalg.norm(shift[0]) * 1000.0
             
             config.update_sphere(params)
             aps2bm.image_resolution_pv_update(global_PVs, params)
@@ -165,11 +165,92 @@ def find_roll_and_rotation_axis_location(params):
         log.error('  *** Some PV assignment failed!')
         pass
 
+def find_sphere_rotation_center(params):
+    global_PVs = aps2bm.init_general_PVs(params)
+
+    params.file_name = None # so we don't run the flir._setup_hdf_writer 
+
+    try: 
+        detector_sn = global_PVs['Cam1_SerialNumber'].get()
+        if ((detector_sn == None) or (detector_sn == 'Unknown')):
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s is down' % params.camera_ioc_prefix)
+            log.info('  *** Failed!')
+        else:
+            log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
+                        % (params.camera_ioc_prefix, detector_sn))
+
+            flir.init(global_PVs, params)
+            flir.set(global_PVs, params) 
+
+            dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
+            for ang in [10,45]: 
+                log.info('  *** moving rotary stage to %f deg position' % float(0))
+                global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)            
+                log.info('  *** acquire sphere at %f deg position' % float(0))
+                # take 3 spehres
+                sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)    
+                global_PVs["Motor_SampleRot"].put(float(ang), wait=True, timeout=600.0)
+                sphere_1 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+                global_PVs["Motor_SampleRot"].put(float(2*ang), wait=True, timeout=600.0)
+                sphere_2 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+                # find shifts
+                shift0 = register_translation(sphere_1, sphere_0, 100)[0][1]
+                shift1 = register_translation(sphere_2, sphere_1, 100)[0][1]
+                a = ang*np.pi/180
+                # x=-(1/4) (d1+d2-2 d1 Cos[a]) Csc[a/2]^2,
+                x = -(1/4)*(shift0+shift1-2*shift0*np.cos(a))*1/np.sin(a/2)**2
+                # r = 1/2 Csc[a/2]^2 Csc[a] Sqrt[(d1^2+d2^2-2 d1 d2 Cos[a]) Sin[a/2]^2]
+                r = 1/2*1/np.sin(a/2)**2*1/np.sin(a)*np.sqrt(np.abs((shift0**2+shift1**2-2*shift0*shift1*np.cos(a))*np.sin(a/2)**2))
+                # g = ArcCos[((-d1-d2+2 d1 Cos[a]) Sin[a])/(2 Sqrt[(d1^2+d2^2-2 d1 d2 Cos[a]) Sin[a/2]^2])]
+                g = np.arccos(((-shift0-shift1+2*shift0*np.cos(a))*np.sin(a))/(2*np.sqrt(np.abs((shift0**2+shift1**2-2*shift0*shift1*np.cos(a))*np.sin(a/2)**2))))
+                y = r*np.sin(g)*np.sign(shift0) 
+                print("x,y,g,r",x,y,g,r)
+                cmass_0 = center_of_mass(sphere_0)
+                print(cmass_0)
+                print(global_PVs["Motor_Sample_Top_0"].get()+x*params.image_resolution/1000)
+                print(global_PVs["Motor_Sample_Top_90"].get()+y*params.image_resolution/1000)
+                print(global_PVs["Motor_SampleX"].get()-(cmass_0[1]-x-global_PVs['Cam1_SizeX'].get()/2)*params.image_resolution/1000)
+                global_PVs["Motor_Sample_Top_0"].put(global_PVs["Motor_Sample_Top_0"].get()+x*params.image_resolution/1000, wait=True, timeout=5.0)
+                global_PVs["Motor_Sample_Top_90"].put(global_PVs["Motor_Sample_Top_90"].get()+y*params.image_resolution/1000, wait=True, timeout=5.0)
+                global_PVs["Motor_SampleX"].put(global_PVs["Motor_SampleX"].get()-(cmass_0[1]-x-global_PVs['Cam1_SizeX'].get()/2)*params.image_resolution/1000)
+
+            # roll    
+            global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)    
+            global_PVs["Motor_Sample_Top_0"].put(global_PVs["Motor_Sample_Top_0"].get()+global_PVs['Cam1_SizeX'].get()/2*params.image_resolution/1000-0.27)
+            global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)    
+            sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)       
+            global_PVs["Motor_SampleRot"].put(float(180), wait=True, timeout=600.0)            
+            sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+            cmass_0 = center_of_mass(sphere_0)
+            cmass_180 = center_of_mass(sphere_180)          
+            params.roll = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0]) / (cmass_180[1] - cmass_0[1])))
+            global_PVs["Motor_Roll"].put(global_PVs["Motor_Roll"].get()+params.roll, wait=True, timeout=600.0)
+            # pitch
+            global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)    
+            global_PVs["Motor_Sample_Top_0"].put(global_PVs["Motor_Sample_Top_0"].get()-(global_PVs['Cam1_SizeX'].get()/2*params.image_resolution/1000-0.27), wait=True, timeout=600.0)
+            global_PVs["Motor_Sample_Top_90"].put(global_PVs["Motor_Sample_Top_90"].get()-1.0, wait=True, timeout=600.0)
+            sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)         
+            global_PVs["Motor_SampleRot"].put(float(180), wait=True, timeout=600.0)
+            sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+
+            cmass_0 = center_of_mass(sphere_0)            
+            cmass_180 = center_of_mass(sphere_180)                                    
+            params.pitch = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0])*params.image_resolution/1000 / 1.0))
+            global_PVs["Motor_Sample_Top_90"].put(global_PVs["Motor_Sample_Top_90"].get()+1.0, wait=True, timeout=600.0)
+            global_PVs["Motor_Pitch"].put(global_PVs["Motor_Pitch"].get()+params.pitch, wait=True, timeout=600.0)
+            log.info("  *** roll, pitch: %f %f" % (params.roll,params.pitch))
+
+
+            return x, y
+    except  KeyError:
+        log.error('  *** Some PV assignment failed!')
+        pass    		
+    
 
 def take_sphere_0_180(global_PVs, params):
 
 
-    dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
+    #dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
 
     log.info('  *** moving rotary stage to %f deg position' % float(params.sample_rotation_start))
     global_PVs["Motor_SampleRot"].put(float(params.sample_rotation_start), wait=True, timeout=600.0)
@@ -196,7 +277,7 @@ def center_of_mass(image):
     labeled_foreground = (image < threshold_value).astype(int)
     properties = regionprops(labeled_foreground, image)
     return properties[0].weighted_centroid
-    # return properties[0].centroid
+    #return properties[0].centroid
 
 
 def center_rotation_axis(global_PVs, params):

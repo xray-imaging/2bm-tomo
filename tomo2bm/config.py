@@ -322,7 +322,7 @@ SECTIONS['sphere'] = {
 
 SECTIONS['find'] = {
     'option': {
-        'choices': ['resolution', 'axis', 'roll', 'pitch'],
+        'choices': ['resolution', 'axis', 'roll', 'pitch', 'center'],
         'default': 'resolution',
         'type': str,
         'help': " "}

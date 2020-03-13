@@ -48,27 +48,27 @@ def run_scan(args):
         log.error('%s is not supported' % args.scan_type)
 
 
-def run_find(args):
-
-    if (args.option == 'axis') or (args.option == 'roll'):
-        log.warning('finding roll and rotation axis location')
-        args.rotation_axis_location, args.rotation_axis_roll = sphere.find_roll_and_rotation_axis_location(args)
-        if (args.rotation_axis_location or args.rotation_axis_roll) is None:
-            log.error('find returned None')
-        else:
-            log.warning('roll: %f' % args.rotation_axis_roll)
-            log.warning('rotation axis location %f pixel' % args.rotation_axis_location)
-    elif (args.option == 'resolution'):
-        log.warning('finding detector resolution')
-        args.image_resolution = sphere.find_resolution(args)
-        log.warning('detector resolution: %f micron/pixel' % args.image_resolution)
-    elif (args.option == 'pitch'):
-        log.warning('not implemented')
-    elif (args.option == 'center'):
-        log.warning('finding rotation center location')
-        xc, yc = sphere.find_sphere_rotation_center(args)
-        log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
-
+def run_adjust(args):    
+    if (args.resolution == 'True'):
+        log.warning('Find resolution')        
+    if (args.focus == 'True'):
+        log.warning('Adjust focus')        
+    if (args.center == 'True'):
+        log.warning('Adjust center')                
+    elif (args.roll == 'True'):
+        log.warning('Adjust center and roll')        
+        args.center = 'True'        
+    elif (args.pitch == 'True'):
+        log.warning('Adjust center and pitch')        
+        args.center = 'True'        
+    else:
+        log.warning('Adjust center, roll and pitch')        
+        args.center = 'True'
+        args.roll = 'True'          
+        args.pitch = 'True'          
+    sphere.adjust(args)        
+        #log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
+        
 
 def main():
 
@@ -84,7 +84,7 @@ def main():
         ('init',                 init,            (),                             "Create configuration file"),
         ('scan',                 run_scan,        scan_params,                    "Run tomographic scan"),
         ('status',               run_status,      scan_params,                    "Show the tomographic scan status"),
-        ('find',                 run_find,        sphere_params,                  "Find resolution/roll/pitch/rotation axis location. Use an alignment sphere"),
+        ('adjust',                run_adjust,       sphere_params,                  "Align center/roll/pitch location manually, or use auto to align everything. "),
     ]
 
     subparsers = parser.add_subparsers(title="Commands", metavar='')

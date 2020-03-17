@@ -34,24 +34,7 @@ import numexpr as ne
 
 global variableDict
 
-# variableDict = {
-#         'SampleXIn': 0, 
-#         'SampleXOut': 4,
-#         'SampleRotStart': 0.0,
-#         'SampleRotEnd': 180.0,
-#         'AxisLocation': 0.0,
-#         'Roll': 0.0,
-#         'ScanRange': 2,                     # for focus scan: relative motion in mm
-#         'NSteps': 20,                       # for focus scan 
-#         'StabilizeSleep_ms': 250,           # for focus scan 
-#         # ####################### DO NOT MODIFY THE PARAMETERS BELOW ###################################
-#         'CCD_Readout': 0.006,               # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-#         # 'CCD_Readout': 0.01,                # options: 1. 8bit: 0.006, 2. 16-bit: 0.01
-#         'Station': '2-BM-A',
-#         'ExposureTime': 0.1,                # to use this as default value comment the variableDict['ExposureTime'] = global_PVs['Cam1_AcquireTime'].get() line
-#         'IOC_Prefix': '2bmbSP1:',           # options: 1. PointGrey: '2bmbPG3:', 2. Gbe '2bmbSP1:' 
-#         'DetectorResolution': 1.0
-#         }
+
 def adjust(params):
     global_PVs = aps2bm.init_general_PVs(params)
 

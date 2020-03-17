@@ -396,8 +396,18 @@ def take_image(global_PVs, params):
     # Get the image loaded in memory
     img_vect = global_PVs['Cam1_Image'].get(count=image_size)
     img = np.reshape(img_vect,[nRow, nCol])
-    # img = np.frombuffer(img_vect['value'][0]['ubyteValue'], dtype=np.uint8)
-    return img
+
+    pixelFormat = global_PVs['Cam1PixelFormat_RBV'].get()
+    if (pixelFormat == "Mono16"):
+        pixel_f = 16
+    elif (pixelFormat == "Mono8"):
+        pixel_f = 8
+    else:
+        log.error('bit %s format not supported' % pixelFormat)
+        exit()
+    img_uint = np.mod(img, 2**pixel_f)
+
+    return img_uint
 
 
 def take_flat(global_PVs, params):

@@ -270,7 +270,7 @@ def adjust_focus(global_PVs, params):
             log.warning('  *** change direction and step to %f' % (step))
         cnt+=1
 
-log.warning('  *** Focusing done')
+    log.warning('  *** Focusing done')
 
     return
 

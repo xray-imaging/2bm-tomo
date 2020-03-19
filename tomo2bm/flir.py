@@ -397,7 +397,7 @@ def take_image(global_PVs, params):
     img_vect = global_PVs['Cam1_Image'].get(count=image_size)
     img = np.reshape(img_vect,[nRow, nCol])
 
-    pixelFormat = global_PVs['Cam1PixelFormat_RBV'].get()
+    pixelFormat = global_PVs['Cam1PixelFormat_RBV'].get(as_string=True)
     if (pixelFormat == "Mono16"):
         pixel_f = 16
     elif (pixelFormat == "Mono8"):

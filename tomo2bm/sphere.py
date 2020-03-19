@@ -243,36 +243,42 @@ def adjust_focus(global_PVs, params):
     
     vmax = 0
     optpos = 0
-    frange = np.arange(-1,1,0.1)
-    for delta in frange:
-        log.info('  *** Motor position: %s' % sample_pos)
+    step = 0.1
+    frange = np.arange(-1,1,step)
+    initpos = global_PVs['Motor_Focus'].get()
+    tmpa = np.zeros(len(frange))
+    for k in range(len(frange)):
         # for testing with out beam: comment focus motor motion
-        curpos = global_PVs['Motor_Focus'].get()+delta
+        curpos = initpos + frange[k]
         global_PVs['Motor_Focus'].put(curpos, wait=True, timeout=600.0)
         img = flir.take_image(global_PVs, params)        
-        tmp = numpy.std(img)
-        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,tmp))
-        if(tmp > vmax):
-            vmax = tmp
+        tmpa[k] = np.std(img)
+        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,tmpa[k]))
+        if(tmpa[k] > vmax):
+            vmax = tmpa[k]
             optpos = curpos
     if (optpos==0 or optpos==len(frange)-1):
         log.error('  *** focus not found')            
         return
-    log.warning('  *** change focus positon to %f', flopr(optpos))
-    global_PVs['Motor_Focus'].put(optpos, wait=True, timeout=600.0)            
+   # import matplotlib.pyplot as plt
+   # plt.plot(tmpa)
+   # plt.show()
+    log.warning('  *** move back')
+    log.info('  ***   *** Optimal std: %f ' % (vmax))
 
-
-    # # move the lens to the focal position:
-    # max_std = numpy.max(vector_std)
-    # focal_pos = vector_pos[numpy.where(vector_std == max_std)]
-    # Logger("log").info('  *** Highest standard deviation: ', str(max_std))
-    # Logger("log").info('  *** Move piezo to ', str(focal_pos))
-    # global_PVs[Motor_Focus].put(focal_pos, wait=True)
-
-    # # Post scan:
-    # close_shutters(global_PVs, params)
-    # time.sleep(2)
-    # pgInit(global_PVs, params)
+    frange = np.arange(0,3,step/2)
+    initpos = global_PVs['Motor_Focus'].get()
+    tmpa = np.zeros(len(frange))
+    for k in range(len(frange)):
+        # for testing with out beam: comment focus motor motion
+        curpos = initpos - frange[k]
+        global_PVs['Motor_Focus'].put(curpos, wait=True, timeout=600.0)
+        img = flir.take_image(global_PVs, params)        
+        tmpa[k] = np.std(img)
+        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,tmpa[k]))
+        if((vmax-tmpa[k])/vmax<0.0005):
+            log.info('  ***   *** Std for the chosen focus: %f, difference to the optimal: %f percent ' % (tmpa[k],(vmax-tmpa[k])/vmax))
+            break
     
     return
 

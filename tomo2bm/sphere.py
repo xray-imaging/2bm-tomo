@@ -236,50 +236,42 @@ def find_resolution(global_PVs, params, dark_field, white_field, angle_shift):
     image_resolution =  abs(params.off_axis_position) / np.linalg.norm(shift[0]) * 1000.0
     
     log.warning('  *** found resolution %f um/pixel' % (image_resolution))    
+    params.image_resolution = image_resolution
     config.update_sphere(params)
     aps2bm.image_resolution_pv_update(global_PVs, params)            
 
 def adjust_focus(global_PVs, params):
     
-    vmax = 0
-    optpos = 0
-    step = 0.1
-    frange = np.arange(-1,1,step)
-    initpos = global_PVs['Motor_Focus'].get()
-    tmpa = np.zeros(len(frange))
-    for k in range(len(frange)):
-        # for testing with out beam: comment focus motor motion
-        curpos = initpos + frange[k]
-        global_PVs['Motor_Focus'].put(curpos, wait=True, timeout=600.0)
-        img = flir.take_image(global_PVs, params)        
-        tmpa[k] = np.std(img)
-        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,tmpa[k]))
-        if(tmpa[k] > vmax):
-            vmax = tmpa[k]
-            optpos = curpos
-    if (optpos==0 or optpos==len(frange)-1):
-        log.error('  *** focus not found')            
-        return
-   # import matplotlib.pyplot as plt
-   # plt.plot(tmpa)
-   # plt.show()
-    log.warning('  *** move back')
-    log.info('  ***   *** Optimal std: %f ' % (vmax))
-
-    frange = np.arange(0,3,step/2)
-    initpos = global_PVs['Motor_Focus'].get()
-    tmpa = np.zeros(len(frange))
-    for k in range(len(frange)):
-        # for testing with out beam: comment focus motor motion
-        curpos = initpos - frange[k]
-        global_PVs['Motor_Focus'].put(curpos, wait=True, timeout=600.0)
-        img = flir.take_image(global_PVs, params)        
-        tmpa[k] = np.std(img)
-        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,tmpa[k]))
-        if((vmax-tmpa[k])/vmax<0.0005):
-            log.info('  ***   *** Std for the chosen focus: %f, difference to the optimal: %f percent ' % (tmpa[k],(vmax-tmpa[k])/vmax))
-            break
+    step = 1
     
+    direction = 1
+    max_std = 0
+    three_std = np.ones(3)*2**16
+    cnt = 0
+    decrease_step = False
+    while(step>0.01):
+        initpos = global_PVs['Motor_Focus'].get()
+        curpos = initpos + step*direction
+        global_PVs['Motor_Focus'].put(curpos, wait=True, timeout=600.0)
+        img = flir.take_image(global_PVs, params)        
+        cur_std = np.std(img)
+        log.info('  ***   *** Positon: %f Standard deviation: %f ' % (curpos,cur_std))
+        if(cur_std > max_std): # store max std
+            max_std = cur_std
+        three_std[np.mod(cnt,3)] = cur_std # store std for 3 last measurements 
+        if(np.sum(three_std<max_std)==3):# pass a peak
+            direction = -direction
+            if(decrease_step):# decrease focusing motor step
+                step/=2
+            else:#do not decrease step for the first direction change
+                decrease_step = True
+            three_std = np.ones(3)*2**16
+            max_std = 0
+            log.warning('  *** change direction and step to %f' % (step))
+        cnt+=1
+
+log.warning('  *** Focusing done')
+
     return
 
 

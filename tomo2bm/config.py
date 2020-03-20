@@ -33,7 +33,27 @@ SECTIONS['general'] = {
     'verbose': {
         'default': False,
         'help': 'Verbose output',
-        'action': 'store_true'}
+        'action': 'store_true'},
+    'center': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
+    'pitch': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
+    'roll': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
+    'focus': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
+    'resolution': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
         }
 
 SECTIONS['experiment-info'] = {
@@ -321,37 +341,38 @@ SECTIONS['sphere'] = {
     }
 
 
-SECTIONS['adjust'] = {
-    'center': {
-        'choices': ['True', 'False'],
-        'default': 'False',
-        'type': str,
-        'help': " "},
-    'pitch': {
-        'choices': ['True', 'False'],
-        'default': 'False',
-        'type': str,
-        'help': " "},
-    'roll': {
-        'choices': ['True', 'False'],
-        'default': 'False',
-        'type': str,
-        'help': " "},
-    'focus': {
-        'choices': ['True', 'False'],
-        'default': 'False',
-        'type': str,
-        'help': " "},
-    'resolution': {
-        'choices': ['True', 'False'],
-        'default': 'False',
-        'type': str,
-        'help': " "},    
-    }
+# SECTIONS['adjust'] = {
+#     'center': {
+#         'choices': ['True', 'False'],
+#         'default': 'False',
+#         'type': str,
+#         'help': " "},
+#     'pitch': {
+#         'choices': ['True', 'False'],
+#         'default': 'False',
+#         'type': str,
+#         'help': " "},
+#     'roll': {
+#         'choices': ['True', 'False'],
+#         'default': 'False',
+#         'type': str,
+#         'help': " "},
+#     'focus': {
+#         'choices': ['True', 'False'],
+#         'default': 'False',
+#         'type': str,
+#         'help': " "},
+#     'resolution': {
+#         'choices': ['True', 'False'],
+#         'default': 'False',
+#         'type': str,
+#         'help': " "},    
+#     }
 
 
 SCAN_PARAMS = ('experiment-info', 'detector', 'scintillator', 'hdf-plugin', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
-SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'adjust')
+# SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'adjust')
+SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere')
 
 NICE_NAMES = ('general', 'experiment info', 'detector', 'scintillator', 'hdf plugin', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 

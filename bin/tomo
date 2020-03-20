@@ -49,29 +49,23 @@ def run_scan(args):
 
 
 def run_adjust(args):    
-    if (args.resolution == 'True'):
+    if (args.resolution == True):
         log.warning('Find resolution')        
-    if (args.focus == 'True'):
+    if (args.focus == True):
         log.warning('Adjust focus')        
-    if (args.center == 'True'):
+    if (args.center == True):
         log.warning('Adjust center')                
-    if (args.roll == 'True'):
+    if (args.roll == True):
         log.warning('Adjust center and roll')        
-        args.center = 'True'        
-    if (args.pitch == 'True'):
+        args.center = True        
+    if (args.pitch == True):
         log.warning('Adjust center and pitch')        
-        args.center = 'True'        
+        args.center = True        
 
+    sphere.adjust(args)
+    # sphere.adjust_test(args)
 
-
-
-    # else:
-    #     log.warning('Adjust center, roll and pitch')        
-    #     args.center = 'True'
-    #     args.roll = 'True'          
-    #     args.pitch = 'True'          
-    sphere.adjust(args)        
-        #log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
+    #log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
         
 
 def main():

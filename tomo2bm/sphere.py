@@ -34,6 +34,13 @@ import numexpr as ne
 
 global variableDict
 
+def adjust_test(params):
+    print('center', params.center)
+    print('pitch', params.pitch)
+    print('roll', params.roll)
+    print('focus', params.focus)
+    print('resolution', params.resolution)
+    config.update_sphere(params)
 
 def adjust(params):
     global_PVs = aps2bm.init_general_PVs(params)
@@ -54,19 +61,21 @@ def adjust(params):
 
             dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
 
-            if (params.resolution=='True'):
+            if (params.resolution==True):
                 find_resolution(global_PVs,params, dark_field, white_field, angle_shift = -0.7)            
-            if (params.focus=='True'):
+            if (params.focus==True):
                 adjust_focus(global_PVs,params)
-            if (params.center=='True'):
+            if (params.center==True):
                 adjust_center(global_PVs,params, dark_field, white_field)
-            if(params.roll=='True'):
+            if(params.roll==True):
                 adjust_roll(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
-            if(params.pitch=='True'):                
+            if(params.pitch==True):                
                 adjust_pitch(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
-            if(params.roll=='True' or params.pitch=='True'):
+            if(params.roll==True or params.pitch==True):
                 # align center again for higher accuracy            
                 adjust_center(global_PVs,params, dark_field, white_field)
+
+            config.update_sphere(params)
 
     except  KeyError:
         log.error('  *** Some PV assignment failed!')
@@ -237,7 +246,7 @@ def find_resolution(global_PVs, params, dark_field, white_field, angle_shift):
     
     log.warning('  *** found resolution %f um/pixel' % (image_resolution))    
     params.image_resolution = image_resolution
-    config.update_sphere(params)
+
     aps2bm.image_resolution_pv_update(global_PVs, params)            
 
 def adjust_focus(global_PVs, params):

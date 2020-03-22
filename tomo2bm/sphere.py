@@ -88,6 +88,9 @@ def adjust(params):
 
 def adjust_center(global_PVs,params,dark_field,white_field):
 
+    print(params.verbose)
+    exit()
+
     log.warning(' *** Adjusting center ***')              
     for ang in [params.adjust_center_angle_1, params.adjust_center_angle_2]: 
         log.warning('  *** take 3 spheres angular %f deg ***' % float(ang))

@@ -63,45 +63,54 @@ def adjust(params):
 
             if (params.resolution==True):
                 find_resolution(global_PVs,params, dark_field, white_field, angle_shift = -0.7)            
-            if (params.focus==True):
-                adjust_focus(global_PVs,params)
-            if (params.center==True):
-                adjust_center(global_PVs,params, dark_field, white_field)
-            if(params.roll==True):
-                adjust_roll(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
-            if(params.pitch==True):                
-                adjust_pitch(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
-            if(params.roll==True or params.pitch==True):
-                # align center again for higher accuracy            
-                adjust_center(global_PVs,params, dark_field, white_field)
 
-            config.update_sphere(params)
+            if(params.image_resolution==None):
+                log.error('  *** Detector resolution is not determined. Please run tomo adjust --resolution first!')
+                exit()
+            else:
+                if (params.focus==True):
+                    adjust_focus(global_PVs,params)
+                if (params.center==True):
+                    adjust_center(global_PVs,params, dark_field, white_field)
+                if(params.roll==True):
+                    adjust_roll(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
+                if(params.pitch==True):                
+                    adjust_pitch(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
+                if(params.roll==True or params.pitch==True):
+                    # align center again for higher accuracy            
+                    adjust_center(global_PVs,params, dark_field, white_field)
+
+                config.update_sphere(params)
 
     except  KeyError:
         log.error('  *** Some PV assignment failed!')
         pass
 
 def adjust_center(global_PVs,params,dark_field,white_field):
+
     log.warning(' *** Adjusting center ***')              
-    for ang in [10,45]: 
-        log.info('  *** take 3 spheres with angular step %f deg ***' % float(ang))
+    for ang in [params.adjust_center_angle_1, params.adjust_center_angle_2]: 
+        log.warning('  *** take 3 spheres angular %f deg ***' % float(ang))
 
         #sphere 0
-        log.info('  *** moving rotary stage to %f deg position ***' % float(0))
+        log.info('  *** sphere 0')
+        log.info('  ***  *** moving rotary stage to %f deg position ***' % float(0))
         global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)            
-        log.info('  *** acquire sphere at %f deg position ***' % float(0))                                
+        log.error('  ***  *** acquire sphere at %f deg position ***' % float(0))                                
         sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)    
 
         #sphere 1
-        log.info('  *** moving rotary stage to %f deg position ***' % float(ang))                
+        log.info('  *** sphere 1')
+        log.info('  ***  *** moving rotary stage to %f deg position ***' % float(ang))                
         global_PVs["Motor_SampleRot"].put(float(ang), wait=True, timeout=600.0)
-        log.info('  *** acquire sphere at %f deg position ***' % float(ang))                                 
+        log.error('  ***  *** acquire sphere at %f deg position ***' % float(ang))                                 
         sphere_1 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
         
         #sphere 2
-        log.info('  *** moving rotary stage to %f deg position ***' % float(2*ang))                                
+        log.info('  *** sphere 2')
+        log.info('  ***  *** moving rotary stage to %f deg position ***' % float(2*ang))                                
         global_PVs["Motor_SampleRot"].put(float(2*ang), wait=True, timeout=600.0)
-        log.info('  *** acquire sphere at %f deg position ***' % float(2*ang))                                                 
+        log.error('  ***  *** acquire sphere at %f deg position ***' % float(2*ang))                                                 
         sphere_2 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
         # find shifts
@@ -118,7 +127,8 @@ def adjust_center(global_PVs,params,dark_field,white_field):
         
         # find center of mass
         cmass_0 = center_of_mass(sphere_0)
-        
+
+        log.info('  ')        
         log.info('  *** position of the initial sphere wrt to the rotation center (%f,%f) ***' % (x,y))
         log.info('  *** center of mass for the initial sphere (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
         log.info('  *** moving sphere to the position of the rotation center ***')
@@ -131,10 +141,10 @@ def adjust_center(global_PVs,params,dark_field,white_field):
         global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)            
         log.info('  *** acquire sphere at %f deg position ***' % float(0))                                
 
-        log.info('  *** TEST: acquire sphere at %f deg position ***' % float(0)) 
+        log.warning('  *** CHECK: acquire sphere at %f deg position ***' % float(0)) 
         sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
         cmass_0 = center_of_mass(sphere_0)
-        log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
+        log.warning('  *** CHECK: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
         
 def adjust_roll(global_PVs,params, dark_field, white_field,angle_shift):
 
@@ -287,7 +297,7 @@ def adjust_focus(global_PVs, params):
 def center_of_mass(image):
     
     threshold_value = filters.threshold_otsu(image)
-    log.info("  *** threshold_value: %f" % (threshold_value))
+    log.info("  ***  *** threshold_value: %f" % (threshold_value))
     labeled_foreground = (image < threshold_value).astype(int)
     properties = regionprops(labeled_foreground, image)
     return properties[0].weighted_centroid
@@ -318,7 +328,7 @@ def normalize(arr, flat, dark, cutoff=None, out=None):
     """
     arr = util.as_float32(arr)
     l = np.float32(1e-5)
-    log.info('  *** image size: [%d, %d]' % (flat.shape[0], flat.shape[1]))
+    log.info('  ***  *** image size: [%d, %d]' % (flat.shape[0], flat.shape[1]))
     # flat = np.mean(flat, axis=0, dtype=np.float32)
     # dark = np.mean(dark, axis=0, dtype=np.float32)
     flat = flat.astype('float32')
@@ -334,140 +344,3 @@ def normalize(arr, flat, dark, cutoff=None, out=None):
         cutoff = np.float32(cutoff)
         ne.evaluate('where(out>cutoff,cutoff,out)', out=out)
     return out
-
-# def main():
-#     home = os.path.expanduser("~")
-#     logs_home = home + '/logs/'
-#     # make sure logs directory exists
-#     if not os.path.exists(logs_home):
-#         os.makedirs(logs_home)
-
-#     lfname = logs_home + 'auto.log'
-#     # lfname = logs_home + datetime.strftime(datetime.now(), "%Y-%m-%d_%H:%M:%S") + '.log'
-#     log.setup_logger(lfname)
-
-#     # # create the top-level parser
-#     parser = argparse.ArgumentParser()
-#     parser.add_argument('--res', action="store_true", default=False, help='measure the image resolution (μm/pixel)')
-#     parser.add_argument('--axis', action="store_true", default=False, help='find the rotation axis location')
-#     parser.add_argument('--roll', action="store_true", default=False, help='measure the rotation axis roll')
-#     parser.add_argument('--pitch', action="store_true", default=False, help='measure the rotation axis pitch')
-#     parser.add_argument('--focus', action="store_true", default=False, help='focus the scintillator screen')
-
-#     args = parser.parse_args()
-
-#     aps2bm.update_variable_dict(variableDict)
-#     aps2bm.init_general_PVs(global_PVs, params)
-
-#     try:
-#         detector_sn = global_PVs['Cam1_SerialNumber'].get()
-#         if ((detector_sn == None) or (detector_sn == 'Unknown')):
-#             Logger("log").error('*** The Point Grey Camera with EPICS IOC prefix %s is down' % variableDict['IOC_Prefix'])
-#             Logger("log").error('  *** Failed!')
-#         else:
-#             log.info('*** The Point Grey Camera with EPICS IOC prefix %s and serial number %s is on' \
-#                 % (variableDict['IOC_Prefix'], detector_sn))
- 
-#             if args.res:
-#                 log.info('  *** measuring the image resolution (μm/pixel)')
-#                 variableDict['DetectorResolution'] = find_resolution(params)
-
-#             if args.axis:
-#                 log.info('  *** finding the rotation axis location')
-#                 variableDict['AxisLocation'], variableDict['Roll'] = find_roll_and_rotation_axis_location(params)
-#                 variableDict['DetectorResolution'] = find_resolution(params)
-#                 center_rotation_axis(global_PVs, params) 
-
-#             if args.roll:
-#                 log.info('  *** measuring the rotation axis roll')
-#                 log.warning('  *** not implemented')
-
-#             if args.pitch:
-#                 log.info('  *** measuring the rotation axis pitch')
-#                 log.warning('  *** not implemented')
-        
-#             if args.focus:
-#                 log.info('  *** focusing the scintillator screen')
-#                 log.warning('  *** not implemented')
-#                 # focus_scan(global_PVs, params)
-
-#         log.info('  *** moving rotary stage to 0 deg position')
-#         global_PVs["Motor_SampleRot"].put(0, wait=True, timeout=600.0)
-#         log.info('  *** Done!')
-
-#     except  KeyError:
-#         Logger("log").error('  *** Some PV assignment failed!')
-#         pass
-
-
-# if __name__ == '__main__':
-#     main()
-
-
-# def focus_scan(global_PVs, params):
-#     Logger("log").info(' ')
-
-#     def cleanup(signal, frame):
-#         stop_scan(global_PVs, params)
-#         sys.exit(0)
-#     signal.signal(signal.SIGINT, cleanup)
-
-#     if variableDict.has_key('StopTheScan'):
-#         stop_scan(global_PVs, params)
-#         return
-
-#     pgInit(global_PVs, params)
-#     pgSet(global_PVs, params) 
-#     open_shutters(global_PVs, params)
-
-#     Logger("log").info('  *** start focus scan')
-#     # Get the CCD parameters:
-#     nRow = global_PVs['Cam1_SizeY_RBV'].get()
-#     nCol = global_PVs['Cam1_SizeX_RBV'].get()
-#     image_size = nRow * nCol
-
-#     Motor_Name = global_PVs['Motor_Focus_Name'].get()
-#     Logger("log").info('  *** Scanning ' + Motor_Name)
-
-#     Motor_Start_Pos = global_PVs['Motor_Focus'].get() - float(variableDict['ScanRange']/2)
-#     Motor_End_Pos = global_PVs['Motor_Focus'].get() + float(variableDict['ScanRange']/2)
-#     vector_pos = numpy.linspace(Motor_Start_Pos, Motor_End_Pos, int(variableDict['NSteps']))
-#     vector_std = numpy.copy(vector_pos)
-
-#     global_PVs['Cam1_FrameType'].put(FrameTypeData, wait=True)
-#     global_PVs['Cam1_NumImages'].put(1, wait=True)
-#     global_PVs['Cam1_TriggerMode'].put('Off', wait=True)
-#     wait_time_sec = int(variableDict['ExposureTime']) + 5
-
-#     cnt = 0
-#     for sample_pos in vector_pos:
-#         Logger("log").info('  *** Motor position: %s' % sample_pos)
-#         # for testing with out beam: comment focus motor motion
-#         global_PVs['Motor_Focus'].put(sample_pos, wait=True)
-#         time.sleep(float(variableDict['StabilizeSleep_ms'])/1000)
-#         time.sleep(1)
-#         global_PVs['Cam1_Acquire'].put(DetectorAcquire, wait=True, timeout=1000.0)
-#         time.sleep(0.1)
-#         if wait_pv(global_PVs['Cam1_Acquire'], DetectorIdle, wait_time_sec) == False: # adjust wait time
-#             global_PVs['Cam1_Acquire'].put(DetectorIdle)
-        
-#         # Get the image loaded in memory
-#         img_vect = global_PVs['Cam1_Image'].get(count=image_size)
-#         #img = np.reshape(img_vect,[nRow, nCol])
-#         vector_std[cnt] = numpy.std(img_vect)
-#         Logger("log").info('  ***   *** Standard deviation: %s ' % str(vector_std[cnt]))
-#         cnt = cnt + 1
-
-#     # # move the lens to the focal position:
-#     # max_std = numpy.max(vector_std)
-#     # focal_pos = vector_pos[numpy.where(vector_std == max_std)]
-#     # Logger("log").info('  *** Highest standard deviation: ', str(max_std))
-#     # Logger("log").info('  *** Move piezo to ', str(focal_pos))
-#     # global_PVs[Motor_Focus].put(focal_pos, wait=True)
-
-#     # # Post scan:
-#     # close_shutters(global_PVs, params)
-#     # time.sleep(2)
-#     # pgInit(global_PVs, params)
-    
-#     return

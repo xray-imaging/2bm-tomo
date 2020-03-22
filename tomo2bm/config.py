@@ -341,38 +341,21 @@ SECTIONS['sphere'] = {
     }
 
 
-# SECTIONS['adjust'] = {
-#     'center': {
-#         'choices': ['True', 'False'],
-#         'default': 'False',
-#         'type': str,
-#         'help': " "},
-#     'pitch': {
-#         'choices': ['True', 'False'],
-#         'default': 'False',
-#         'type': str,
-#         'help': " "},
-#     'roll': {
-#         'choices': ['True', 'False'],
-#         'default': 'False',
-#         'type': str,
-#         'help': " "},
-#     'focus': {
-#         'choices': ['True', 'False'],
-#         'default': 'False',
-#         'type': str,
-#         'help': " "},
-#     'resolution': {
-#         'choices': ['True', 'False'],
-#         'default': 'False',
-#         'type': str,
-#         'help': " "},    
-#     }
+SECTIONS['adjust'] = {
+    'adjust-center-angle-1': {
+        'default': 10,
+        'type': float,
+        'help': "Adjust center first angle (deg)"},
+    'adjust-center-angle-2': {
+        'default': 45,
+        'type': float,
+        'help': "Adjust center second angle (deg)"},
+    }
 
 
 SCAN_PARAMS = ('experiment-info', 'detector', 'scintillator', 'hdf-plugin', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
-# SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'adjust')
-SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere')
+SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'adjust')
+# SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere')
 
 NICE_NAMES = ('general', 'experiment info', 'detector', 'scintillator', 'hdf plugin', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 

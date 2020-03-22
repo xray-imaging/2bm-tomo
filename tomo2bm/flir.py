@@ -376,7 +376,7 @@ def add_theta(global_PVs, params, theta_arr):
 
 def take_image(global_PVs, params):
 
-    log.info('  *** taking a single image')
+    log.info('  ***  *** taking a single image')
    
     nRow = global_PVs['Cam1_SizeY_RBV'].get()
     nCol = global_PVs['Cam1_SizeX_RBV'].get()
@@ -403,7 +403,7 @@ def take_image(global_PVs, params):
     elif (pixelFormat == "Mono8"):
         pixel_f = 8
     else:
-        log.error('bit %s format not supported' % pixelFormat)
+        log.error('  ***  *** bit %s format not supported' % pixelFormat)
         exit()
     img_uint = np.mod(img, 2**pixel_f)
 
@@ -412,13 +412,13 @@ def take_image(global_PVs, params):
 
 def take_flat(global_PVs, params):
 
-    log.info('  *** acquire white')
+    log.info('  ***  *** acquire white')
     return take_image(global_PVs, params)
 
 
 def take_dark(global_PVs, params):
     
-    log.info('  *** acquire dark')
+    log.info('  ***  *** acquire dark')
     return take_image(global_PVs, params)
 
 

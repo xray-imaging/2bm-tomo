@@ -63,8 +63,6 @@ from tomo2bm import __version__
 home = os.path.expanduser("~")
 LOGS_HOME = os.path.join(home, 'logs')
 CONFIG_FILE_NAME = os.path.join(home, 'tomo2bm.conf')
-# LOGS_HOME = os.path.join(str(pathlib.Path.home()), 'logs')
-# CONFIG_FILE_NAME = os.path.join(str(pathlib.Path.home()), 'tomo2bm.conf')
 
 SECTIONS = OrderedDict()
 
@@ -100,6 +98,10 @@ SECTIONS['general'] = {
         'help': ' ',
         'action': 'store_true'},
     'resolution': {
+        'default': False,
+        'help': ' ',
+        'action': 'store_true'},
+    'ask': {
         'default': False,
         'help': ' ',
         'action': 'store_true'},
@@ -158,8 +160,7 @@ SECTIONS['detector'] = {
         'choices': [0.006, 0.01],
         'default': 0.01,
         'type': float,
-        # 'help': "8bit: 0.006; 16-bit: 0.01"},
-        'help': " "},
+        'help': "8-bit: 0.006; 16-bit: 0.01"},
         }
 
 SECTIONS['scintillator'] = {
@@ -227,7 +228,6 @@ SECTIONS['sample'] = {
         'help': " "},
     }
 
-
 SECTIONS['sample-motion'] = {
     'sample-rotation-start': {
         'default': 0,
@@ -254,7 +254,6 @@ SECTIONS['sample-motion'] = {
         'action': 'store_true',
         'help': "True: to freeze sample motion during white field data collection"},
         }
-
 
 SECTIONS['scan'] = {
     'scan-counter': {
@@ -404,7 +403,6 @@ SECTIONS['adjust'] = {
 
 SCAN_PARAMS = ('experiment-info', 'detector', 'scintillator', 'hdf-plugin', 'file', 'beamline', 'sample', 'sample-motion', 'scan', 'furnace', 'file-transfer', 'stage-settings')
 SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere', 'adjust')
-# SPHERE_PARAMS = ('detector', 'file', 'beamline', 'sample-motion', 'furnace', 'sphere')
 
 NICE_NAMES = ('general', 'experiment info', 'detector', 'scintillator', 'hdf plugin', 'file', 'beam line', 'sample', 'sample motion', 'scan', 'furnace', 'file transfer', 'stage settings')
 
@@ -566,6 +564,4 @@ def update_config(args):
 def update_sphere(args):
        # update tomo2bm.conf
         sections = SPHERE_PARAMS
-        # if 'sphere' in  sections:
-        #     print("DDDDDDD")
         write(args.config, args=args, sections=sections)

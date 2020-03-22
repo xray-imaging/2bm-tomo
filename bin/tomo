@@ -112,9 +112,6 @@ def run_adjust(args):
         args.center = True        
 
     sphere.adjust(args)
-    # sphere.adjust_test(args)
-
-    #log.warning('[Xc, Yc] = [%f, %f] pixels' % (xc, yc))
         
 
 def main():

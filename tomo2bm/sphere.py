@@ -78,7 +78,6 @@ from skimage.measure import regionprops
 from skimage.feature import register_translation
 import numexpr as ne
 
-global variableDict
 
 def adjust_test(params):
     print('center', params.center)
@@ -89,6 +88,7 @@ def adjust_test(params):
     config.update_sphere(params)
 
 def adjust(params):
+
     global_PVs = aps2bm.init_general_PVs(params)
 
     params.file_name = None # so we don't run the flir._setup_hdf_writer 
@@ -108,23 +108,23 @@ def adjust(params):
             dark_field, white_field = flir.take_dark_and_white(global_PVs, params)
 
             if (params.resolution==True):
-                find_resolution(global_PVs,params, dark_field, white_field, angle_shift = -0.7)            
+                find_resolution(params, dark_field, white_field, angle_shift = -0.7)            
 
             if(params.image_resolution==None):
                 log.error('  *** Detector resolution is not determined. Please run tomo adjust --resolution first!')
                 exit()
             else:
                 if (params.focus==True):
-                    adjust_focus(global_PVs,params)
+                    adjust_focus(params)
                 if (params.center==True):
-                    adjust_center(global_PVs,params, dark_field, white_field)
+                    adjust_center(params, dark_field, white_field)
                 if(params.roll==True):
-                    adjust_roll(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
+                    adjust_roll(params, dark_field, white_field, angle_shift = -0.7)
                 if(params.pitch==True):                
-                    adjust_pitch(global_PVs,params, dark_field, white_field, angle_shift = -0.7)
+                    adjust_pitch(params, dark_field, white_field, angle_shift = -0.7)
                 if(params.roll==True or params.pitch==True):
                     # align center again for higher accuracy            
-                    adjust_center(global_PVs,params, dark_field, white_field)
+                    adjust_center(params, dark_field, white_field)
 
                 config.update_sphere(params)
 
@@ -132,7 +132,10 @@ def adjust(params):
         log.error('  *** Some PV assignment failed!')
         pass
 
-def adjust_center(global_PVs,params,dark_field,white_field):
+
+def adjust_center(params,dark_field,white_field):
+
+    global_PVs = aps2bm.init_general_PVs(params)
 
     log.warning(' *** Adjusting center ***')              
     for ang in [params.adjust_center_angle_1, params.adjust_center_angle_2]: 
@@ -191,11 +194,14 @@ def adjust_center(global_PVs,params,dark_field,white_field):
         sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
         cmass_0 = center_of_mass(sphere_0)
         log.warning('  *** CHECK: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
-        
-def adjust_roll(global_PVs,params, dark_field, white_field, angle_shift):
+
+ 
+def adjust_roll(params, dark_field, white_field, angle_shift):
 
     # angle_shift is the correction that is needed to apply to the rotation axis position
     # to align the Z stage on top of the rotary stage with the beam
+
+    global_PVs = aps2bm.init_general_PVs(params)
 
     log.warning(' *** Adjusting roll ***')
     log.info('  *** moving rotary stage to %f deg position ***' % float(0+angle_shift))                                                
@@ -246,7 +252,9 @@ def adjust_roll(global_PVs,params, dark_field, white_field, angle_shift):
     cmass_0 = center_of_mass(sphere_0)
     log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
 
-def adjust_pitch(global_PVs,params, dark_field, white_field,angle_shift):
+def adjust_pitch(params, dark_field, white_field,angle_shift):
+
+    global_PVs = aps2bm.init_general_PVs(params)
     
     log.warning(' *** Adjusting pitch ***')              
     log.info('  *** acquire sphere after moving it along the beam axis by 1mm ***')             
@@ -280,7 +288,9 @@ def adjust_pitch(global_PVs,params, dark_field, white_field,angle_shift):
     log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))            
 
 
-def find_resolution(global_PVs, params, dark_field, white_field, angle_shift):
+def find_resolution(params, dark_field, white_field, angle_shift):
+
+    global_PVs = aps2bm.init_general_PVs(params)
 
     log.warning(' *** Find resolution ***')
     log.info('  *** moving rotary stage to %f deg position ***' % float(0+angle_shift))                                                            
@@ -308,8 +318,10 @@ def find_resolution(global_PVs, params, dark_field, white_field, angle_shift):
 
     aps2bm.image_resolution_pv_update(global_PVs, params)            
 
-def adjust_focus(global_PVs, params):
+def adjust_focus(params):
     
+    global_PVs = aps2bm.init_general_PVs(params)
+
     step = 1
     
     direction = 1
@@ -351,6 +363,7 @@ def center_of_mass(image):
     properties = regionprops(labeled_foreground, image)
     return properties[0].weighted_centroid
     #return properties[0].centroid
+
 
 def normalize(arr, flat, dark, cutoff=None, out=None):
     """

@@ -50,7 +50,6 @@ Module for sphere alignment.
 import sys
 import json
 import time
-from epics import PV
 import h5py
 import shutil
 import os
@@ -58,9 +57,15 @@ import argparse
 
 import traceback
 import numpy as np
-from datetime import datetime
 import pathlib
 import signal
+
+import matplotlib.pylab as pl
+import matplotlib.widgets as wdg
+
+from epics import PV
+from skimage.feature import register_translation
+from datetime import datetime
 
 from tomo2bm import log
 from tomo2bm import flir
@@ -68,24 +73,6 @@ from tomo2bm import aps2bm
 from tomo2bm import config
 from tomo2bm import util
 
-import matplotlib.pylab as pl
-import matplotlib.widgets as wdg
-
-
-from skimage import filters
-from skimage.color import rgb2gray  # only needed for incorrectly saved images
-from skimage.measure import regionprops
-from skimage.feature import register_translation
-import numexpr as ne
-
-
-def adjust_test(params):
-    print('center', params.center)
-    print('pitch', params.pitch)
-    print('roll', params.roll)
-    print('focus', params.focus)
-    print('resolution', params.resolution)
-    config.update_sphere(params)
 
 def adjust(params):
 
@@ -146,21 +133,21 @@ def adjust_center(params,dark_field,white_field):
         log.info('  ***  *** moving rotary stage to %f deg position ***' % float(0))
         global_PVs["Motor_SampleRot"].put(float(0), wait=True, timeout=600.0)            
         log.error('  ***  *** acquire sphere at %f deg position ***' % float(0))                                
-        sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)    
+        sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)    
 
         #sphere 1
         log.info('  *** sphere 1')
         log.info('  ***  *** moving rotary stage to %f deg position ***' % float(ang))                
         global_PVs["Motor_SampleRot"].put(float(ang), wait=True, timeout=600.0)
         log.error('  ***  *** acquire sphere at %f deg position ***' % float(ang))                                 
-        sphere_1 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+        sphere_1 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
         
         #sphere 2
         log.info('  *** sphere 2')
         log.info('  ***  *** moving rotary stage to %f deg position ***' % float(2*ang))                                
         global_PVs["Motor_SampleRot"].put(float(2*ang), wait=True, timeout=600.0)
         log.error('  ***  *** acquire sphere at %f deg position ***' % float(2*ang))                                                 
-        sphere_2 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+        sphere_2 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
         # find shifts
         shift0 = register_translation(sphere_1, sphere_0, 100)[0][1]
@@ -175,7 +162,7 @@ def adjust_center(params,dark_field,white_field):
         y = r*np.sin(g)*np.sign(shift0) 
         
         # find center of mass
-        cmass_0 = center_of_mass(sphere_0)
+        cmass_0 = util.center_of_mass(sphere_0)
 
         log.info('  ')        
         log.info('  *** position of the initial sphere wrt to the rotation center (%f,%f) ***' % (x,y))
@@ -191,8 +178,8 @@ def adjust_center(params,dark_field,white_field):
         log.info('  *** acquire sphere at %f deg position ***' % float(0))                                
 
         log.warning('  *** CHECK: acquire sphere at %f deg position ***' % float(0)) 
-        sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
-        cmass_0 = center_of_mass(sphere_0)
+        sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
+        cmass_0 = util.center_of_mass(sphere_0)
         log.warning('  *** CHECK: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
 
  
@@ -209,14 +196,14 @@ def adjust_roll(params, dark_field, white_field, angle_shift):
     log.info('  *** moving sphere to the detector border ***')                                                
     global_PVs["Motor_Sample_Top_0"].put(global_PVs["Motor_Sample_Top_0"].get()+global_PVs['Cam1_SizeX'].get()/2*params.image_resolution/1000-0.27, wait=True, timeout=600.0)
     log.info('  *** acquire sphere at %f deg position ***' % float(0+angle_shift)) 
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)       
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)       
     log.info('  *** moving rotary stage to %f deg position ***' % float(180+angle_shift))                                                            
     global_PVs["Motor_SampleRot"].put(float(180+angle_shift), wait=True, timeout=600.0)            
     log.info('  *** acquire sphere at %f deg position ***' % float(180+angle_shift)) 
-    sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+    sphere_180 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
-    cmass_0 = center_of_mass(sphere_0)
-    cmass_180 = center_of_mass(sphere_180)          
+    cmass_0 = util.center_of_mass(sphere_0)
+    cmass_180 = util.center_of_mass(sphere_180)          
     log.info('  *** center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
     log.info('  *** center of mass for the sphere at 180 deg (%f,%f) ***' % (cmass_180[1],cmass_180[0]))
   
@@ -231,12 +218,12 @@ def adjust_roll(params, dark_field, white_field, angle_shift):
     
     log.info('  *** find shifts resulting by the roll change ***')                                                            
     log.info('  *** acquire sphere at the current roll position ***')             
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)           
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)           
 
     ang = roll/2 # if roll is too big then ang should be decreased to keep the sphere in the field of view
     log.info('  *** acquire sphere after testing roll change %f ***' % float(global_PVs["Motor_Roll"].get()+ang))                                     
     global_PVs["Motor_Roll"].put(global_PVs["Motor_Roll"].get()+ang, wait=True, timeout=600.0)
-    sphere_1 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+    sphere_1 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
     shift0 = register_translation(sphere_1, sphere_0, 100)[0][1]            
     shift1 = shift0*np.sin(roll)*(np.cos(roll)*1/np.tan(ang)+np.sin(roll))
@@ -248,8 +235,8 @@ def adjust_roll(params, dark_field, white_field, angle_shift):
     
 
     log.info('  *** TEST: acquire sphere at %f deg position ***' % float(0+angle_shift)) 
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
-    cmass_0 = center_of_mass(sphere_0)
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
+    cmass_0 = util.center_of_mass(sphere_0)
     log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
 
 def adjust_pitch(params, dark_field, white_field,angle_shift):
@@ -263,15 +250,15 @@ def adjust_pitch(params, dark_field, white_field,angle_shift):
     log.info('  *** moving rotary stage to %f deg position ***' % float(0+angle_shift))                                                            
     global_PVs["Motor_SampleRot"].put(float(0+angle_shift), wait=True, timeout=600.0)                
     log.info('  *** acquire sphere at %f deg position ***' % float(0+angle_shift))             
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)         
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)         
 
     log.info('  *** moving rotary stage to %f deg position ***' % float(0+angle_shift))                                                            
     global_PVs["Motor_SampleRot"].put(float(180+angle_shift), wait=True, timeout=600.0)            
     log.info('  *** acquire sphere at %f deg position ***' % float(180+angle_shift))             
-    sphere_180 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+    sphere_180 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
-    cmass_0 = center_of_mass(sphere_0)            
-    cmass_180 = center_of_mass(sphere_180)   
+    cmass_0 = util.center_of_mass(sphere_0)            
+    cmass_180 = util.center_of_mass(sphere_180)   
     log.info('  *** center of mass for the initial sphere (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
     log.info('  *** center of mass for the shifted sphere (%f,%f) ***' % (cmass_180[1],cmass_180[0]))                                 
     pitch = np.rad2deg(np.arctan((cmass_180[0] - cmass_0[0])*params.image_resolution/1000 / 2.0))
@@ -283,8 +270,8 @@ def adjust_pitch(params, dark_field, white_field,angle_shift):
     global_PVs["Motor_SampleRot"].put(float(0+angle_shift), wait=True, timeout=600.0)    
     
     log.info('  *** TEST: acquire sphere at %f deg position ***' % float(0+angle_shift)) 
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
-    cmass_0 = center_of_mass(sphere_0)
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)                   
+    cmass_0 = util.center_of_mass(sphere_0)
     log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))            
 
 
@@ -298,13 +285,13 @@ def find_resolution(params, dark_field, white_field, angle_shift):
     log.info('  *** First image at X: %f mm' % (params.sample_in_position))
     log.info('  *** acquire first image')
 
-    sphere_0 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+    sphere_0 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
     second_image_x_position = params.sample_in_position + params.off_axis_position
     log.info('  *** Second image at X: %f mm' % (second_image_x_position))
     global_PVs["Motor_SampleX"].put(second_image_x_position, wait=True, timeout=600.0)
     log.info('  *** acquire second image')
-    sphere_1 = normalize(flir.take_image(global_PVs, params), white_field, dark_field)
+    sphere_1 = util.normalize(flir.take_image(global_PVs, params), white_field, dark_field)
 
     log.info('  *** moving X stage back to %f mm position' % (params.sample_in_position))
     aps2bm.move_sample_in(global_PVs, params)
@@ -354,55 +341,3 @@ def adjust_focus(params):
 
     return
 
-
-def center_of_mass(image):
-    
-    threshold_value = filters.threshold_otsu(image)
-    log.info("  ***  *** threshold_value: %f" % (threshold_value))
-    labeled_foreground = (image < threshold_value).astype(int)
-    properties = regionprops(labeled_foreground, image)
-    return properties[0].weighted_centroid
-    #return properties[0].centroid
-
-
-def normalize(arr, flat, dark, cutoff=None, out=None):
-    """
-    Normalize raw projection data using the flat and dark field projections.
-
-    Parameters
-    ----------
-    arr : ndarray
-        2D of projections.
-    flat : ndarray
-        2D flat field data.
-    dark : ndarray
-        2D dark field data.
-    cutoff : float, optional
-        Permitted maximum vaue for the normalized data.
-    out : ndarray, optional
-        Output array for result. If same as arr,
-        process will be done in-place.
-
-    Returns
-    -------
-    ndarray
-        Normalized 2D tomographic data.
-    """
-    arr = util.as_float32(arr)
-    l = np.float32(1e-5)
-    log.info('  ***  *** image size: [%d, %d]' % (flat.shape[0], flat.shape[1]))
-    # flat = np.mean(flat, axis=0, dtype=np.float32)
-    # dark = np.mean(dark, axis=0, dtype=np.float32)
-    flat = flat.astype('float32')
-    dark = dark.astype('float32')
-
-    denom = ne.evaluate('flat')
-    # denom = ne.evaluate('flat-dark')
-    ne.evaluate('where(denom<l,l,denom)', out=denom)
-    out = ne.evaluate('arr', out=out)
-    # out = ne.evaluate('arr-dark', out=out)
-    ne.evaluate('out/denom', out=out, truediv=True)
-    if cutoff is not None:
-        cutoff = np.float32(cutoff)
-        ne.evaluate('where(out>cutoff,cutoff,out)', out=out)
-    return out

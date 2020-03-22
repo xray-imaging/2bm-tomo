@@ -47,10 +47,67 @@
 Utility module.
 """
 
+import numexpr as ne
 import argparse
 import numpy as np
 
+from skimage import filters
+from skimage.measure import regionprops
+
 from tomo2bm import log
+
+
+def center_of_mass(image):
+    
+    threshold_value = filters.threshold_otsu(image)
+    log.info("  ***  *** threshold_value: %f" % (threshold_value))
+    labeled_foreground = (image < threshold_value).astype(int)
+    properties = regionprops(labeled_foreground, image)
+    return properties[0].weighted_centroid
+    #return properties[0].centroid
+
+
+def normalize(arr, flat, dark, cutoff=None, out=None):
+    """
+    Normalize raw projection data using the flat and dark field projections.
+
+    Parameters
+    ----------
+    arr : ndarray
+        2D of projections.
+    flat : ndarray
+        2D flat field data.
+    dark : ndarray
+        2D dark field data.
+    cutoff : float, optional
+        Permitted maximum vaue for the normalized data.
+    out : ndarray, optional
+        Output array for result. If same as arr,
+        process will be done in-place.
+
+    Returns
+    -------
+    ndarray
+        Normalized 2D tomographic data.
+    """
+    arr = as_float32(arr)
+    l = np.float32(1e-5)
+    log.info('  ***  *** image size: [%d, %d]' % (flat.shape[0], flat.shape[1]))
+    # flat = np.mean(flat, axis=0, dtype=np.float32)
+    # dark = np.mean(dark, axis=0, dtype=np.float32)
+    flat = flat.astype('float32')
+    dark = dark.astype('float32')
+
+    denom = ne.evaluate('flat')
+    # denom = ne.evaluate('flat-dark')
+    ne.evaluate('where(denom<l,l,denom)', out=denom)
+    out = ne.evaluate('arr', out=out)
+    # out = ne.evaluate('arr-dark', out=out)
+    ne.evaluate('out/denom', out=out, truediv=True)
+    if cutoff is not None:
+        cutoff = np.float32(cutoff)
+        ne.evaluate('where(out>cutoff,cutoff,out)', out=out)
+    return out
 
 
 def yes_or_no(question):

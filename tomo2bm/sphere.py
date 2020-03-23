@@ -122,7 +122,7 @@ def adjust(params):
         pass
 
 
-def adjust_center(params,dark_field,white_field):
+def adjust_center(params, dark_field, white_field):
 
     global_PVs = aps2bm.init_general_PVs(params)
 
@@ -266,7 +266,8 @@ def adjust_roll(params, dark_field, white_field, angle_shift):
     cmass_0 = util.center_of_mass(sphere_0)
     log.info('  *** TEST: center of mass for the sphere at 0 deg (%f,%f) ***' % (cmass_0[1],cmass_0[0]))
 
-def adjust_pitch(params, dark_field, white_field,angle_shift):
+
+def adjust_pitch(params, dark_field, white_field, angle_shift):
 
     global_PVs = aps2bm.init_general_PVs(params)
     
@@ -331,6 +332,7 @@ def find_resolution(params, dark_field, white_field, angle_shift):
     params.image_resolution = image_resolution
 
     aps2bm.image_resolution_pv_update(global_PVs, params)            
+
 
 def adjust_focus(params):
     

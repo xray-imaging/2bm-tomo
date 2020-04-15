@@ -2,7 +2,7 @@
 2bm-tomo
 ========
 
-**tomo** is commad-line-interface for running tomographic scans at beamline `beamline 2bm <https://2bm-docs.readthedocs.io>`_ of the `Advanced Photon Source <https://www.aps.anl.gov/>`_
+**tomo** is commad-line-interface for running tomographic scans at beamline `beamline 2bm <https://docs2bm.readthedocs.io>`_ of the `Advanced Photon Source <https://www.aps.anl.gov/>`_
 
 
 Installation

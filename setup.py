@@ -17,11 +17,11 @@ setup(
     #version=__version__,
     author='Francesco De Carlo',
     author_email='decarlof@gmail.com',
-    url='https://github.com/decarlof/2bm-tomo',
+    url='https://github.com/xray-imaging/2bm-tomo.git',
     packages=find_packages(),
     include_package_data = True,
     scripts=['bin/tomo'],
-    description='cli to run tomo scans at 2-bm',
+    description='cli to run tomo scans at 2-BM',
     zip_safe=False,
     cmdclass={'install': PostInstallCommand},
 )
